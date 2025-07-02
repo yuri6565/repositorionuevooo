@@ -4,6 +4,8 @@
  */
 package vista.Produccion;
 
+import java.awt.Frame;
+
 /**
  *
  * @author EQUIPO
@@ -13,7 +15,7 @@ public class Error_eliminar extends javax.swing.JDialog {
     /**
      * Creates new form Error_eliminar
      */
-    public Error_eliminar(java.awt.Frame parent, boolean modal) {
+    public Error_eliminar(Frame parent, boolean modal, String error, String seleccione_una_etapa_para_eliminar, String warningtrianglesignfreevectorremovebgprev) {
         super(parent, modal);
         initComponents();
     }
@@ -70,8 +72,8 @@ public class Error_eliminar extends javax.swing.JDialog {
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel2.setText("Error al guardar los datos intenta en otro momento ");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, -1, -1));
+        jLabel2.setText("Seleccione minimo un dato para eliminar");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 110, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -121,11 +123,15 @@ public class Error_eliminar extends javax.swing.JDialog {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Error_eliminar dialog = new Error_eliminar(new javax.swing.JFrame(), true);
+                Error_eliminar dialog = new Error_eliminar(new javax.swing.JFrame(), true, "Error", "Seleccione una etapa para eliminar", "/warning-triangle-sign-free-vector-removebg-preview.png");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

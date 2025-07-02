@@ -17,29 +17,35 @@ import vista.TemaManager;
 public class DetalleProduProducto extends javax.swing.JPanel {
 
     private final int idProduccion;
-
+private final String nombre; 
+    private final String fechaInicio; 
+    private final String fechaFin; 
+    private final String estado; 
+    private final String cantidad; 
+    private final String dimensiones; 
+    private final String cliente;
     /**
      * Creates new form DetallePdroduProducto
      */
     public DetalleProduProducto(int idProduccion, String nombre, String fechaInicio,
-            String fechaFin, String estado, String cantidad, String dimensiones) {
+            String fechaFin, String estado, String cantidad, String dimensiones, String cliente) {
         System.out.println("ID recibido en constructor: " + idProduccion);
         this.idProduccion = idProduccion;
+        this.nombre = nombre;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.estado = estado;
+        this.cantidad = cantidad;
+        this.dimensiones = dimensiones;
+        this.cliente = cliente;
         initComponents();
         aplicarTema();
-
         DetallePedido detallePanel = new DetallePedido(
-                idProduccion,
-                nombre,
-                fechaInicio,
-                fechaFin,
-                estado,
-                String.valueOf(cantidad),
-                dimensiones
+                idProduccion, nombre, fechaInicio, fechaFin, estado, cantidad, dimensiones, this.cliente
         );
         mostrarPanelSecundario(detallePanel);
         TemaManager.getInstance().addThemeChangeListener(() -> {
-            aplicarTema(); // Update theme when it changes
+            aplicarTema();
         });
     }
 
@@ -195,9 +201,18 @@ public class DetalleProduProducto extends javax.swing.JPanel {
     }//GEN-LAST:event_btnEtapaActionPerformed
 
     private void btndetalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndetalleActionPerformed
-        DetallePedido pedido = new DetallePedido(this.idProduccion);
+        // Usar los datos almacenados en los campos
+        DetallePedido pedido = new DetallePedido(
+                this.idProduccion,
+                this.nombre,
+                this.fechaInicio,
+                this.fechaFin,
+                this.estado,
+                this.cantidad,
+                this.dimensiones,
+                this.cliente
+        );
         mostrarPanelSecundario(pedido);
-
     }//GEN-LAST:event_btndetalleActionPerformed
     private void mostrarPanelSecundario(JPanel panel) {
         panel.setSize(1250, 690);

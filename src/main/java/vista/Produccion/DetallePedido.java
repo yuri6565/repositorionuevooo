@@ -34,25 +34,20 @@ public class DetallePedido extends javax.swing.JPanel {
     private int idProduccion;
 
     // Constructor completo
-    public DetallePedido(int idProduccion, String nombre, String fechaInicio,
-            String fechaFin, String estado, String cantidad, String dimensiones) {
+    public DetallePedido(int idProduccion, String nombre, String fechaInicio, String fechaFin, String estado, String cantidad, String dimensiones, String cliente) {
         this.idProduccion = idProduccion;
         initComponents();
         aplicarTema();
-
-        // Asignar valores directamente
         this.nombre.setText(nombre != null ? nombre : "");
         this.fecha_ini.setText(fechaInicio != null ? fechaInicio : "");
         this.fecha_fin.setText(fechaFin != null ? fechaFin : "");
         this.estado.setText(estado != null ? estado : "");
         this.cantidad.setText(cantidad != null ? cantidad : "0");
         this.dimensiones.setText(dimensiones != null ? dimensiones : "");
-
-        // Configurar tabla
+        this.cleinteeee.setText(cliente !=null ? cliente : "Sin cliente");
         configurarTabla();
         cargarTablaEtapa();
         cargarDatosPedido();
-
         TemaManager.getInstance().addThemeChangeListener(() -> {
             aplicarTema();
         });
@@ -78,7 +73,9 @@ public class DetallePedido extends javax.swing.JPanel {
             // Aplicar a labels
             // Aplicar color de texto a todos los labels
             jLabel1.setForeground(texto);
-            jLabel5.setForeground(texto);
+            jLabel2.setForeground(texto);
+            jLabel6.setForeground(texto);
+            cleinteeee.setForeground(texto);
             jLabel9.setForeground(texto);
             jLabel11.setForeground(texto);
             jLabel12.setForeground(texto);
@@ -124,12 +121,14 @@ public class DetallePedido extends javax.swing.JPanel {
 
             // Aplicar a labels
             jLabel1.setForeground(texto);
-            jLabel5.setForeground(texto);
+            cleinteeee.setForeground(texto);
             jLabel9.setForeground(texto);
             jLabel11.setForeground(texto);
             jLabel12.setForeground(texto);
             jLabel13.setForeground(texto);
             jLabel15.setForeground(texto);
+            jLabel2.setForeground(texto);
+            jLabel6.setForeground(texto);
 
             // Aplicar a labels de datos
             nombre.setForeground(texto);
@@ -209,11 +208,14 @@ public class DetallePedido extends javax.swing.JPanel {
     }
 
     private void cargarDatosPedido() {
-        try (Connection con = new Conexion().getConnection()) {
+        try (Connection con = Conexion.getConnection()) {
             String sql = "SELECT dp.descripcion, p.fecha_inicio, p.fecha_fin, p.estado, "
-                    + "dp.cantidad, dp.dimension "
+                    + "dp.cantidad, dp.dimension, "
+                    + "CONCAT(c.nombre, ' ', c.apellido) AS nombre_cliente "
                     + "FROM produccion p "
                     + "JOIN detalle_pedido dp ON p.detalle_pedido_iddetalle_pedido = dp.iddetalle_pedido "
+                    + "JOIN pedido ped ON dp.pedido_id_pedido = ped.id_pedido "
+                    + "LEFT JOIN cliente c ON ped.cliente_codigo = c.codigo "
                     + "WHERE p.id_produccion = ?";
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -231,6 +233,8 @@ public class DetallePedido extends javax.swing.JPanel {
                         estado.setText(rs.getString("estado"));
                         cantidad.setText(String.valueOf(rs.getInt("cantidad")));
                         dimensiones.setText(rs.getString("dimension"));
+                        cleinteeee.setText(rs.getString("nombre_cliente") != null
+                                ? rs.getString("nombre_cliente") : "Sin cliente");
                     }
                 }
             }
@@ -238,7 +242,7 @@ public class DetallePedido extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this,
                     "Error al cargar datos del pedido: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Para debug
+            e.printStackTrace();
         }
     }
 
@@ -273,7 +277,7 @@ public class DetallePedido extends javax.swing.JPanel {
                         case "proceso":
                             label.setBackground(new Color(251, 139, 36)); // Amarillo oscuro
                             break;
-                        case "finalizado":
+                        case "completado":
                             label.setBackground(new Color(31, 123, 21)); // Verde oscuro
                             break;
                         default:
@@ -288,7 +292,7 @@ public class DetallePedido extends javax.swing.JPanel {
                         case "proceso":
                             label.setBackground(new Color(255, 255, 153)); // Amarillo claro
                             break;
-                        case "finalizado":
+                        case "completado":
                             label.setBackground(new Color(204, 255, 204)); // Verde claro
                             break;
                         default:
@@ -324,26 +328,28 @@ public class DetallePedido extends javax.swing.JPanel {
         nombre = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        cleinteeee = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         Tabla1 = new RSMaterialComponent.RSTableMetroCustom();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         jPanel2.setBackground(new java.awt.Color(242, 247, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setText("Nombre:");
-        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
+        jLabel1.setText("Cliente:");
+        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, -1, -1));
 
         fecha_ini.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         fecha_ini.setText("fecha_ini");
-        jPanel2.add(fecha_ini, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, -1, -1));
+        jPanel2.add(fecha_ini, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 120, -1, -1));
 
         fecha_fin.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         fecha_fin.setText("fecha_fin");
-        jPanel2.add(fecha_fin, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, -1, -1));
+        jPanel2.add(fecha_fin, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 120, -1, -1));
 
         cantidad.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         cantidad.setText("cantidad");
@@ -351,7 +357,7 @@ public class DetallePedido extends javax.swing.JPanel {
 
         dimensiones.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         dimensiones.setText("dimensiones");
-        jPanel2.add(dimensiones, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 130, -1, -1));
+        jPanel2.add(dimensiones, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 120, -1, -1));
 
         estado.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         estado.setText("estado");
@@ -382,15 +388,15 @@ public class DetallePedido extends javax.swing.JPanel {
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel11.setText("Fecha de fin:");
-        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, -1, -1));
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 120, -1, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel12.setText("Dimensiones:");
-        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, -1, -1));
+        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 120, -1, -1));
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel5.setText("Cantidad:");
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, -1, -1));
+        cleinteeee.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cleinteeee.setText("cliente");
+        jPanel2.add(cleinteeee, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 80, -1, -1));
 
         jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel13.setText("Estado:");
@@ -398,7 +404,7 @@ public class DetallePedido extends javax.swing.JPanel {
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel15.setText("Fecha de inicio: ");
-        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, -1, -1));
+        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, -1));
 
         Tabla1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -445,6 +451,14 @@ public class DetallePedido extends javax.swing.JPanel {
 
         jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 1100, 190));
 
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel2.setText("Nombre:");
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel6.setText("Cantidad:");
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, -1, -1));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -464,6 +478,7 @@ public class DetallePedido extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
     private javax.swing.JLabel cantidad;
+    private javax.swing.JLabel cleinteeee;
     private javax.swing.JLabel dimensiones;
     private javax.swing.JLabel estado;
     private javax.swing.JLabel fecha_fin;
@@ -473,7 +488,8 @@ public class DetallePedido extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

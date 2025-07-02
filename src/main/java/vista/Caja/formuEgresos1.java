@@ -51,10 +51,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import vista.Inventario0.herramientasNuevo;
+import vista.Produccion.Datos_guardados;
 import vista.proveedor.proveedornuevo;
 
 /**
@@ -86,6 +89,7 @@ public class formuEgresos1 extends javax.swing.JDialog {
         cmbHerramientas.setVisible(false);
         cmbMateriales.setVisible(false);
         getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
+        configurarFiltroNumerico();
     }
 
     private DefaultComboBoxModel<CheckableItem> makeProductModel(String tipo) {
@@ -523,77 +527,93 @@ public class formuEgresos1 extends javax.swing.JDialog {
     }//GEN-LAST:event_btnClienteN2ActionPerformed
 
     private void btnGuardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar1ActionPerformed
-    Connection con = null;
-    try {
-        // ===== 1. VALIDACIONES BÁSICAS =====
-        if (txtPago.getDate() == null) {
-            mostrarError("Debe seleccionar una fecha de pago");
-            return;
-        }
-        
-        if (txtCantidadnuevo.getText().trim().isEmpty()) {
-            mostrarError("El monto es requerido");
-            return;
-        }
-        
-        if (txtDetallenuevo.getText().trim().isEmpty()) {
-            mostrarError("La descripción es requerida");
-            return;
-        }
-        
-        if (comboCategoria.getSelectedIndex() == 0) {
-            mostrarError("Debe seleccionar una categoría");
-            return;
-        }
-
-        // ===== 2. OBTENER VALORES =====
-        java.sql.Date fecha = new java.sql.Date(txtPago.getDate().getTime());
-        double monto = Double.parseDouble(txtCantidadnuevo.getText().trim().replace(",", "."));
-        String descripcion = txtDetallenuevo.getText();
-        String categoria = comboCategoria.getSelectedItem().toString();
-
-        // ===== 3. PREPARAR CONEXIÓN =====
-        con = Conexion.getConnection();
-        con.setAutoCommit(false);
-
-        // ===== 4. MANEJAR COMPRA DE PRODUCTOS =====
-        if (categoria.equals("Compra de Productos e Insumos")) {
-            // Validar proveedor
-            if (comboProveedor.getSelectedIndex() <= 0) {
-                mostrarError("Debe seleccionar un proveedor");
-                return;
-            }
-            
-            // Recolectar items seleccionados
-            List<CheckableItem> seleccionados = new ArrayList<>();
-            for (int i = 0; i < cmbMateriales.getModel().getSize(); i++) {
-                CheckableItem item = cmbMateriales.getModel().getElementAt(i);
-                if (item.isSelected()) {
-                    seleccionados.add(item);
-                }
-            }
-            
-            for (int i = 0; i < cmbHerramientas.getModel().getSize(); i++) {
-                CheckableItem item = cmbHerramientas.getModel().getElementAt(i);
-                if (item.isSelected()) {
-                    seleccionados.add(item);
-                }
-            }
-
-            if (seleccionados.isEmpty()) {
-                mostrarError("Debe seleccionar al menos un producto");
+        Connection con = null;
+        try {
+            // ===== 1. VALIDACIONES BÁSICAS =====
+            if (txtPago.getDate() == null) {
+                mostrarError("Debe seleccionar una fecha de pago");
                 return;
             }
 
-            // Mostrar diálogo para cantidades
-            EgresosMH formMH = new EgresosMH((Frame) this.getParent(), true, seleccionados, monto);
-            formMH.setLocationRelativeTo(null);
-            formMH.setVisible(true);
+            if (txtCantidadnuevo.getText().trim().isEmpty()) {
+                mostrarError("El monto es requerido");
+                return;
+            }
 
-            if (formMH.isConfirmado()) {
-                // Insertar en caja
-                String sqlCaja = "INSERT INTO caja (fecha, movimiento, monto, descripcion, categoria) " +
-                               "VALUES (?, 'egreso', ?, ?, ?)";
+            if (txtDetallenuevo.getText().trim().isEmpty()) {
+                mostrarError("La descripción es requerida");
+                return;
+            }
+
+            if (comboCategoria.getSelectedIndex() == 0) {
+                mostrarError("Debe seleccionar una categoría");
+                return;
+            }
+
+            // ===== 2. OBTENER VALORES =====
+            java.sql.Date fecha = new java.sql.Date(txtPago.getDate().getTime());
+            double monto = Double.parseDouble(txtCantidadnuevo.getText().trim().replace(",", "."));
+            String descripcion = txtDetallenuevo.getText();
+            String categoria = comboCategoria.getSelectedItem().toString();
+
+            // ===== 3. PREPARAR CONEXIÓN =====
+            con = Conexion.getConnection();
+            con.setAutoCommit(false);
+
+            // ===== 4. MANEJAR COMPRA DE PRODUCTOS =====
+            if (categoria.equals("Compra de Productos e Insumos")) {
+                // Validar proveedor
+                if (comboProveedor.getSelectedIndex() <= 0) {
+                    mostrarError("Debe seleccionar un proveedor");
+                    return;
+                }
+
+                // Recolectar items seleccionados
+                List<CheckableItem> seleccionados = new ArrayList<>();
+                for (int i = 0; i < cmbMateriales.getModel().getSize(); i++) {
+                    CheckableItem item = cmbMateriales.getModel().getElementAt(i);
+                    if (item.isSelected()) {
+                        seleccionados.add(item);
+                    }
+                }
+
+                for (int i = 0; i < cmbHerramientas.getModel().getSize(); i++) {
+                    CheckableItem item = cmbHerramientas.getModel().getElementAt(i);
+                    if (item.isSelected()) {
+                        seleccionados.add(item);
+                    }
+                }
+
+                if (seleccionados.isEmpty()) {
+                    mostrarError("Debe seleccionar al menos un producto");
+                    return;
+                }
+
+                // Mostrar diálogo para cantidades
+                EgresosMH formMH = new EgresosMH((Frame) this.getParent(), true, seleccionados, monto);
+                formMH.setLocationRelativeTo(null);
+                formMH.setVisible(true);
+
+                if (formMH.isConfirmado()) {
+                    // Insertar en caja
+                    String sqlCaja = "INSERT INTO caja (fecha, movimiento, monto, descripcion, categoria) "
+                            + "VALUES (?, 'egreso', ?, ?, ?)";
+                    try (PreparedStatement ps = con.prepareStatement(sqlCaja)) {
+                        ps.setDate(1, fecha);
+                        ps.setDouble(2, monto);
+                        ps.setString(3, descripcion);
+                        ps.setString(4, categoria);
+                        ps.executeUpdate();
+                    }
+
+                    con.commit();
+                    this.dispose(); // Cerrar la ventana actual
+                }
+            } // ===== 5. OTRAS CATEGORÍAS =====
+            else {
+                // Insertar directamente en caja
+                String sqlCaja = "INSERT INTO caja (fecha, movimiento, monto, descripcion, categoria) "
+                        + "VALUES (?, 'egreso', ?, ?, ?)";
                 try (PreparedStatement ps = con.prepareStatement(sqlCaja)) {
                     ps.setDate(1, fecha);
                     ps.setDouble(2, monto);
@@ -603,47 +623,32 @@ public class formuEgresos1 extends javax.swing.JDialog {
                 }
 
                 con.commit();
+                mostrarMensaje("Registro guardado exitosamente");
                 this.dispose(); // Cerrar la ventana actual
             }
-        } 
-        // ===== 5. OTRAS CATEGORÍAS =====
-        else {
-            // Insertar directamente en caja
-            String sqlCaja = "INSERT INTO caja (fecha, movimiento, monto, descripcion, categoria) " +
-                           "VALUES (?, 'egreso', ?, ?, ?)";
-            try (PreparedStatement ps = con.prepareStatement(sqlCaja)) {
-                ps.setDate(1, fecha);
-                ps.setDouble(2, monto);
-                ps.setString(3, descripcion);
-                ps.setString(4, categoria);
-                ps.executeUpdate();
-            }
-
-            con.commit();
-            mostrarMensaje("Registro guardado exitosamente");
-            this.dispose(); // Cerrar la ventana actual
-        }
-    } catch (NumberFormatException e) {
-        mostrarError("Formato de monto inválido. Use números con punto decimal (ej: 1500.50)");
-    } catch (SQLException e) {
-        try {
-            if (con != null) con.rollback();
-            mostrarError("Error al guardar: " + e.getMessage());
-        } catch (SQLException ex) {
-            mostrarError("Error al revertir cambios: " + ex.getMessage());
-        }
-    } catch (Exception e) {
-        mostrarError("Error inesperado: " + e.getMessage());
-    } finally {
-        if (con != null) {
+        } catch (NumberFormatException e) {
+            mostrarError("Formato de monto inválido. Use números con punto decimal (ej: 1500.50)");
+        } catch (SQLException e) {
             try {
-                con.setAutoCommit(true);
-                con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                if (con != null) {
+                    con.rollback();
+                }
+                mostrarError("Error al guardar: " + e.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al revertir cambios: " + ex.getMessage());
+            }
+        } catch (Exception e) {
+            mostrarError("Error inesperado: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-    }
 
     }//GEN-LAST:event_btnGuardar1ActionPerformed
     private int obtenerIdProveedor(Connection con, String nombreProveedor) throws SQLException {
@@ -720,11 +725,21 @@ public class formuEgresos1 extends javax.swing.JDialog {
     }
 
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        new Error_guardar(
+                (Frame) this.getParent(),
+                true,
+                "Error",
+                mensaje
+        ).setVisible(true);
     }
 
     private void mostrarMensaje(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        new Datos_guardados(
+                (Frame) SwingUtilities.getWindowAncestor(this), 
+                true, 
+                "Éxito", 
+                mensaje 
+        ).setVisible(true); 
     }
 
 
@@ -851,5 +866,36 @@ public class formuEgresos1 extends javax.swing.JDialog {
             }
         }
         throw new SQLException("Producto no encontrado: " + nombreProducto);
+    }
+
+    private void configurarFiltroNumerico() {
+        ((AbstractDocument) txtCantidadnuevo.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(DocumentFilter.FilterBypass fb, int offset, String text, AttributeSet attr)
+                    throws BadLocationException {
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+                if (esNumeroValido(newText)) {
+                    super.insertString(fb, offset, text, attr);
+                }
+            }
+
+            @Override
+            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (esNumeroValido(newText)) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+
+            private boolean esNumeroValido(String text) {
+                // Permite números con un solo punto decimal o coma
+                return text.matches("^[0-9]*([.,][0-9]*)?$");
+            }
+        });
+
+        // Opcional: Agregar tooltip para guiar al usuario
+        txtCantidadnuevo.setToolTipText("Solo se permiten números (ej: 10.5 o 10,5)");
     }
 }

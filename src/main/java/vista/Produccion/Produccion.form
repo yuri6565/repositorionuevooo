@@ -45,15 +45,13 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="txtbuscar" min="-2" pref="430" max="-2" attributes="0"/>
-                          <EmptySpace min="520" pref="520" max="-2" attributes="0"/>
-                          <Component id="btnNuevo" min="-2" pref="120" max="-2" attributes="0"/>
-                          <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                           <Component id="btnElimi" min="-2" pref="120" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jScrollPane4" min="-2" pref="1211" max="-2" attributes="0"/>
                       </Group>
@@ -65,11 +63,10 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="txtbuscar" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="btnNuevo" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="btnElimi" min="-2" pref="40" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="txtbuscar" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="btnElimi" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="jScrollPane4" min="-2" pref="536" max="-2" attributes="0"/>
@@ -100,34 +97,6 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtbuscarActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="RSMaterialComponent.RSButtonShape" name="btnNuevo">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="52" green="31" red="2e" type="rgb"/>
-            </Property>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.CompoundBorderInfo">
-                <CompoundBorder/>
-              </Border>
-            </Property>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/plus (1).png"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="  Nuevo"/>
-            <Property name="backgroundHover" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="d1" green="96" red="43" type="rgb"/>
-            </Property>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Roboto Bold" size="18" style="1"/>
-            </Property>
-            <Property name="forma" type="RSMaterialComponent.RSButtonShape$FORMA" editor="org.netbeans.modules.form.editors.EnumEditor">
-              <Value id="ROUND"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNuevoActionPerformed"/>
           </Events>
         </Component>
         <Component class="RSMaterialComponent.RSButtonShape" name="btnElimi">

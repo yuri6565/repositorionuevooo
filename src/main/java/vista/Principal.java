@@ -413,7 +413,6 @@ private perfil1 perfilPanel;
             siete2.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios_1.png")));
             ocho1.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service_1.png")));
             nueve1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
-            menu.setIcon(new ImageIcon(getClass().getResource("/imagenes/burger-bar.png")));
             btnNotificacion1.setForeground(new Color(255, 255, 255));
             rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/logo blancoooo.png")));
 
@@ -452,7 +451,6 @@ private perfil1 perfilPanel;
             ocho.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service.png")));
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
             Diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/ajustess.png")));
-            menu.setIcon(new ImageIcon(getClass().getResource("/imagenes/menu22.png")));
             rSLabelImage1.setIcon(new ImageIcon(getClass().getResource("/imagenes/feliz-sol (6).png")));
             rSLabelImage3.setIcon(new ImageIcon(getClass().getResource("/imagenes/luna (7).png")));
 
@@ -485,7 +483,6 @@ private perfil1 perfilPanel;
         cambiarEstiloBotonRS(ocho, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(nueve, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(Diez, fondoBoton, textoBoton);
-        cambiarEstiloBotonRS(menu, fondoBoton, textoBoton);
 
         cambiarEstiloBotonRS(item1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(item2, fondoBoton, textoBoton);
@@ -1007,7 +1004,6 @@ private void cargarImagenAvatar() {
         jPanel5 = new javax.swing.JPanel();
         contenedor = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        menu = new rojeru_san.RSButton();
         rSLabelImage1 = new rojerusan.RSLabelImage();
         rSSwitch1 = new rojerusan.RSSwitch();
         rSLabelCircleImage1 = new rojerusan.RSLabelCircleImage();
@@ -1085,14 +1081,6 @@ private void cargarImagenAvatar() {
 
         jPanel2.setBackground(new java.awt.Color(29, 30, 81));
 
-        menu.setBackground(new java.awt.Color(29, 30, 81));
-        menu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/burger-bar.png"))); // NOI18N
-        menu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuActionPerformed(evt);
-            }
-        });
-
         rSLabelImage1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/feliz-sol-negro.png"))); // NOI18N
 
         rSSwitch1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1143,9 +1131,7 @@ private void cargarImagenAvatar() {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(260, 260, 260)
-                .addComponent(menu, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
+                .addGap(310, 310, 310)
                 .addComponent(lblTituloPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 370, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(354, 354, 354)
                 .addComponent(rSLabelImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1166,7 +1152,6 @@ private void cargarImagenAvatar() {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(menu, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addComponent(lblTituloPrincipal))
@@ -1911,44 +1896,6 @@ private void cargarImagenAvatar() {
 
     }//GEN-LAST:event_jPanel5MouseExited
 
-    private void menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuActionPerformed
-        // Animación suave con Timer
-        int targetWidth = menuExpanded ? MENU_COLLAPSED_WIDTH : MENU_EXPANDED_WIDTH;
-
-        Timer timer = new Timer(2, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int currentWidth = jPanel3.getWidth();
-
-                if (menuExpanded) {
-                    currentWidth -= 10;
-                    if (currentWidth <= MENU_COLLAPSED_WIDTH) {
-                        currentWidth = MENU_COLLAPSED_WIDTH;
-                        ((Timer) e.getSource()).stop();
-                        updateMenuIcons(false);
-                    }
-                } else {
-                    currentWidth += 10;
-                    if (currentWidth >= MENU_EXPANDED_WIDTH) {
-                        currentWidth = MENU_EXPANDED_WIDTH;
-                        ((Timer) e.getSource()).stop();
-                        updateMenuIcons(true);
-                    }
-                }
-
-                jPanel3.setPreferredSize(new Dimension(currentWidth, jPanel3.getHeight()));
-                jPanel3.revalidate();
-                //contenedor.setLocation(currentWidth, contenedor.getY());
-                contenedor.revalidate();
-            }
-        });
-
-        timer.start();
-        menuExpanded = !menuExpanded;
-
-
-    }//GEN-LAST:event_menuActionPerformed
-
     private void jPanel5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseEntered
         animacion();
     }//GEN-LAST:event_jPanel5MouseEntered
@@ -2084,7 +2031,6 @@ JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel lblTituloPrincipal;
     private javax.swing.JLabel lblUsuarioLogueado;
-    private rojeru_san.RSButton menu;
     private rojeru_san.RSButton nueve;
     private rojeru_san.RSButton nueve1;
     private rojeru_san.RSButton ocho;

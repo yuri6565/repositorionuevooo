@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package vista.alertas;
+
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
@@ -10,20 +11,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JDialog;
 
-
 /**
  *
  * @author EQUIPO
  */
-
-
-
 /**
  *
  * @author EQUIPO
  */
-
-
 public class LoginAlerta extends JDialog {
 
     public LoginAlerta() {
@@ -33,7 +28,7 @@ public class LoginAlerta extends JDialog {
             setBackground(new java.awt.Color(0, 0, 0, 0));
             Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
             setSize(pantalla);
-  // Agregar KeyListener para detectar la tecla Enter
+            // Agregar KeyListener para detectar la tecla Enter
             addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyPressed(KeyEvent e) {
@@ -47,7 +42,11 @@ public class LoginAlerta extends JDialog {
             new Thread(() -> {
                 for (float i = 0.0f; i <= 1.0f; i += 0.1f) {
                     setOpacity(i);
-                    try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
                 setOpacity(1.0f);
                 setVisible(true); // Show after fade-in
@@ -55,7 +54,7 @@ public class LoginAlerta extends JDialog {
         }
     }
 
-     public LoginAlerta(Frame parent, boolean isEmpty) {
+    public LoginAlerta(Frame parent, boolean isEmpty) {
         this(); // Llama al constructor por defecto
         this.setLocationRelativeTo(parent); // Centra respecto al padre
         // No sobrescribimos jLabel1 ni jLabel2, usamos el texto del diseñador
@@ -63,6 +62,7 @@ public class LoginAlerta extends JDialog {
             setVisible(true); // Muestra el diálogo
         }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -149,7 +149,7 @@ public class LoginAlerta extends JDialog {
     /**
      * @param args the command line arguments
      */
-public static void main(String args[]) {
+    public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -176,7 +176,5 @@ public static void main(String args[]) {
     private javax.swing.JPanel jPanel3;
     private rojerusan.RSLabelImage rSLabelImage1;
     // End of variables declaration//GEN-END:variables
-
-
 
 }

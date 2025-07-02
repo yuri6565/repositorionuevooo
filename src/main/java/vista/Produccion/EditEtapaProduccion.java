@@ -4,48 +4,24 @@
  */
 package vista.Produccion;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
-import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import javax.accessibility.Accessible;
-import javax.swing.AbstractAction;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.ListModel;
-import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.basic.ComboPopup;
 import modelo.Conexion;
 
 /**
@@ -57,8 +33,6 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
     private int idProduccionActual;
     private int idEtapa;
     private boolean datosModificados;
-    private CheckedComboBox<CheckableItem> cmbMateriales;
-    private CheckedComboBox<CheckableItem> cmbHerramientas;
 
     /**
      * Creates new form EtapaProduccion
@@ -69,196 +43,31 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
      * @param produccionPanel
      */
     public EditEtapaProduccion(Frame parent, boolean modal, int idEtapa) {
-    super(parent, modal);
-    this.idEtapa = idEtapa;
-    
-    // Configurar undecorated antes de initComponents
-    setUndecorated(true);
-    initComponents(); // Llamada única a initComponents
-    
-    setLocationRelativeTo(parent); // Configurar ubicación después de initComponents
-    
-    // Inicializar CheckedComboBox
-    cmbMateriales = new CheckedComboBox<>(makeProductModel("material"));
-    cmbMateriales.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-    jPanel1.add(cmbMateriales, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, 200, 30));
+        super(parent, modal);
+        this.idEtapa = idEtapa;
 
-    cmbHerramientas = new CheckedComboBox<>(makeProductModel("herramienta"));
-    cmbHerramientas.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-    jPanel1.add(cmbHerramientas, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, 200, 30));
+        // Configurar undecorated antes de initComponents
+        setUndecorated(true);
+        initComponents(); // Llamada única a initComponents
 
-    // Configuración inicial
-    if (idEtapa > 0) {
+        setLocationRelativeTo(parent); // Configurar ubicación después de initComponents
+
+        // Configuración inicial
         cargarDatosEtapa(idEtapa);
-    }
-}
 
-    private DefaultComboBoxModel<CheckableItem> makeProductModel(String tipo) {
-        DefaultComboBoxModel<CheckableItem> model = new DefaultComboBoxModel<>();
-        try {
-            Connection con = new Conexion().getConnection();
-            String sql = "SELECT nombre FROM inventario WHERE tipo = ? ";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, tipo);
-            ResultSet rs = ps.executeQuery();
+        // Configurar el formato numérico para toda la aplicación
+        Locale.setDefault(new Locale("es", "ES"));
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator('.');
 
-            while (rs.next()) {
-                model.addElement(new CheckableItem(rs.getString("nombre"), false));
-            }
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(FormuEtapaProduccion.class.getName()).log(Level.SEVERE, null, ex);
+// Configuración correcta del formateador
+        DecimalFormat formatoDecimal = new DecimalFormat("#,##0.00", symbols);
 
-            // Mostrar mensaje de error al usuario
-            Error_guardar errorDialog = new Error_guardar(
-                    (Frame) this.getParent(),
-                    true,
-                    "Error",
-                    "No se pudieron cargar los " + tipo + ": " + ex.getMessage()
-            );
-            errorDialog.setLocationRelativeTo(null);
-            errorDialog.setVisible(true);
-        }
-        return model;
-    }
-// Clases internas para el CheckedComboBox
-
-    class CheckableItem {
-
-        private final String text;
-        private boolean selected;
-
-        protected CheckableItem(String text, boolean selected) {
-            this.text = text;
-            this.selected = selected;
-        }
-
-        public boolean isSelected() {
-            return selected;
-        }
-
-        public void setSelected(boolean selected) {
-            this.selected = selected;
-        }
-
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
-
-    class CheckedComboBox<E extends CheckableItem> extends JComboBox<E> {
-
-        protected boolean keepOpen;
-        private final JPanel panel = new JPanel(new BorderLayout());
-
-        protected CheckedComboBox(ComboBoxModel<E> model) {
-            super(model);
-            setBackground(new Color(255, 255, 255)); // Fondo blanco para coincidir con jPanel1
-            setForeground(Color.DARK_GRAY); // Texto oscuro
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            return new Dimension(200, 40); // Aumentar altura para un look más moderno
-        }
-
-        @Override
-        public void updateUI() {
-            setRenderer(null);
-            super.updateUI();
-
-            Accessible a = getAccessibleContext().getAccessibleChild(0);
-            if (a instanceof ComboPopup) {
-                ((ComboPopup) a).getList().addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        JList<?> list = (JList<?>) e.getComponent();
-                        if (SwingUtilities.isLeftMouseButton(e)) {
-                            keepOpen = true;
-                            updateItem(list.locationToIndex(e.getPoint()));
-                        }
-                    }
-                });
-            }
-
-            DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                    Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    if (index >= 0) {
-                        c.setBackground(isSelected ? new Color(0, 120, 215, 50) : new Color(255, 255, 255));
-                        c.setForeground(Color.DARK_GRAY);
-                    } else {
-                        c.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente para el texto seleccionado
-                    }
-                    return c;
-                }
-            };
-            JCheckBox check = new JCheckBox();
-            check.setOpaque(false);
-            check.setForeground(new Color(0, 120, 215)); // Color de casilla moderna
-            setRenderer((list, value, index, isSelected, cellHasFocus) -> {
-                panel.removeAll();
-                Component c = renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
-                if (index < 0) {
-                    String txt = getCheckedItemString(list.getModel());
-                    JLabel l = (JLabel) c;
-                    l.setText(txt.isEmpty() ? " " : txt);
-                    l.setForeground(Color.DARK_GRAY);
-                    l.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                    panel.setOpaque(false); // Hacer el panel transparente
-                    panel.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente
-                } else {
-                    check.setSelected(value.isSelected());
-                    panel.add(check, BorderLayout.WEST);
-                    panel.setBackground(isSelected ? new Color(0, 120, 215, 50) : new Color(255, 255, 255));
-                }
-                panel.add(c, BorderLayout.CENTER);
-                return panel;
-            });
-            initActionMap();
-        }
-
-        protected void initActionMap() {
-            KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0);
-            getInputMap(JComponent.WHEN_FOCUSED).put(ks, "checkbox-select");
-            getActionMap().put("checkbox-select", new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    Accessible a = getAccessibleContext().getAccessibleChild(0);
-                    if (a instanceof ComboPopup) {
-                        updateItem(((ComboPopup) a).getList().getSelectedIndex());
-                    }
-                }
-            });
-        }
-
-        protected void updateItem(int index) {
-            if (isPopupVisible() && index >= 0) {
-                E item = getItemAt(index);
-                item.setSelected(!item.isSelected());
-                setSelectedIndex(-1);
-                setSelectedItem(item);
-            }
-        }
-
-        @Override
-        public void setPopupVisible(boolean v) {
-            if (keepOpen) {
-                keepOpen = false;
-            } else {
-                super.setPopupVisible(v);
-            }
-        }
-
-        protected static <E extends CheckableItem> String getCheckedItemString(ListModel<E> model) {
-            return IntStream.range(0, model.getSize())
-                    .mapToObj(model::getElementAt)
-                    .filter(CheckableItem::isSelected)
-                    .map(Objects::toString)
-                    .sorted()
-                    .collect(Collectors.joining(", "));
+// Configurar NumberFormat si es necesario
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        if (numberFormat instanceof DecimalFormat) {
+            ((DecimalFormat) numberFormat).setDecimalFormatSymbols(symbols);
         }
     }
 
@@ -278,14 +87,12 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         txtetapa = new RSMaterialComponent.RSTextFieldMaterial();
-        jLabel11 = new javax.swing.JLabel();
         Boxestado = new RSMaterialComponent.RSComboBoxMaterial();
         txtFechainicio = new com.toedter.calendar.JDateChooser();
         txtfechafin = new com.toedter.calendar.JDateChooser();
-        btnCancelar1 = new rojeru_san.RSButtonRiple();
         btnGuardar1 = new rojeru_san.RSButtonRiple();
         jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
+        btnCancelar2 = new rojeru_san.RSButtonRiple();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setUndecorated(true);
@@ -301,11 +108,11 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
         jLabel1.setText("Etapa Produccion");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 520, 50));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 590, 50));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel6.setText("Estado:");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 70, -1, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel9.setText("Fecha final:");
@@ -326,11 +133,7 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
                 txtetapaActionPerformed(evt);
             }
         });
-        jPanel1.add(txtetapa, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 200, 30));
-
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
-        jLabel11.setText("Materiales:");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, -1, -1));
+        jPanel1.add(txtetapa, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 250, 30));
 
         Boxestado.setForeground(new java.awt.Color(102, 102, 102));
         Boxestado.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccionar", "pendiente", "proceso", "completado" }));
@@ -340,30 +143,18 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
                 BoxestadoActionPerformed(evt);
             }
         });
-        jPanel1.add(Boxestado, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 100, -1, 30));
+        jPanel1.add(Boxestado, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 100, 260, 30));
 
         txtFechainicio.setBackground(new java.awt.Color(255, 255, 255));
         txtFechainicio.setForeground(new java.awt.Color(255, 255, 255));
         txtFechainicio.setDateFormatString("y-MM-d");
         txtFechainicio.setMaxSelectableDate(new java.util.Date(253370786472000L));
-        jPanel1.add(txtFechainicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 200, 30));
+        jPanel1.add(txtFechainicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 180, 260, 30));
 
         txtfechafin.setBackground(new java.awt.Color(255, 255, 255));
         txtfechafin.setForeground(new java.awt.Color(255, 255, 255));
         txtfechafin.setDateFormatString("y-MM-d");
-        jPanel1.add(txtfechafin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 200, 30));
-
-        btnCancelar1.setBackground(new java.awt.Color(46, 49, 82));
-        btnCancelar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/salida (1).png"))); // NOI18N
-        btnCancelar1.setText("Volver");
-        btnCancelar1.setFont(new java.awt.Font("Humnst777 BlkCn BT", 1, 18)); // NOI18N
-        btnCancelar1.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
-        btnCancelar1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelar1ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(btnCancelar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 310, 140, -1));
+        jPanel1.add(txtfechafin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 250, 30));
 
         btnGuardar1.setBackground(new java.awt.Color(46, 49, 82));
         btnGuardar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
@@ -375,25 +166,33 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
                 btnGuardar1ActionPerformed(evt);
             }
         });
-        jPanel1.add(btnGuardar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 310, 140, -1));
+        jPanel1.add(btnGuardar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 230, 140, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel12.setText("Fecha inicio:");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, -1));
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 150, -1, -1));
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
-        jLabel13.setText("Herramientas:");
-        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 230, -1, -1));
+        btnCancelar2.setBackground(new java.awt.Color(46, 49, 82));
+        btnCancelar2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/salida (1).png"))); // NOI18N
+        btnCancelar2.setText("Volver");
+        btnCancelar2.setFont(new java.awt.Font("Humnst777 BlkCn BT", 1, 18)); // NOI18N
+        btnCancelar2.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        btnCancelar2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelar2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnCancelar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 230, 140, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 490, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 582, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -403,138 +202,546 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_BoxestadoActionPerformed
 
-    private void btnCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar1ActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_btnCancelar1ActionPerformed
+    /**
+     * Convierte un String numérico al formato decimal correcto para MySQL
+     *
+     * @param valor String con el número (puede usar coma o punto decimal)
+     * @return double listo para ser usado en MySQL
+     */
+    private double convertirFormatoMySQL(String valor) {
+        if (valor == null || valor.trim().isEmpty()) {
+            return 0.0;
+        }
+
+        // Normalizamos el formato reemplazando comas por puntos
+        String normalizado = valor.replace(',', '.');
+
+        // Eliminamos cualquier caracter que no sea dígito o punto
+        normalizado = normalizado.replaceAll("[^\\d.]", "");
+
+        try {
+            return Double.parseDouble(normalizado);
+        } catch (NumberFormatException e) {
+            System.err.println("Error al convertir valor: " + valor + " - Usando 0.0 como valor por defecto");
+            return 0.0;
+        }
+    }
 
     private void btnGuardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar1ActionPerformed
-    // 1. Validación de campos
-    if (txtetapa.getText().trim().isEmpty()
-            || txtFechainicio.getDate() == null
-            || Boxestado.getSelectedIndex() <= 0) {
-        new espacio_alerta((Frame) this.getParent(), true,
-                "Error", "Todos los campos son obligatorios").setVisible(true);
-        return;
-    }
-    // 2. Mostrar diálogo de confirmación
-    alertaa confirmDialog = new alertaa(
-            (Frame) this.getParent(),
-            true,
-            "Confirmar",
-            "¿Desea guardar los datos?"
-    );
-    confirmDialog.setVisible(true);
-
-    if (!confirmDialog.opcionConfirmada) {
-        return;
-    }
-
-    try {
-        // 3. Obtener valores del formulario
-        String nombreEtapa = txtetapa.getText().trim();
-        Date fechaInicio = new Date(txtFechainicio.getDate().getTime());
-        Date fechaFin = txtfechafin.getDate() != null
-                ? new Date(txtfechafin.getDate().getTime()) : null;
-        String estado = Boxestado.getSelectedItem().toString();
-
-        // 4. Validar fechas
-        if (fechaFin != null && fechaFin.before(fechaInicio)) {
-            new Error_fecha((Frame) this.getParent(), true,
-                    "Error", "La fecha final no puede ser anterior a la inicial").setVisible(true);
+        // Validación de campos
+        if (txtetapa.getText().trim().isEmpty() || txtFechainicio.getDate() == null || Boxestado.getSelectedIndex() <= 0) {
+            new espacio_alerta((Frame) this.getParent(), true, "Error", "Todos los campos son obligatorios").setVisible(true);
             return;
         }
 
-        // 5. Obtener materiales y herramientas seleccionados
-        List<String> materialesSeleccionados = new ArrayList<>();
-        List<String> herramientasSeleccionadas = new ArrayList<>();
-        for (int i = 0; i < cmbMateriales.getModel().getSize(); i++) {
-            CheckableItem item = cmbMateriales.getModel().getElementAt(i);
-            if (item.isSelected()) {
-                materialesSeleccionados.add(item.toString());
-            }
-        }
-        for (int i = 0; i < cmbHerramientas.getModel().getSize(); i++) {
-            CheckableItem item = cmbHerramientas.getModel().getElementAt(i);
-            if (item.isSelected()) {
-                herramientasSeleccionadas.add(item.toString());
-            }
+        // Confirmación
+        alertaa confirmDialog = new alertaa((Frame) this.getParent(), true, "Confirmar", "¿Desea guardar los datos?");
+        confirmDialog.setVisible(true);
+        if (!confirmDialog.opcionConfirmada) {
+            return;
         }
 
-        // 6. Abrir FormularioMH para editar cantidades
-        FormularioMH formMH = new FormularioMH((Frame) this.getParent(), true, materialesSeleccionados, herramientasSeleccionadas);
-        formMH.setVisible(true);
+        Connection con = null;
+        try {
+            con = Conexion.getConnection();
+            con.setAutoCommit(false);
 
-        if (formMH.isConfirmado()) {
-            // 7. Actualizar etapa en la base de datos
-            try (Connection con = Conexion.getConnection()) {
-                String sql;
-                if (idEtapa == 0) {
-                    // Insertar nuevo registro
-                    sql = "INSERT INTO etapa_produccion (nombre_etapa, fecha_inicio, fecha_fin, estado) "
-                            + "VALUES (?, ?, ?, ?)";
-                } else {
-                    // Actualizar registro existente
-                    sql = "UPDATE etapa_produccion SET nombre_etapa = ?, fecha_inicio = ?, "
-                            + "fecha_fin = ?, estado = ? WHERE idetapa_produccion = ?";
-                }
+            // 1. Guardar/actualizar etapa
+            String nombreEtapa = txtetapa.getText().trim();
+            Date fechaInicio = new Date(txtFechainicio.getDate().getTime());
+            Date fechaFin = txtfechafin.getDate() != null ? new Date(txtfechafin.getDate().getTime()) : null;
+            String estadoEtapa = Boxestado.getSelectedItem().toString();
 
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
+            if (idEtapa == 0) {
+                String sqlInsert = "INSERT INTO etapa_produccion (nombre_etapa, fecha_inicio, fecha_fin, estado, produccion_id_produccion) VALUES (?, ?, ?, ?, ?)";
+                try (PreparedStatement ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
                     ps.setString(1, nombreEtapa);
                     ps.setDate(2, fechaInicio);
                     ps.setDate(3, fechaFin);
-                    ps.setString(4, estado);
+                    ps.setString(4, estadoEtapa);
+                    ps.setInt(5, idProduccionActual);
+                    ps.executeUpdate();
 
-                    if (idEtapa > 0) {
-                        ps.setInt(5, idEtapa);
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            idEtapa = rs.getInt(1);
+                        }
                     }
+                }
+            } else {
+                String sqlUpdate = "UPDATE etapa_produccion SET nombre_etapa = ?, fecha_inicio = ?, fecha_fin = ?, estado = ? WHERE idetapa_produccion = ?";
+                try (PreparedStatement ps = con.prepareStatement(sqlUpdate)) {
+                    ps.setString(1, nombreEtapa);
+                    ps.setDate(2, fechaInicio);
+                    ps.setDate(3, fechaFin);
+                    ps.setString(4, estadoEtapa);
+                    ps.setInt(5, idEtapa);
+                    ps.executeUpdate();
+                }
+            }
 
-                    int affectedRows = ps.executeUpdate();
-                    if (affectedRows > 0) {
-                        this.datosModificados = true;
-                        // 8. Actualizar cantidades de materiales y herramientas en la tabla utilizado
-                        Map<String, String> cantidadesMateriales = formMH.getCantidadesMateriales();
-                        Map<String, String> cantidadesHerramientas = formMH.getCantidadesHerramientas();
+            // 2. Lógica de actualización de estados
+            if ("completado".equals(estadoEtapa)) {
+                // Verificar si todas las etapas están completadas
+                String sqlCountEtapas = "SELECT COUNT(*) AS incompletas FROM etapa_produccion WHERE produccion_id_produccion = ? AND estado != 'completado'";
+                try (PreparedStatement ps = con.prepareStatement(sqlCountEtapas)) {
+                    ps.setInt(1, idProduccionActual);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next() && rs.getInt("incompletas") == 0) {
+                            // Todas las etapas completadas - finalizar producción
+                            String sqlUpdateProd = "UPDATE produccion SET estado = 'finalizado', fecha_fin = ? WHERE id_produccion = ?";
+                            try (PreparedStatement psProd = con.prepareStatement(sqlUpdateProd)) {
+                                psProd.setDate(1, new Date(System.currentTimeMillis()));
+                                psProd.setInt(2, idProduccionActual);
+                                psProd.executeUpdate();
+                            }
 
-                        // Actualizar o insertar en la tabla utilizado
-                        String updateUtilizado = "INSERT INTO utilizado (etapa_produccion_idetapa_produccion, inventario_id_inventario, cantidad_usada) "
-                                + "VALUES (?, (SELECT id_inventario FROM inventario WHERE nombre = ?), ?) "
-                                + "ON DUPLICATE KEY UPDATE cantidad_usada = ?";
-                        try (PreparedStatement psUtilizado = con.prepareStatement(updateUtilizado)) {
-                            if (idEtapa > 0) {
-                                for (Map.Entry<String, String> entry : cantidadesMateriales.entrySet()) {
-                                    psUtilizado.setInt(1, idEtapa);
-                                    psUtilizado.setString(2, entry.getKey());
-                                    psUtilizado.setDouble(3, Double.parseDouble(entry.getValue().replace(",", ".")));
-                                    psUtilizado.setDouble(4, Double.parseDouble(entry.getValue().replace(",", ".")));
-                                    psUtilizado.executeUpdate();
-                                }
-                                for (Map.Entry<String, String> entry : cantidadesHerramientas.entrySet()) {
-                                    psUtilizado.setInt(1, idEtapa);
-                                    psUtilizado.setString(2, entry.getKey());
-                                    psUtilizado.setDouble(3, Double.parseDouble(entry.getValue().replace(",", ".")));
-                                    psUtilizado.setDouble(4, Double.parseDouble(entry.getValue().replace(",", ".")));
-                                    psUtilizado.executeUpdate();
+                            // Obtener el ID del pedido asociado (CORRECCIÓN CLAVE)
+                            String sqlGetPedido = "SELECT p.id_pedido FROM pedido p "
+                                    + "JOIN produccion pr ON p.id_pedido = pr.detalle_pedido_iddetalle_pedido "
+                                    + "WHERE pr.id_produccion = ?";
+                            try (PreparedStatement psPedido = con.prepareStatement(sqlGetPedido)) {
+                                psPedido.setInt(1, idProduccionActual);
+                                try (ResultSet rsPedido = psPedido.executeQuery()) {
+                                    if (rsPedido.next()) {
+                                        int idPedido = rsPedido.getInt("id_pedido");
+
+                                        // Verificar si todas las producciones del pedido están finalizadas
+                                        String sqlCountProds = "SELECT COUNT(*) AS incompletas FROM produccion WHERE detalle_pedido_iddetalle_pedido = ? AND estado != 'finalizado'";
+                                        try (PreparedStatement psCount = con.prepareStatement(sqlCountProds)) {
+                                            psCount.setInt(1, idPedido);
+                                            try (ResultSet rsCount = psCount.executeQuery()) {
+                                                if (rsCount.next() && rsCount.getInt("incompletas") == 0) {
+                                                    // Finalizar pedido
+                                                    String sqlUpdatePedido = "UPDATE pedido SET estado = 'finalizado', fecha_fin = ? WHERE id_pedido = ?";
+                                                    try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdatePedido)) {
+                                                        psUpdate.setDate(1, new Date(System.currentTimeMillis()));
+                                                        psUpdate.setInt(2, idPedido);
+                                                        psUpdate.executeUpdate();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-
-                        
-                        this.dispose();
                     }
                 }
+            } else if ("proceso".equals(estadoEtapa)) {
+                // Actualizar producción a proceso
+                String sqlUpdateProd = "UPDATE produccion SET estado = 'proceso' WHERE id_produccion = ? AND estado != 'finalizado'";
+                try (PreparedStatement ps = con.prepareStatement(sqlUpdateProd)) {
+                    ps.setInt(1, idProduccionActual);
+                    ps.executeUpdate();
+                }
+            }
+
+            con.commit();
+            this.datosModificados = true;
+
+            new Datos_guardados(
+                    (Frame) this.getParent(),
+                    true,
+                    "Éxito",
+                    "Etapa guardada correctamente"
+            ).setVisible(true);
+
+            this.dispose();
+        } catch (SQLException e) {
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(EditEtapaProduccion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            new Error_guardar(
+                    (Frame) this.getParent(),
+                    true,
+                    "Error",
+                    "Error al guardar: " + e.getMessage()
+            ).setVisible(true);
+        } finally {
+            try {
+                if (con != null) {
+                    con.setAutoCommit(true);
+                    con.close();
+                }
+            } catch (SQLException e) {
+                Logger.getLogger(EditEtapaProduccion.class.getName()).log(Level.SEVERE, null, e);
             }
         }
-    } catch (SQLException e) {
-        new Error_guardar((Frame) this.getParent(), true,
-                "Error", "Error al guardar: " + e.getMessage()).setVisible(true);
-        e.printStackTrace();
-    }
 
     }//GEN-LAST:event_btnGuardar1ActionPerformed
+
+    private String validarFormatoDecimal(String valor) {
+        // Asegurar que el valor tenga el formato correcto para visualización
+        if (!valor.matches("^\\d+([.,]\\d{1,2})?$")) {
+            System.err.println("Formato numérico inválido detectado: " + valor);
+            return "0,00"; // Valor por defecto
+        }
+        return valor.replace(".", ","); // Normalizar a comas para visualización
+    }
+
+    public boolean actualizarMaterialesEtapa(int idEtapa, Map<Integer, Double> nuevosMateriales) {
+        try (Connection con = Conexion.getConnection()) {
+            // 1. Obtener materiales actuales
+            String sqlSelect = "SELECT inventario_id_inventario, cantidad_usada FROM utilizado "
+                    + "WHERE etapa_produccion_idetapa_produccion = ?";
+
+            // 2. Actualizar inventario (diferencia)
+            String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                    + "WHERE id_inventario = ?";
+
+            // 3. Actualizar/insertar en utilizado
+            String sqlUpsert = "INSERT INTO utilizado (etapa_produccion_idetapa_produccion, "
+                    + "inventario_id_inventario, cantidad_usada) VALUES (?, ?, ?) "
+                    + "ON DUPLICATE KEY UPDATE cantidad_usada = ?";
+
+            try {
+                con.setAutoCommit(false);
+                Map<Integer, Double> materialesActuales = new HashMap<>();
+
+                // Paso 1: Obtener materiales actuales
+                try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                    psSelect.setInt(1, idEtapa);
+                    ResultSet rs = psSelect.executeQuery();
+
+                    while (rs.next()) {
+                        materialesActuales.put(
+                                rs.getInt("inventario_id_inventario"),
+                                rs.getDouble("cantidad_usada")
+                        );
+                    }
+                }
+
+                // Paso 2: Calcular diferencias y actualizar inventario
+                try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                    // Para materiales eliminados o con cantidad reducida
+                    for (Map.Entry<Integer, Double> entry : materialesActuales.entrySet()) {
+                        int idInventario = entry.getKey();
+                        double cantidadActual = entry.getValue();
+                        Double cantidadNueva = nuevosMateriales.get(idInventario);
+
+                        if (cantidadNueva == null) {
+                            // Material eliminado - devolver todo al inventario
+                            psUpdate.setDouble(1, cantidadActual);
+                            psUpdate.setInt(2, idInventario);
+                            psUpdate.executeUpdate();
+                        } else if (cantidadNueva < cantidadActual) {
+                            // Cantidad reducida - devolver diferencia
+                            double diferencia = cantidadActual - cantidadNueva;
+                            psUpdate.setDouble(1, diferencia);
+                            psUpdate.setInt(2, idInventario);
+                            psUpdate.executeUpdate();
+                        }
+                    }
+
+                    // Para materiales nuevos o con cantidad aumentada
+                    for (Map.Entry<Integer, Double> entry : nuevosMateriales.entrySet()) {
+                        int idInventario = entry.getKey();
+                        double cantidadNueva = entry.getValue();
+                        Double cantidadActual = materialesActuales.get(idInventario);
+
+                        if (cantidadActual == null) {
+                            // Material nuevo - restar del inventario
+                            psUpdate.setDouble(1, -cantidadNueva);
+                            psUpdate.setInt(2, idInventario);
+                            psUpdate.executeUpdate();
+                        } else if (cantidadNueva > cantidadActual) {
+                            // Cantidad aumentada - restar diferencia
+                            double diferencia = cantidadNueva - cantidadActual;
+                            psUpdate.setDouble(1, -diferencia);
+                            psUpdate.setInt(2, idInventario);
+                            psUpdate.executeUpdate();
+                        }
+                    }
+                }
+
+                // Paso 3: Actualizar tabla utilizado
+                try (PreparedStatement psUpsert = con.prepareStatement(sqlUpsert)) {
+                    for (Map.Entry<Integer, Double> entry : nuevosMateriales.entrySet()) {
+                        psUpsert.setInt(1, idEtapa);
+                        psUpsert.setInt(2, entry.getKey());
+                        psUpsert.setDouble(3, entry.getValue());
+                        psUpsert.setDouble(4, entry.getValue());
+                        psUpsert.executeUpdate();
+                    }
+
+                    // Eliminar materiales que ya no están en la lista
+                    String sqlDelete = "DELETE FROM utilizado WHERE "
+                            + "etapa_produccion_idetapa_produccion = ? AND "
+                            + "inventario_id_inventario = ?";
+
+                    try (PreparedStatement psDelete = con.prepareStatement(sqlDelete)) {
+                        for (Integer idInventario : materialesActuales.keySet()) {
+                            if (!nuevosMateriales.containsKey(idInventario)) {
+                                psDelete.setInt(1, idEtapa);
+                                psDelete.setInt(2, idInventario);
+                                psDelete.executeUpdate();
+                            }
+                        }
+                    }
+                }
+
+                con.commit();
+                return true;
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean eliminarEtapaCompleta(int idEtapa) {
+        try (Connection con = Conexion.getConnection()) {
+            con.setAutoCommit(false); // Iniciar transacción
+
+            // 1. Obtener todos los materiales/herramientas utilizados
+            String sqlSelect = "SELECT i.nombre, u.cantidad_usada, i.tipo "
+                    + "FROM utilizado u "
+                    + "JOIN inventario i ON u.inventario_id_inventario = i.id_inventario "
+                    + "WHERE u.etapa_produccion_idetapa_produccion = ?";
+
+            // 2. Devolver cantidades al inventario
+            String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                    + "WHERE nombre = ?";
+
+            // 3. Eliminar registros de utilizado
+            String sqlDeleteUtilizado = "DELETE FROM utilizado WHERE etapa_produccion_idetapa_produccion = ?";
+
+            // 4. Eliminar la etapa
+            String sqlDeleteEtapa = "DELETE FROM etapa_produccion WHERE idetapa_produccion = ?";
+
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, idEtapa);
+                ResultSet rs = psSelect.executeQuery();
+
+                // Devolver materiales al inventario
+                try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("nombre");
+                        double cantidad = rs.getDouble("cantidad_usada");
+                        String tipo = rs.getString("tipo");
+
+                        psUpdate.setDouble(1, cantidad);
+                        psUpdate.setString(2, nombre);
+                        psUpdate.executeUpdate();
+                    }
+                }
+
+                // Eliminar de utilizado
+                try (PreparedStatement psDelete = con.prepareStatement(sqlDeleteUtilizado)) {
+                    psDelete.setInt(1, idEtapa);
+                    psDelete.executeUpdate();
+                }
+
+                // Eliminar etapa
+                try (PreparedStatement psDeleteEtapa = con.prepareStatement(sqlDeleteEtapa)) {
+                    psDeleteEtapa.setInt(1, idEtapa);
+                    int affectedRows = psDeleteEtapa.executeUpdate();
+
+                    if (affectedRows > 0) {
+                        con.commit(); // Confirmar transacción
+                        return true;
+                    }
+                }
+            } catch (SQLException e) {
+                con.rollback(); // Revertir en caso de error
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al eliminar etapa: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     private void txtetapaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtetapaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtetapaActionPerformed
+
+    private void btnCancelar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar2ActionPerformed
+        dispose();        // TODO add your handling code here:
+    }//GEN-LAST:event_btnCancelar2ActionPerformed
+    private void manejarEliminaciones(Connection con, FormularioMH formMH, int idEtapa) throws SQLException {
+        // 1. Para materiales a eliminar
+        for (String material : formMH.getMaterialesAEliminar()) {
+            // a. Obtener cantidad usada actual
+            String sqlSelect = "SELECT cantidad_usada FROM utilizado "
+                    + "WHERE etapa_produccion_idetapa_produccion = ? "
+                    + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, idEtapa);
+                psSelect.setString(2, material);
+                ResultSet rs = psSelect.executeQuery();
+
+                if (rs.next()) {
+                    double cantidad = rs.getDouble("cantidad_usada");
+
+                    // b. Devolver al inventario
+                    String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                            + "WHERE nombre = ?";
+                    try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                        psUpdate.setDouble(1, cantidad);
+                        psUpdate.setString(2, material);
+                        psUpdate.executeUpdate();
+                    }
+
+                    // c. Eliminar de la tabla utilizado
+                    String sqlDelete = "DELETE FROM utilizado "
+                            + "WHERE etapa_produccion_idetapa_produccion = ? "
+                            + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+                    try (PreparedStatement psDelete = con.prepareStatement(sqlDelete)) {
+                        psDelete.setInt(1, idEtapa);
+                        psDelete.setString(2, material);
+                        psDelete.executeUpdate();
+                    }
+                }
+            }
+        }
+
+        // 2. Hacer lo mismo para herramientas
+        for (String herramienta : formMH.getHerramientasAEliminar()) {
+            // Misma lógica que para materiales
+            // a. Obtener cantidad usada actual
+            String sqlSelect = "SELECT cantidad_usada FROM utilizado "
+                    + "WHERE etapa_produccion_idetapa_produccion = ? "
+                    + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, idEtapa);
+                psSelect.setString(2, herramienta);
+                ResultSet rs = psSelect.executeQuery();
+
+                if (rs.next()) {
+                    double cantidad = rs.getDouble("cantidad_usada");
+
+                    // b. Devolver al inventario
+                    String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                            + "WHERE nombre = ?";
+                    try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                        psUpdate.setDouble(1, cantidad);
+                        psUpdate.setString(2, herramienta);
+                        psUpdate.executeUpdate();
+                    }
+
+                    // c. Eliminar de la tabla utilizado
+                    String sqlDelete = "DELETE FROM utilizado "
+                            + "WHERE etapa_produccion_idetapa_produccion = ? "
+                            + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+                    try (PreparedStatement psDelete = con.prepareStatement(sqlDelete)) {
+                        psDelete.setInt(1, idEtapa);
+                        psDelete.setString(2, herramienta);
+                        psDelete.executeUpdate();
+                    }
+                }
+            }
+
+        }
+    }
+
+    private void actualizarCantidadesUsadas(Connection con, FormularioMH formMH, int idEtapa) throws SQLException {
+        Map<String, String> cantidadesMateriales = formMH.getCantidadesMateriales();
+        Map<String, String> cantidadesHerramientas = formMH.getCantidadesHerramientas();
+
+        // 1. Para materiales
+        for (Map.Entry<String, String> entry : cantidadesMateriales.entrySet()) {
+            String nombre = entry.getKey();
+            double cantidadNueva = Double.parseDouble(entry.getValue().replace(",", "."));
+
+            // a. Obtener cantidad actual en utilizado
+            String sqlSelect = "SELECT cantidad_usada FROM utilizado "
+                    + "WHERE etapa_produccion_idetapa_produccion = ? "
+                    + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, idEtapa);
+                psSelect.setString(2, nombre);
+                ResultSet rs = psSelect.executeQuery();
+
+                if (rs.next()) {
+                    double cantidadActual = rs.getDouble("cantidad_usada");
+                    double diferencia = cantidadActual - cantidadNueva;
+
+                    // b. Ajustar inventario si la cantidad cambió
+                    if (diferencia != 0) {
+                        String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                                + "WHERE nombre = ?";
+                        try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                            psUpdate.setDouble(1, diferencia);
+                            psUpdate.setString(2, nombre);
+                            psUpdate.executeUpdate();
+                        }
+                    }
+                }
+
+                // c. Actualizar cantidad en utilizado
+                String sqlUpdate = "UPDATE utilizado SET cantidad_usada = ? "
+                        + "WHERE etapa_produccion_idetapa_produccion = ? "
+                        + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+                try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdate)) {
+                    psUpdate.setDouble(1, cantidadNueva);
+                    psUpdate.setInt(2, idEtapa);
+                    psUpdate.setString(3, nombre);
+                    psUpdate.executeUpdate();
+                }
+            }
+        }
+        for (Map.Entry<String, String> entry : cantidadesHerramientas.entrySet()) {
+            String nombre = entry.getKey();
+            double cantidadNueva = Double.parseDouble(entry.getValue().replace(",", "."));
+
+            // a. Obtener cantidad actual en utilizado
+            String sqlSelect = "SELECT cantidad_usada FROM utilizado "
+                    + "WHERE etapa_produccion_idetapa_produccion = ? "
+                    + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, idEtapa);
+                psSelect.setString(2, nombre);
+                ResultSet rs = psSelect.executeQuery();
+
+                if (rs.next()) {
+                    double cantidadActual = rs.getDouble("cantidad_usada");
+                    double diferencia = cantidadActual - cantidadNueva;
+
+                    // b. Ajustar inventario si la cantidad cambió
+                    if (diferencia != 0) {
+                        String sqlUpdateInventario = "UPDATE inventario SET cantidad = cantidad + ? "
+                                + "WHERE nombre = ?";
+                        try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+                            psUpdate.setDouble(1, diferencia);
+                            psUpdate.setString(2, nombre);
+                            psUpdate.executeUpdate();
+                        }
+                    }
+                }
+
+                // c. Actualizar cantidad en utilizado
+                String sqlUpdate = "UPDATE utilizado SET cantidad_usada = ? "
+                        + "WHERE etapa_produccion_idetapa_produccion = ? "
+                        + "AND inventario_id_inventario = (SELECT id_inventario FROM inventario WHERE nombre = ?)";
+                try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdate)) {
+                    psUpdate.setDouble(1, cantidadNueva);
+                    psUpdate.setInt(2, idEtapa);
+                    psUpdate.setString(3, nombre);
+                    psUpdate.executeUpdate();
+                }
+            }
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -573,13 +780,11 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSComboBoxMaterial Boxestado;
-    private rojeru_san.RSButtonRiple btnCancelar1;
+    private rojeru_san.RSButtonRiple btnCancelar2;
     private rojeru_san.RSButtonRiple btnGuardar1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -647,55 +852,11 @@ public class EditEtapaProduccion extends javax.swing.JDialog {
                 }
             }
 
-            // Cargar materiales y herramientas usados
-            cargarMaterialesHerramientasUsados(con, idEtapa);
-
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Error al cargar datos: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(EditEtapaProduccion.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
-
-    private void cargarMaterialesHerramientasUsados(Connection con, int idEtapa) throws SQLException {
-        System.out.println("Cargando materiales y herramientas para idEtapa: " + idEtapa);
-        System.out.println("cmbMateriales: " + (cmbMateriales != null ? "no es null" : "es null"));
-        System.out.println("cmbHerramientas: " + (cmbHerramientas != null ? "no es null" : "es null"));
-
-        String sql = "SELECT i.nombre, i.tipo, u.cantidad_usada "
-                + "FROM utilizado u "
-                + "JOIN inventario i ON u.inventario_id_inventario = i.id_inventario "
-                + "WHERE u.etapa_produccion_idetapa_produccion = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idEtapa);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String nombre = rs.getString("nombre");
-                    String tipo = rs.getString("tipo");
-                    double cantidadUsada = rs.getDouble("cantidad_usada");
-
-                    CheckedComboBox<CheckableItem> combo = tipo.equals("material") ? cmbMateriales : cmbHerramientas;
-                    if (combo != null) {
-                        for (int i = 0; i < combo.getModel().getSize(); i++) {
-                            CheckableItem item = combo.getModel().getElementAt(i);
-                            if (item.toString().equals(nombre)) {
-                                item.setSelected(true);
-                                System.out.println("Marcado " + tipo + ": " + nombre + " con cantidad usada: " + cantidadUsada);
-                                break;
-                            }
-                        }
-                    } else {
-                        System.err.println("Combo es null para tipo: " + tipo);
-                    }
-                }
-                if (cmbMateriales != null) {
-                    cmbMateriales.repaint();
-                }
-                if (cmbHerramientas != null) {
-                    cmbHerramientas.repaint();
-                }
-            }
         }
     }
 

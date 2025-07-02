@@ -4,10 +4,6 @@
  */
 package vista;
 
-
-
-
-
 import controlador.Ctrl_Perfil;
 import java.awt.Frame;
 import java.awt.event.FocusAdapter;
@@ -18,60 +14,62 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import modelo.UsuarioModelo;
-
-
 
 /**
  *
  * @author ZenBook
  */
 public class crear_usuario extends javax.swing.JDialog {
- 
+
     private String[] datos; // Almacena los datos ingresados
     private boolean guardado = false; // Indica si se presionó "Guardar"
 
-  private String correoIngresado = "";
+    private String correoIngresado = "";
     private boolean isPasswordVisible = false;
     private boolean isPasswordVisible1 = false; // Para el segundo campo
     private JPanel tooltip;
     private ImageIcon eyeOpenIcon;
     private ImageIcon eyeClosedIcon;
+
     /**
      * Creates new form nuevoMateriales
      */
-   public crear_usuario(java.awt.Frame parent, boolean modal) {
-    super(parent, modal);
-    initComponents();
+    public crear_usuario(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
 
-    // Cargar el ícono del ojo
-    URL iconUrl = getClass().getResource("/imagenes/ojo.png");
-    if (iconUrl == null) {
-        System.err.println("❌ No se encontró /imagenes/ojo.png");
-    } else {
-        System.out.println("✅ Imagen encontrada: " + iconUrl);
-        ImageIcon icono = new ImageIcon(iconUrl);
-        jLabel1.setIcon(icono); // ← Asegúrate que jLabel1 existe y es donde va el ícono
+        // Cargar el ícono del ojo
+        URL iconUrl = getClass().getResource("/imagenes/ojo.png");
+        if (iconUrl == null) {
+            System.err.println("❌ No se encontró /imagenes/ojo.png");
+        } else {
+            System.out.println("✅ Imagen encontrada: " + iconUrl);
+            ImageIcon icono = new ImageIcon(iconUrl);
+            jLabel1.setIcon(icono); // ← Asegúrate que jLabel1 existe y es donde va el ícono
+        }
+        configurarFiltroTexto();
+        setTitle("Nuevo Material");
+        agregarValidacion();
+
+        // Ocultar etiquetas de error
+        tipoidentificacion.setVisible(false);
+        tipoidentificacion1.setVisible(false);
+        tipoidentificacion2.setVisible(false);
+        tipoidentificacion3.setVisible(false);
+        tipoidentificacion4.setVisible(false);
+        tipoidentificacion5.setVisible(false);
+        tipoidentificacion6.setVisible(false);
+        tipoidentificacion7.setVisible(false);
+        tipoidentificacion8.setVisible(false);
+        tipoidentificacion9.setVisible(false);
     }
 
-    setTitle("Nuevo Material");
-    agregarValidacion();
-
-    // Ocultar etiquetas de error
-    tipoidentificacion.setVisible(false);
-    tipoidentificacion1.setVisible(false);
-    tipoidentificacion2.setVisible(false);
-    tipoidentificacion3.setVisible(false);
-    tipoidentificacion4.setVisible(false);
-    tipoidentificacion5.setVisible(false);
-    tipoidentificacion6.setVisible(false);
-    tipoidentificacion7.setVisible(false);
-    tipoidentificacion8.setVisible(false);
-    tipoidentificacion9.setVisible(false);
-}
-
-    
-        public String[] getDatos() {
+    public String[] getDatos() {
         return datos;
     }
 
@@ -79,12 +77,7 @@ public class crear_usuario extends javax.swing.JDialog {
     public boolean isGuardado() {
         return guardado;
     }
-    
 
-
-
-    
-    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -455,11 +448,11 @@ public class crear_usuario extends javax.swing.JDialog {
     }//GEN-LAST:event_nombretxtActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-        dispose(); 
+        dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
+        Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
         StringBuilder errores = new StringBuilder();
 
         // Obtener valores de los campos
@@ -475,14 +468,30 @@ Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
         String numeroIdentificacion = numerotxt.getText().trim();
 
         // Validaciones
-        if (nombre.isEmpty()) errores.append("El nombre es obligatorio.\n");
-        if (apellido.isEmpty()) errores.append("El apellido es obligatorio.\n");
-        if (usuario.isEmpty()) errores.append("El usuario es obligatorio.\n");
-        if (correo.isEmpty()) errores.append("El correo electrónico es obligatorio.\n");
-        if (contrasena.isEmpty()) errores.append("La contraseña es obligatoria.\n");
-        if (rol.equals("Escoja el rol:")) errores.append("Debe seleccionar un rol.\n");
-        if (tipoIdentificacion.equals("tipo de identificación")) errores.append("Debe seleccionar un tipo de identificación.\n");
-        if (numeroIdentificacion.isEmpty()) errores.append("El número de identificación es obligatorio.\n");
+        if (nombre.isEmpty()) {
+            errores.append("El nombre es obligatorio.\n");
+        }
+        if (apellido.isEmpty()) {
+            errores.append("El apellido es obligatorio.\n");
+        }
+        if (usuario.isEmpty()) {
+            errores.append("El usuario es obligatorio.\n");
+        }
+        if (correo.isEmpty()) {
+            errores.append("El correo electrónico es obligatorio.\n");
+        }
+        if (contrasena.isEmpty()) {
+            errores.append("La contraseña es obligatoria.\n");
+        }
+        if (rol.equals("Escoja el rol:")) {
+            errores.append("Debe seleccionar un rol.\n");
+        }
+        if (tipoIdentificacion.equals("tipo de identificación")) {
+            errores.append("Debe seleccionar un tipo de identificación.\n");
+        }
+        if (numeroIdentificacion.isEmpty()) {
+            errores.append("El número de identificación es obligatorio.\n");
+        }
 
         // Validaciones adicionales
         if (!correo.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
@@ -539,7 +548,7 @@ Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
         } else {
             JOptionPane.showMessageDialog(this, "Error al guardar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
         }
-       
+
 
     }//GEN-LAST:event_btnGuardarActionPerformed
 
@@ -581,7 +590,7 @@ Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
 
     /**
      */
-   public static void main(String args[]) {
+    public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -673,7 +682,8 @@ public boolean esContrasenaValida(String contrasena) {
         String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._-])[A-Za-z\\d@$!%*?&._-]{8,}$";
         return contrasena.matches(regex);
     }
-private void agregarValidacion() {
+
+    private void agregarValidacion() {
         // Validación para identificaciontxt
         identificaciontxt.addFocusListener(new FocusAdapter() {
             @Override
@@ -725,6 +735,7 @@ private void agregarValidacion() {
                     tipoidentificacion9.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -754,6 +765,7 @@ private void agregarValidacion() {
                     tipoidentificacion1.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -783,6 +795,7 @@ private void agregarValidacion() {
                     tipoidentificacion3.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -812,6 +825,7 @@ private void agregarValidacion() {
                     tipoidentificacion2.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -841,6 +855,7 @@ private void agregarValidacion() {
                     tipoidentificacion7.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -870,6 +885,7 @@ private void agregarValidacion() {
                     tipoidentificacion6.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -899,6 +915,7 @@ private void agregarValidacion() {
                     tipoidentificacion5.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -946,7 +963,6 @@ private void agregarValidacion() {
         });
     }
 
-
 //private void togglePasswordVisibility() {
 //        if (isPasswordVisible) {
 //            contrasenatxt.setEchoChar('•');
@@ -968,7 +984,40 @@ private void agregarValidacion() {
 //        }
 //        isPasswordVisible1 = !isPasswordVisible1;
 //    }
+    private void configurarFiltroTexto() {
+        ((AbstractDocument) nombretxt.getDocument()).setDocumentFilter(new LetterFilter());
+        ((AbstractDocument) apellidotxt.getDocument()).setDocumentFilter(new LetterFilter());
 
-   
+        // También puedes agregar un tooltip para informar al usuario
+        nombretxt.setToolTipText("Este campo solo acepta letras y espacios");
+        apellidotxt.setToolTipText("Este campo solo acepta letras y espacios");
 
+    }
+
+    public class LetterFilter extends DocumentFilter {
+
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr)
+                throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+
+            if (string.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+
+            if (text.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+    }
 }

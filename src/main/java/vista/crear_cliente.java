@@ -16,6 +16,10 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 
 
@@ -44,9 +48,13 @@ private HashMap<String, String[]> municipiosPorDepartamento = new HashMap<>();
     dirección1.setVisible(false); // Municipio (optional)
     labeldireccion.setVisible(false); // Descripción adicional (optional)
     dirección4.setVisible(false); // Unused
+    dirección3.setVisible(false);
+    telefono1.setVisible(false);
     agregarValidacion();
     inicializarMunicipios();
     agregarListenerDepartamento();
+            configurarFiltroTexto();
+
     }
     
         public String[] getDatos() {
@@ -962,4 +970,40 @@ guardado = false;
     private RSMaterialComponent.RSTextFieldMaterial telefonotxt1;
     private javax.swing.JLabel tipoidentificacion;
     // End of variables declaration//GEN-END:variables
+private void configurarFiltroTexto() {
+        ((AbstractDocument) nombretxt.getDocument()).setDocumentFilter(new LetterFilter());
+        ((AbstractDocument) apellidotxt.getDocument()).setDocumentFilter(new LetterFilter());
+
+        // También puedes agregar un tooltip para informar al usuario
+        nombretxt.setToolTipText("Este campo solo acepta letras y espacios");
+        apellidotxt.setToolTipText("Este campo solo acepta letras y espacios");
+
+    }
+
+    public class LetterFilter extends DocumentFilter {
+
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr)
+                throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+
+            if (string.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+
+            if (text.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+    }
 }

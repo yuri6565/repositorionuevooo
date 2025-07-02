@@ -4,7 +4,9 @@
  */
 package vista.Produccion;
 
+import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Toolkit;
 
 /**
  *
@@ -15,11 +17,42 @@ public class AlertaFechaPedido extends javax.swing.JDialog {
     /**
      * Creates new form AlertaFechaPedido
      */
-    public AlertaFechaPedido(Frame parent, boolean modal, String error, String fechaPedido) {
+    public AlertaFechaPedido(Frame parent, boolean modal, String error, String fechaPedido,String customIconPath) {
         super(parent, modal);
         initComponents();
         fecha.setText(fechaPedido);
         setLocationRelativeTo(parent);
+        if (!isVisible()) { // Prevent multiple instances
+            initComponents();
+            System.out.println("Setting error: " + error);
+            
+            //jLabel1.setText(error != null ? error : "¿Estás seguro?");
+            //jLabel2.setText(todos_los_campos_son_obligatorios != null ? todos_los_campos_son_obligatorios : "¿Está seguro que desea eliminar este producto?");
+            if (customIconPath != null && getClass().getResource(customIconPath) != null) {
+                jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource(customIconPath)));
+            } else {
+                jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/warning-triangle-sign-free-vector-removebg-preview.png")));
+            }
+            setOpacity(0.0f);
+            setBackground(new java.awt.Color(0, 0, 0, 0));
+            Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+            setSize(pantalla);
+            setLocationRelativeTo(parent);
+
+            // Manual fade-in effect
+            new Thread(() -> {
+                for (float i = 0.0f; i <= 1.0f; i += 0.1f) {
+                    setOpacity(i);
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                setOpacity(1.0f);
+                setVisible(true); // Show after fade-in
+            }).start();
+        }
     }
 
     /**
@@ -31,6 +64,7 @@ public class AlertaFechaPedido extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jEImagePanel1 = new LIB.JEImagePanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -57,7 +91,7 @@ public class AlertaFechaPedido extends javax.swing.JDialog {
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/crisis.png"))); // NOI18N
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 520, 90));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 470, 90));
 
         btnCancelar.setBackground(new java.awt.Color(46, 49, 82));
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/salida (1).png"))); // NOI18N
@@ -80,15 +114,34 @@ public class AlertaFechaPedido extends javax.swing.JDialog {
         fecha.setText("fecha");
         jPanel1.add(fecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 110, 160, 30));
 
+        javax.swing.GroupLayout jEImagePanel1Layout = new javax.swing.GroupLayout(jEImagePanel1);
+        jEImagePanel1.setLayout(jEImagePanel1Layout);
+        jEImagePanel1Layout.setHorizontalGroup(
+            jEImagePanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jEImagePanel1Layout.createSequentialGroup()
+                .addGap(131, 131, 131)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 468, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(188, Short.MAX_VALUE))
+        );
+        jEImagePanel1Layout.setVerticalGroup(
+            jEImagePanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jEImagePanel1Layout.createSequentialGroup()
+                .addGap(146, 146, 146)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(186, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 463, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jEImagePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jEImagePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -99,29 +152,28 @@ public class AlertaFechaPedido extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     public static void main(String args[]) {
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-            AlertaFechaPedido dialog = new AlertaFechaPedido(
-                new javax.swing.JFrame(), 
-                true, 
-                "Mensaje de ejemplo", 
-                "2023-12-31"
-            );
-            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowClosing(java.awt.event.WindowEvent e) {
-                    System.exit(0);
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
                 }
-            });
-            dialog.setVisible(true);
+            }
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(alertaEliminarEtapa.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-    });
-}
+
+        java.awt.EventQueue.invokeLater(() -> {
+            alertaEliminarEtapa dialog = new alertaEliminarEtapa(new javax.swing.JFrame(), true, "¿Estás seguro?", "¿Está seguro que desea eliminar este producto?", "/warning-triangle-sign-free-vector-removebg-preview.png");
+            dialog.setVisible(true);
+        });
+    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private rojeru_san.RSButtonRiple btnCancelar;
     private javax.swing.JLabel fecha;
+    private LIB.JEImagePanel jEImagePanel1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
