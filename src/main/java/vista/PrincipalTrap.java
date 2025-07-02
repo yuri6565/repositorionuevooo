@@ -5,7 +5,6 @@
 package vista;
 
 import controlador.Ctrl_Perfil;
-import controlador.Ctrl_productocatalogo;
 import vista.Caja.Caja;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -24,7 +23,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import modelo.UsuarioModelo;
@@ -42,11 +40,7 @@ import vista.catalogo.catalogo22;
  * @author Personal
  */
 public class PrincipalTrap extends javax.swing.JFrame {
- private JScrollPane scrollPane;
-    private int idCategoria; // Guardar el ID de la categoría
-    private String nombreCategoria; // Guardar el nombre de la categoría
-    private Ctrl_productocatalogo controladorProducto; // Controlador para productos
-    private JPanel parentPanel;
+
     private JPanel submenuInventario;
     private boolean submenuVisible = false;
 // Botón "Materiales" del submenú
@@ -81,8 +75,8 @@ public class PrincipalTrap extends javax.swing.JFrame {
 
 // Configura el panel de contenido
         contenedor.setBounds(menuExpanded ? MENU_EXPANDED_WIDTH : MENU_COLLAPSED_WIDTH,
-                65,1800,
-getHeight());
+                65, 1800,
+                getHeight());
 
         setIconImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE));
 
@@ -100,7 +94,6 @@ getHeight());
 
         // Establece tamaño inicial
         jPanel3.setPreferredSize(new Dimension(MENU_EXPANDED_WIDTH, jPanel3.getHeight()));
-
 
 //submenu inventario------------------
         // Inicializar el submenú
@@ -315,9 +308,8 @@ getHeight());
 
             uno.setIcon(new ImageIcon(getClass().getResource("/imagenes/casa.png")));
             dos.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-negra.png")));
-            tres.setIcon(new ImageIcon(getClass().getResource("/imagenes/proveedor-de-servicio.png")));
             cuatro.setIcon(new ImageIcon(getClass().getResource("/imagenes/productivity_1.png")));
-            
+
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
             Diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/ajustesblanco.png")));
 
@@ -327,9 +319,8 @@ getHeight());
 
             uno1.setIcon(new ImageIcon(getClass().getResource("/imagenes/casa.png")));
             dos1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-negra.png")));
-            tres1.setIcon(new ImageIcon(getClass().getResource("/imagenes/proveedor-de-servicio.png")));
             cuatro1.setIcon(new ImageIcon(getClass().getResource("/imagenes/productivity_1.png")));
-            
+
             nueve1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
             rSLabelIcon1.setForeground(new Color(255, 255, 255));
             //rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/logo_blanco.png")));
@@ -355,9 +346,8 @@ getHeight());
             rSLabelIcon1.setForeground(new Color(0, 0, 0));
             uno.setIcon(new ImageIcon(getClass().getResource("/imagenes/home.png")));
             dos.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-blanca.png")));
-            tres.setIcon(new ImageIcon(getClass().getResource("/imagenes/proveedor-de-servicio_1.png")));
             cuatro.setIcon(new ImageIcon(getClass().getResource("/imagenes/productivity.png")));
-            
+
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
             Diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/ajustess.png")));
             rSLabelImage1.setIcon(new ImageIcon(getClass().getResource("/imagenes/feliz-sol (6).png")));
@@ -365,9 +355,8 @@ getHeight());
 
             uno1.setIcon(new ImageIcon(getClass().getResource("/imagenes/home.png")));
             dos1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-blanca.png")));
-            tres1.setIcon(new ImageIcon(getClass().getResource("/imagenes/proveedor-de-servicio_1.png")));
             cuatro1.setIcon(new ImageIcon(getClass().getResource("/imagenes/productivity.png")));
-            
+
             nueve1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
             rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/logo_azul.png")));
             rSPanelImage3.setPreferredSize(new Dimension(160, 109));
@@ -377,9 +366,8 @@ getHeight());
         // Botones
         cambiarEstiloBotonRS(uno, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(dos, fondoBoton, textoBoton);
-        cambiarEstiloBotonRS(tres, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(cuatro, fondoBoton, textoBoton);
-        
+
         cambiarEstiloBotonRS(nueve, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(Diez, fondoBoton, textoBoton);
 
@@ -387,9 +375,8 @@ getHeight());
 
         cambiarEstiloBotonRS(uno1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(dos1, fondoBoton, textoBoton);
-        cambiarEstiloBotonRS(tres1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(cuatro1, fondoBoton, textoBoton);
-        
+
         cambiarEstiloBotonRS(nueve1, fondoBoton, textoBoton);
 
         // Labels
@@ -433,9 +420,8 @@ getHeight());
         // Actualiza el texto de los botones según el estado
         uno.setText(expanded ? "Escritorio" : "");
         dos.setText(expanded ? " Inventario           ▼" : "");
-        tres.setText(expanded ? "Proveedores" : "");
         cuatro.setText(expanded ? "Producción" : "");
-        
+
         nueve.setText(expanded ? "Catálogo" : "");
         Diez.setText(expanded ? "Config" : "");
 
@@ -573,10 +559,9 @@ getHeight());
             jPanel3.add(rSPanelImage3, new org.netbeans.lib.awtextra.AbsoluteConstraints(49, 41, 158, 153));
             jPanel3.add(uno, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
             jPanel3.add(dos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
-            jPanel3.add(tres, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
-            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
-            
-            jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
+            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
+
+            jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
 
             dos.setText(" Inventario           ▼");
             submenuVisible = false;
@@ -592,10 +577,9 @@ getHeight());
             jPanel3.add(rSPanelImage3, new org.netbeans.lib.awtextra.AbsoluteConstraints(49, 41, 158, 153));
             jPanel3.add(uno, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
             jPanel3.add(dos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
-            jPanel3.add(tres, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
-            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
-            
-            jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
+            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
+
+            jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
 
             submenuVentasVisible = false;
 
@@ -629,12 +613,11 @@ getHeight());
         jPanel4 = new javax.swing.JPanel();
         uno1 = new rojeru_san.RSButton();
         dos1 = new rojeru_san.RSButton();
-        tres1 = new rojeru_san.RSButton();
         cuatro1 = new rojeru_san.RSButton();
         nueve1 = new rojeru_san.RSButton();
+        nueve2 = new rojeru_san.RSButton();
         jPanel3 = new javax.swing.JPanel();
         dos = new rojeru_san.RSButton();
-        tres = new rojeru_san.RSButton();
         cuatro = new rojeru_san.RSButton();
         nueve = new rojeru_san.RSButton();
         uno = new rojeru_san.RSButton();
@@ -821,24 +804,6 @@ getHeight());
         });
         jPanel4.add(dos1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 40, 50));
 
-        tres1.setBackground(new java.awt.Color(29, 30, 81));
-        tres1.setBorder(null);
-        tres1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/proveedor-de-servicio.png"))); // NOI18N
-        tres1.setColorHover(new java.awt.Color(128, 128, 128));
-        tres1.setColorTextHover(new java.awt.Color(0, 0, 0));
-        tres1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        tres1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                tres1MouseEntered(evt);
-            }
-        });
-        tres1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tres1ActionPerformed(evt);
-            }
-        });
-        jPanel4.add(tres1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 40, 51));
-
         cuatro1.setBackground(new java.awt.Color(29, 30, 81));
         cuatro1.setBorder(null);
         cuatro1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/productivity.png"))); // NOI18N
@@ -855,11 +820,11 @@ getHeight());
                 cuatro1ActionPerformed(evt);
             }
         });
-        jPanel4.add(cuatro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 40, 51));
+        jPanel4.add(cuatro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 40, 51));
 
         nueve1.setBackground(new java.awt.Color(29, 30, 81));
         nueve1.setBorder(null);
-        nueve1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/public-service_1.png"))); // NOI18N
+        nueve1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ajustes (1).png"))); // NOI18N
         nueve1.setColorHover(new java.awt.Color(128, 128, 128));
         nueve1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         nueve1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -872,7 +837,24 @@ getHeight());
                 nueve1ActionPerformed(evt);
             }
         });
-        jPanel4.add(nueve1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 40, 52));
+        jPanel4.add(nueve1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 40, 52));
+
+        nueve2.setBackground(new java.awt.Color(29, 30, 81));
+        nueve2.setBorder(null);
+        nueve2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/public-service_1.png"))); // NOI18N
+        nueve2.setColorHover(new java.awt.Color(128, 128, 128));
+        nueve2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        nueve2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nueve2MouseEntered(evt);
+            }
+        });
+        nueve2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nueve2ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(nueve2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 40, 52));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 924));
 
@@ -894,19 +876,6 @@ getHeight());
         dos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dosActionPerformed(evt);
-            }
-        });
-
-        tres.setBackground(new java.awt.Color(29, 30, 81));
-        tres.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 30, 1, 1));
-        tres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/proveedor-de-servicio.png"))); // NOI18N
-        tres.setText(" Proveedores");
-        tres.setColorHover(new java.awt.Color(128, 128, 128));
-        tres.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        tres.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        tres.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tresActionPerformed(evt);
             }
         });
 
@@ -990,7 +959,6 @@ getHeight());
                 .addComponent(rSPanelImage3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(uno, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(dos, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(Diez, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1004,18 +972,13 @@ getHeight());
                 .addComponent(uno, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addComponent(dos, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
-                .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(50, 50, 50)
-                        .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(100, 100, 100)
-                        .addComponent(Diez, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(421, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Diez, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(450, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 924));
@@ -1056,26 +1019,6 @@ getHeight());
 
     }//GEN-LAST:event_cuatroActionPerformed
 
-    private void tresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tresActionPerformed
-        ocultarSubmenus();
-        if (!this.tres.isSelected()) {
-            deseleccionar();
-            this.tres.setSelected(true);
-
-            proveedores pr = new proveedores();
-            pr.setSize(1290, 730);
-            pr.setLocation(0, 0);
-
-            contenedor.removeAll();
-            contenedor.add(pr);
-            contenedor.revalidate();
-            contenedor.repaint();
-            lblTituloPrincipal.setText("Proveedores");
-        }
-        animacion();
-
-    }//GEN-LAST:event_tresActionPerformed
-
     private void unoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unoActionPerformed
         ocultarSubmenus();
         if (!this.uno.isSelected()) {
@@ -1112,9 +1055,8 @@ getHeight());
             jPanel3.add(uno, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
             jPanel3.add(dos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
             jPanel3.add(submenuInventario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 100)); // Submenú (Materiales + Herramientas)
-            jPanel3.add(tres, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
-            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 250, 50));
-            
+            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
+
             jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 250, 50));
 
             /* Mostrar submenú de Ventas
@@ -1145,10 +1087,6 @@ getHeight());
 
     }//GEN-LAST:event_dos1ActionPerformed
 
-    private void tres1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tres1ActionPerformed
-
-    }//GEN-LAST:event_tres1ActionPerformed
-
     private void cuatro1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cuatro1ActionPerformed
 
     }//GEN-LAST:event_cuatro1ActionPerformed
@@ -1165,10 +1103,6 @@ getHeight());
         animation_salir();
     }//GEN-LAST:event_dos1MouseEntered
 
-    private void tres1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tres1MouseEntered
-        animation_salir();
-    }//GEN-LAST:event_tres1MouseEntered
-
     private void jPanel5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseExited
 
     }//GEN-LAST:event_jPanel5MouseExited
@@ -1181,12 +1115,10 @@ getHeight());
         if (!this.nueve.isSelected()) {
             deseleccionar();
             this.nueve.setSelected(true);
-   JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        
-            // Crear y mostrar el panel de inventario
-  catalogo22 cat = new catalogo22(parentFrame, false, contenedor);
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 
-        
+            // Crear y mostrar el panel de inventario
+            catalogo22 cat = new catalogo22(parentFrame, false, contenedor);
 
             cat.setSize(1290, 730);
             cat.setLocation(0, 0);
@@ -1250,6 +1182,14 @@ getHeight());
         // TODO add your handling code here:
     }//GEN-LAST:event_nueve1ActionPerformed
 
+    private void nueve2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nueve2MouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nueve2MouseEntered
+
+    private void nueve2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nueve2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nueve2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1272,6 +1212,14 @@ getHeight());
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(PrincipalTrap.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -1311,6 +1259,7 @@ getHeight());
     private javax.swing.JLabel lblUsuarioLogueado;
     private rojeru_san.RSButton nueve;
     private rojeru_san.RSButton nueve1;
+    private rojeru_san.RSButton nueve2;
     private rojerusan.RSLabelCircleImage rSLabelCircleImage1;
     private rojerusan.RSLabelIcon rSLabelIcon1;
     private rojerusan.RSLabelImage rSLabelImage1;
@@ -1318,8 +1267,6 @@ getHeight());
     private rojerusan.RSPanelImage rSPanelImage3;
     private rojerusan.RSSwitch rSSwitch1;
     private javax.swing.JLabel rolusuario;
-    private rojeru_san.RSButton tres;
-    private rojeru_san.RSButton tres1;
     private rojeru_san.RSButton uno;
     private rojeru_san.RSButton uno1;
     // End of variables declaration//GEN-END:variables
@@ -1327,9 +1274,8 @@ getHeight());
     private void deseleccionar() {
         this.uno.setSelected(false);
         this.dos.setSelected(false);
-        this.tres.setSelected(false);
         this.cuatro.setSelected(false);
-        
+
         this.nueve.setSelected(false);
     }
 

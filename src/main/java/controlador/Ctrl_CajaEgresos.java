@@ -44,7 +44,7 @@ public class Ctrl_CajaEgresos {
     String sql = "SELECT c.id_codigo, c.fecha, c.monto, c.cantidad, c.descripcion, c.categoria, " +
                  "p.nombre as proveedor, GROUP_CONCAT(i.nombre SEPARATOR ', ') as productos " +
                  "FROM caja c " +
-                 "LEFT JOIN suministra s ON c.suministra_idSuministra = s.idSuministra " +
+                 "LEFT JOIN suministra s ON c.suministra_idSuministra = s.id_suministra " +
                  "LEFT JOIN proveedor p ON s.proveedor_id_proveedor = p.id_proveedor " +
                  "LEFT JOIN inventario i ON s.inventario_id_inventario = i.id_inventario " +
                  "WHERE c.movimiento = 'egreso' " +
@@ -145,7 +145,7 @@ public class Ctrl_CajaEgresos {
         Caja caja = null;
         String sql = "SELECT c.*, p.nombre as proveedor_nombre, GROUP_CONCAT(i.nombre SEPARATOR ', ') as productos_nombres " +
                      "FROM caja c " +
-                     "LEFT JOIN suministra s ON c.suministra_idSuministra = s.idSuministra " +
+                     "LEFT JOIN suministra s ON c.suministra_idSuministra = s.id_suministra " +
                      "LEFT JOIN proveedor p ON s.proveedor_id_proveedor = p.id_proveedor " +
                      "LEFT JOIN inventario i ON s.inventario_id_inventario = i.id_inventario " +
                      "WHERE c.id_codigo = ? AND c.movimiento = 'egreso' " +

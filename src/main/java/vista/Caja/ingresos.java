@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -24,6 +25,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import modelo.Caja;
 import modelo.PedidoDetalle;
+import vista.TemaManager;
 
 /**
  *
@@ -38,7 +40,7 @@ public final class ingresos extends javax.swing.JPanel {
     /**
      * Creates new form Ingresos
      */
-    public ingresos() {
+    public ingresos(JPanel panelP1) {
         initComponents();
 
         // Inicializar el controlador
@@ -54,6 +56,105 @@ public final class ingresos extends javax.swing.JPanel {
 
         // Cargar datos iniciales
         cargarDatosIniciales();
+        aplicarTema();
+        TemaManager.getInstance().addThemeChangeListener(() -> {
+            aplicarTema(); // Update theme when it changes
+        });
+    }
+
+    public void aplicarTema() {
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+
+        if (oscuro) {
+            // Configuración para modo oscuro
+            Color fondo = new Color(21, 21, 33);
+            Color fondoTabla = new Color(30, 30, 45);
+            Color encabezado = new Color(67, 71, 120);
+            Color texto = Color.WHITE;
+
+            // Panel principal
+            jPanel1.setBackground(fondo);
+
+            // Campo de búsqueda
+            txtbuscar.setBackground(new Color(37, 37, 52));
+            txtbuscar.setForeground(texto);
+            txtbuscar.setColorIcon(texto);
+            txtbuscar.setPhColor(Color.LIGHT_GRAY);
+
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
+
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
+            Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(texto);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 71, 120));
+            Tabla1.setBackgoundHover(new Color(40, 50, 90));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(60, 60, 60));
+            Tabla1.setGridColor(new Color(80, 80, 80));
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+
+            // Botones
+            btnEliminar1.setBackground(encabezado);
+            btnEliminar1.setBackgroundHover(new Color(118, 142, 240));
+        } else {
+            Color fondo = new Color(242, 247, 255);
+            Color texto = Color.BLACK;
+            Color primario = new Color(72, 92, 188);
+
+            jPanel1.setBackground(fondo);
+            txtbuscar.setBackground(fondo);
+            txtbuscar.setForeground(texto);
+            txtbuscar.setColorIcon(texto);
+            txtbuscar.setPhColor(Color.GRAY);
+
+            Tabla1.setBackground(new Color(255, 255, 255));
+            Tabla1.setBackgoundHead(new Color(46, 49, 82));
+            Tabla1.setForegroundHead(Color.WHITE);
+            Tabla1.setBackgoundHover(new Color(67, 150, 209));
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setColorPrimary(new Color(242, 242, 242));
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecondary(new Color(255, 255, 255));
+            Tabla1.setColorSecundaryText(texto);
+            Tabla1.setColorBorderHead(primario);
+            Tabla1.setColorBorderRows(new Color(0, 0, 0));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setEffectHover(true);
+            Tabla1.setSelectionBackground(new Color(67, 150, 209));
+            Tabla1.setShowGrid(true);
+            Tabla1.setGridColor(Color.WHITE); // o el color que desees
+            Tabla1.setBackground(Color.WHITE);
+            Tabla1.setColorPrimary(new Color(242, 242, 242)); // Fondo filas impares
+            Tabla1.setColorSecondary(Color.WHITE); // Fondo filas pares
+            Tabla1.setForeground(Color.BLACK);
+            btnEliminar1.setBackground(new Color(46, 49, 82));
+
+        }
+        Tabla1.repaint();
+        Tabla1.getTableHeader().repaint();
     }
 
     // Método para cargar datos iniciales en la tabla
@@ -294,7 +395,7 @@ public final class ingresos extends javax.swing.JPanel {
                 double debido = (debidoObj != null) ? debidoObj.doubleValue() : 0.0;
 
                 // Obtener el id_pedido desde Ingreso (ajusta según la estructura real)
-                int idPedido = ingresoCaja.getIngreso() != null ? ingresoCaja.getIngreso().getIdPedido(): idAbono; // Ajusta getPedidoIdPedido()
+                int idPedido = ingresoCaja.getIngreso() != null ? ingresoCaja.getIngreso().getIdPedido() : idAbono; // Ajusta getPedidoIdPedido()
                 if (idPedido == 0 && idAbono != idPedido) {
                     JOptionPane.showMessageDialog(this, "No se pudo determinar el ID del pedido para el ID de abono: " + idAbono, "Error", JOptionPane.ERROR_MESSAGE);
                     return;

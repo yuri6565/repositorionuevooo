@@ -27,13 +27,10 @@ public class DetalleEgreso extends javax.swing.JDialog {
         txtdescripcion.setText(descripcion != null ? descripcion : "No especificado");
         txtcategoria.setText(categoria != null ? categoria : "No especificado");
         cantidadValor.setText(monto != null ? monto : "No especificado");
-        txtproveedor.setText(proveedor != null ? proveedor : "No especificado");
-        txtproductos.setText(productos != null ? productos : "No especificado");
         txtcaidad.setText(String.valueOf(cantidad));
 
         // Ajustar el texto para que use múltiples líneas si es necesario
         txtdescripcion.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        txtproductos.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         // Centrar el diálogo
         setLocationRelativeTo(parent);
@@ -59,10 +56,6 @@ public class DetalleEgreso extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        txtproductos = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        txtproveedor = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         btnGuardar1 = new rojeru_san.RSButtonRiple();
@@ -88,7 +81,7 @@ public class DetalleEgreso extends javax.swing.JDialog {
         txtcategoria.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         txtcategoria.setForeground(new java.awt.Color(0, 0, 0));
         txtcategoria.setText("categoria");
-        jPanel2.add(txtcategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 200, -1, -1));
+        jPanel2.add(txtcategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 170, -1, -1));
 
         cantidadValor.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         cantidadValor.setForeground(new java.awt.Color(0, 0, 0));
@@ -98,7 +91,7 @@ public class DetalleEgreso extends javax.swing.JDialog {
         txtdescripcion.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         txtdescripcion.setForeground(new java.awt.Color(0, 0, 0));
         txtdescripcion.setText("descripcion");
-        jPanel2.add(txtdescripcion, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 160, -1, -1));
+        jPanel2.add(txtdescripcion, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, -1, -1));
 
         ID.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         ID.setForeground(new java.awt.Color(0, 0, 0));
@@ -108,7 +101,7 @@ public class DetalleEgreso extends javax.swing.JDialog {
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Categoria:");
-        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, -1, -1));
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 0));
@@ -118,32 +111,12 @@ public class DetalleEgreso extends javax.swing.JDialog {
         jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Descripcion:");
-        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 160, -1, -1));
+        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, -1, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(0, 0, 0));
         jLabel15.setText("Fecha del pago: ");
         jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, -1));
-
-        txtproductos.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        txtproductos.setForeground(new java.awt.Color(0, 0, 0));
-        txtproductos.setText("productos");
-        jPanel2.add(txtproductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, -1, -1));
-
-        jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel16.setText("Poductos:");
-        jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 160, -1, -1));
-
-        txtproveedor.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        txtproveedor.setForeground(new java.awt.Color(0, 0, 0));
-        txtproveedor.setText("proveedor");
-        jPanel2.add(txtproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 120, -1, -1));
-
-        jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel17.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel17.setText("Proveedor:");
-        jPanel2.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 120, -1, -1));
 
         jPanel4.setBackground(new java.awt.Color(46, 49, 82));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -154,6 +127,7 @@ public class DetalleEgreso extends javax.swing.JDialog {
         jPanel4.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         btnGuardar1.setBackground(new java.awt.Color(46, 49, 82));
+        btnGuardar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/x (1).png"))); // NOI18N
         btnGuardar1.setColorHover(new java.awt.Color(204, 0, 0));
         btnGuardar1.setFont(new java.awt.Font("Humnst777 BlkCn BT", 1, 18)); // NOI18N
         btnGuardar1.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
@@ -169,12 +143,12 @@ public class DetalleEgreso extends javax.swing.JDialog {
         txtcaidad.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         txtcaidad.setForeground(new java.awt.Color(0, 0, 0));
         txtcaidad.setText("cantidad");
-        jPanel2.add(txtcaidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 160, -1, -1));
+        jPanel2.add(txtcaidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 120, -1, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Cantidad:");
-        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, -1, -1));
+        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 120, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -184,7 +158,9 @@ public class DetalleEgreso extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -211,8 +187,6 @@ public class DetalleEgreso extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
@@ -220,7 +194,5 @@ public class DetalleEgreso extends javax.swing.JDialog {
     private javax.swing.JLabel txtcaidad;
     private javax.swing.JLabel txtcategoria;
     private javax.swing.JLabel txtdescripcion;
-    private javax.swing.JLabel txtproductos;
-    private javax.swing.JLabel txtproveedor;
     // End of variables declaration//GEN-END:variables
 }
