@@ -238,7 +238,7 @@ public class PrincipalTrap extends javax.swing.JFrame {
 //                cinco.setSelected(true); // Mantener "Ventas" resaltado
 
                 // Cargar la vista de Cotización (temporalmente un mensaje)
-                cotizacion co = new cotizacion();
+                cotizacion co = new cotizacion(contenedor);
                 co.setSize(1290, 730); // Ajustar tamaño dinámicamente
                 co.setLocation(0, 0);
 
