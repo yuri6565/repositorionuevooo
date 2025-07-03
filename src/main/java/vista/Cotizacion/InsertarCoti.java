@@ -6,7 +6,12 @@ package vista.Cotizacion;
 
 import java.awt.Frame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 /**
  *
@@ -36,6 +41,8 @@ public class InsertarCoti extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         CargarUnidadMed();
+        configurarFiltroNumerico(txtValorUni);
+        configurarFiltroNumerico(txtCantidad);
         // Precargar los campos con los datos
         this.producto = producto;
         this.unidad = unidad;
@@ -340,5 +347,51 @@ public class InsertarCoti extends javax.swing.JDialog {
     private RSMaterialComponent.RSTextFieldMaterial txtProducto;
     private RSMaterialComponent.RSTextFieldMaterial txtValorUni;
     // End of variables declaration//GEN-END:variables
+private void configurarFiltrosNumericos() {
+        configurarFiltroNumerico(txtCantidad);
+        configurarFiltroNumerico(txtValorUni);
 
+        // Configuraciones adicionales
+        txtCantidad.setToolTipText("Solo números y un separador decimal (ej: 3001234567)");
+        txtValorUni.setToolTipText("Solo números (ej: 123456789)");
+    }
+
+    private void configurarFiltroNumerico(JTextField textField) {
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(DocumentFilter.FilterBypass fb, int offset, String text, AttributeSet attr)
+                    throws BadLocationException {
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+                if (validarFormatoNumerico(newText, textField)) {
+                    super.insertString(fb, offset, text, attr);
+                }
+            }
+
+            @Override
+            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (validarFormatoNumerico(newText, textField)) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+
+            private boolean validarFormatoNumerico(String text, JTextField field) {
+                // Reglas diferentes según el campo
+                if (field == txtCantidad) {
+                    return text.matches("^[0-9]*([.,][0-9]{0,2})?$"); // Máx 2 decimales
+                }
+
+                if (field == txtCantidad) {
+                    return text.matches("^[0-9]{0,15}$"); // Solo números, máx 15 dígitos
+                } else if (field == txtValorUni) {
+                    return text.matches("^[0-9]{0,20}$"); // Solo números, máx 20 dígitos
+                } else if (field == txtCantidad) {
+                    return text.matches("^[0-9]*([.,][0-9]{0,2})?$"); // Máx 2 decimales
+                }
+                return false;
+            }
+        });
+    }
 }

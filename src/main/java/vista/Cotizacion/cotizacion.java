@@ -11,6 +11,8 @@ import modelo.Cotizacion;
 import controlador.CotizacionDAO;
 import controlador.Ctrl_Cliente;
 import controlador.Ctrl_Cotizacion;
+import java.awt.Color;
+import java.awt.Font;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -18,10 +20,17 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.swing.BorderFactory;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import modelo.Cliente;
 import vista.Cotizacion.HistorialCot;
 import vista.Cotizacion.InsertarCoti;
+import vista.TemaManager;
 
 public class cotizacion extends javax.swing.JPanel {
 
@@ -33,15 +42,334 @@ public class cotizacion extends javax.swing.JPanel {
     public cotizacion(JPanel contenedor) {
         initComponents();
         configurarTabla();
+        configurarFiltroNumerico(telefonotxt);
+        configurarFiltroNumerico(numeroidtxt);
+        configurarFiltroTexto();
         txt_total.setEditable(false);
         txt_total.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         txt_total.setText("$0");
+        TemaManager.getInstance().addThemeChangeListener(() -> {
+            aplicarTema(); // Update theme when it changes
+        });
 
-        CrearCotizacion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CrearCotizacionActionPerformed(evt);
+    }
+
+    private void configurarFiltroTexto() {
+        ((AbstractDocument) txt_NombreCliente.getDocument()).setDocumentFilter(new LetterFilter());
+        ((AbstractDocument) txt_ApellidoCliente.getDocument()).setDocumentFilter(new LetterFilter());
+
+        // También puedes agregar un tooltip para informar al usuario
+        txt_NombreCliente.setToolTipText("Este campo solo acepta letras y espacios");
+        txt_ApellidoCliente.setToolTipText("Este campo solo acepta letras y espacios");
+    }
+
+    public class LetterFilter extends DocumentFilter {
+
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr)
+                throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+
+            if (string.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+
+            if (text.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+    }
+
+    private void configurarFiltrosNumericos() {
+        configurarFiltroNumerico(telefonotxt);
+        configurarFiltroNumerico(numeroidtxt);
+
+        // Configuraciones adicionales
+        telefonotxt.setToolTipText("Solo números y un separador decimal (ej: 3001234567)");
+        numeroidtxt.setToolTipText("Solo números (ej: 123456789)");
+    }
+
+    private void configurarFiltroNumerico(JTextField textField) {
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(DocumentFilter.FilterBypass fb, int offset, String text, AttributeSet attr)
+                    throws BadLocationException {
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+                if (validarFormatoNumerico(newText, textField)) {
+                    super.insertString(fb, offset, text, attr);
+                }
+            }
+
+            @Override
+            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (validarFormatoNumerico(newText, textField)) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+
+            private boolean validarFormatoNumerico(String text, JTextField field) {
+                // Reglas diferentes según el campo
+                if (field == txt_total) {
+                    return text.matches("^[0-9]*([.,][0-9]{0,2})?$"); // Máx 2 decimales
+                }
+
+                if (field == telefonotxt) {
+                    return text.matches("^[0-9]{0,15}$"); // Solo números, máx 15 dígitos
+                } else if (field == numeroidtxt) {
+                    return text.matches("^[0-9]{0,20}$"); // Solo números, máx 20 dígitos
+                } else if (field == txt_total) {
+                    return text.matches("^[0-9]*([.,][0-9]{0,2})?$"); // Máx 2 decimales
+                }
+                return false;
             }
         });
+    }
+
+    public void aplicarTema() {
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+
+        if (oscuro) {
+            // Configuración para modo oscuro
+            Color fondo = new Color(21, 21, 33);
+            Color fondoTabla = new Color(30, 30, 45);
+            Color encabezado = new Color(67, 71, 120);
+            Color texto = Color.WHITE;
+            Color hover = new Color(118, 142, 240); // Hover de botones
+            Color fondoCampo = new Color(37, 37, 52); // Fondo de campos de texto
+
+            // Paneles
+            setBackground(fondo);
+            jPanel1.setBackground(fondo);
+            jPanel2.setBackground(fondo);
+
+            // JScrollPane y su viewport
+            jScrollPane3.setBackground(fondo);
+            jScrollPane3.getViewport().setBackground(fondoTabla);
+            jScrollPane3.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+
+            // Labels
+            jLabel2.setForeground(texto);
+            jLabel7.setForeground(texto);
+            jLabel9.setForeground(texto);
+            jLabel10.setForeground(texto);
+            jLabel11.setForeground(texto);
+            jLabel12.setForeground(texto);
+            jLabel13.setForeground(texto);
+
+            // Campos de texto
+            txt_NombreCliente.setBackground(fondoCampo);
+            txt_NombreCliente.setForeground(texto);
+            txt_NombreCliente.setColorMaterial(encabezado);
+            txt_NombreCliente.setPhColor(Color.LIGHT_GRAY);
+
+            txt_ApellidoCliente.setBackground(fondoCampo);
+            txt_ApellidoCliente.setForeground(texto);
+            txt_ApellidoCliente.setColorMaterial(encabezado);
+            txt_ApellidoCliente.setPhColor(Color.LIGHT_GRAY);
+
+            numeroidtxt.setBackground(fondoCampo);
+            numeroidtxt.setForeground(texto);
+            numeroidtxt.setColorMaterial(encabezado);
+            numeroidtxt.setPhColor(Color.LIGHT_GRAY);
+
+            telefonotxt.setBackground(fondoCampo);
+            telefonotxt.setForeground(texto);
+            telefonotxt.setColorMaterial(encabezado);
+            telefonotxt.setPhColor(Color.LIGHT_GRAY);
+
+            direcciontxt.setBackground(fondoCampo);
+            direcciontxt.setForeground(texto);
+            direcciontxt.setColorMaterial(encabezado);
+            direcciontxt.setPhColor(Color.LIGHT_GRAY);
+
+            txt_total.setBackground(fondoCampo);
+            txt_total.setForeground(texto);
+            txt_total.setColorMaterial(encabezado);
+            txt_total.setPhColor(Color.LIGHT_GRAY);
+
+            // Combo boxes
+            identificaciontxt.setBackground(fondoCampo);
+            identificaciontxt.setForeground(texto);
+            identificaciontxt.setColorMaterial(encabezado);
+
+            btnCrearpdf.setBackground(encabezado);
+            btnCrearpdf.setBackgroundHover(hover);
+            btnCrearpdf.setForeground(texto);
+            btnCrearpdf.setForegroundHover(Color.WHITE);
+
+            jButton_anadir_producto.setBackground(encabezado);
+            jButton_anadir_producto.setBackgroundHover(hover);
+            jButton_anadir_producto.setForeground(texto);
+            jButton_anadir_producto.setForegroundHover(Color.WHITE);
+
+            HistorialCoti.setBackground(encabezado);
+            HistorialCoti.setBackgroundHover(hover);
+            HistorialCoti.setForeground(texto);
+            HistorialCoti.setForegroundHover(Color.WHITE);
+
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
+
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
+            Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(texto);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 71, 120));
+            Tabla1.setBackgoundHover(new Color(40, 50, 90));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(60, 60, 60));
+            Tabla1.setGridColor(new Color(80, 80, 80));
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+
+        } else {
+            // Configuración para modo claro
+            Color fondo = new Color(242, 247, 255);
+            Color fondoTabla = Color.WHITE;
+            Color encabezado = new Color(46, 49, 82);
+            Color texto = Color.BLACK;
+            Color hover = new Color(0, 153, 51); // Hover de botones, tomado de catalogo.java
+
+            // Paneles
+            setBackground(fondo);
+            jPanel1.setBackground(fondo);
+            jPanel2.setBackground(fondo);
+
+            // JScrollPane y su viewport
+            jScrollPane3.setBackground(fondo);
+            jScrollPane3.getViewport().setBackground(fondoTabla);
+            jScrollPane3.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+            // Labels
+            jLabel2.setForeground(texto);
+            jLabel7.setForeground(texto);
+            jLabel9.setForeground(texto);
+            jLabel10.setForeground(texto);
+            jLabel11.setForeground(texto);
+            jLabel12.setForeground(texto);
+            jLabel13.setForeground(texto);
+
+            // Campos de texto
+            txt_NombreCliente.setBackground(fondo);
+            txt_NombreCliente.setForeground(texto);
+            txt_NombreCliente.setColorMaterial(encabezado);
+            txt_NombreCliente.setPhColor(Color.GRAY);
+
+            txt_ApellidoCliente.setBackground(fondo);
+            txt_ApellidoCliente.setForeground(texto);
+            txt_ApellidoCliente.setColorMaterial(encabezado);
+            txt_ApellidoCliente.setPhColor(Color.GRAY);
+
+            numeroidtxt.setBackground(fondo);
+            numeroidtxt.setForeground(texto);
+            numeroidtxt.setColorMaterial(encabezado);
+            numeroidtxt.setPhColor(Color.GRAY);
+
+            telefonotxt.setBackground(fondo);
+            telefonotxt.setForeground(texto);
+            telefonotxt.setColorMaterial(encabezado);
+            telefonotxt.setPhColor(Color.GRAY);
+
+            direcciontxt.setBackground(fondo);
+            direcciontxt.setForeground(texto);
+            direcciontxt.setColorMaterial(encabezado);
+            direcciontxt.setPhColor(Color.GRAY);
+
+            txt_total.setBackground(fondo);
+            txt_total.setForeground(texto);
+            txt_total.setColorMaterial(encabezado);
+            txt_total.setPhColor(Color.GRAY);
+
+            // Combo boxes
+            identificaciontxt.setBackground(fondo);
+            identificaciontxt.setForeground(texto);
+            identificaciontxt.setColorMaterial(encabezado);
+
+            btnCrearpdf.setBackground(encabezado);
+            btnCrearpdf.setBackgroundHover(hover);
+            btnCrearpdf.setForeground(texto);
+            btnCrearpdf.setForegroundHover(Color.BLACK);
+
+            jButton_anadir_producto.setBackground(encabezado);
+            jButton_anadir_producto.setBackgroundHover(hover);
+            jButton_anadir_producto.setForeground(texto);
+            jButton_anadir_producto.setForegroundHover(Color.BLACK);
+
+            HistorialCoti.setBackground(encabezado);
+            HistorialCoti.setBackgroundHover(hover);
+            HistorialCoti.setForeground(texto);
+            HistorialCoti.setForegroundHover(Color.BLACK);
+
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
+
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(242, 242, 242)); // Filas impares
+            Tabla1.setColorSecondary(Color.WHITE); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(Color.WHITE);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 150, 209));
+            Tabla1.setBackgoundHover(new Color(67, 150, 209));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(0, 0, 0));
+            Tabla1.setGridColor(Color.WHITE);
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+        }
+
+        // Forzar actualización visual
+        Tabla1.repaint();
+        Tabla1.getTableHeader().repaint();
+        revalidate();
+        repaint();
     }
 
     public java.sql.Date getFecha() {
@@ -75,8 +403,6 @@ public class cotizacion extends javax.swing.JPanel {
         Tabla1.getColumnModel().getColumn(5).setPreferredWidth(60);
         Tabla1.getColumnModel().getColumn(6).setPreferredWidth(60);
     }
-
-
 
     private void guardarCotizacion() {
         if (Tabla1.getRowCount() == 0) {
@@ -156,7 +482,6 @@ public class cotizacion extends javax.swing.JPanel {
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         direcciontxt = new RSMaterialComponent.RSTextFieldMaterial();
-        CrearCotizacion = new RSMaterialComponent.RSButtonShape();
 
         jToggleButton1.setText("jToggleButton1");
 
@@ -285,7 +610,7 @@ public class cotizacion extends javax.swing.JPanel {
                 btnCrearpdfActionPerformed(evt);
             }
         });
-        jPanel2.add(btnCrearpdf, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 550, 170, 70));
+        jPanel2.add(btnCrearpdf, new org.netbeans.lib.awtextra.AbsoluteConstraints(1050, 540, 170, 70));
 
         txt_NombreCliente.setForeground(new java.awt.Color(0, 0, 0));
         txt_NombreCliente.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -373,20 +698,6 @@ public class cotizacion extends javax.swing.JPanel {
             }
         });
         jPanel2.add(direcciontxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 140, 200, 30));
-
-        CrearCotizacion.setBackground(new java.awt.Color(46, 49, 82));
-        CrearCotizacion.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        CrearCotizacion.setText("Crear Cotizacion");
-        CrearCotizacion.setBackgroundHover(new java.awt.Color(0, 153, 0));
-        CrearCotizacion.setFont(new java.awt.Font("Roboto Bold", 1, 16)); // NOI18N
-        CrearCotizacion.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        CrearCotizacion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        CrearCotizacion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CrearCotizacionActionPerformed(evt);
-            }
-        });
-        jPanel2.add(CrearCotizacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 550, 160, 70));
 
         add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1300, 680));
     }// </editor-fold>//GEN-END:initComponents
@@ -677,60 +988,6 @@ public class cotizacion extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_identificaciontxtActionPerformed
 
-    private void CrearCotizacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CrearCotizacionActionPerformed
-        System.out.println("DEBUG: Botón CrearCotizacion presionado");
-
-        try {
-            System.out.println("DEBUG: Validando tabla...");
-            if (Tabla1.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(this, "No hay productos", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("DEBUG: Error - No hay productos en la tabla");
-                return;
-            }
-            System.out.println("DEBUG: Tabla tiene " + Tabla1.getRowCount() + " filas");
-
-            System.out.println("DEBUG: Validando cliente...");
-            if (!validarYCrearCliente()) {
-                System.out.println("DEBUG: Error - Fallo en validarYCrearCliente");
-                return;
-            }
-
-            System.out.println("DEBUG: Validando clienteCodigo...");
-            if (clienteCodigo == null) {
-                JOptionPane.showMessageDialog(this, "Error: No se ha seleccionado un cliente válido", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("DEBUG: Error - clienteCodigo es null");
-                return;
-            }
-            System.out.println("DEBUG: clienteCodigo = " + clienteCodigo);
-
-            System.out.println("DEBUG: Validando txt_total...");
-            String totalText = txt_total.getText().trim();
-            System.out.println("DEBUG: Valor de txt_total antes de procesar: '" + totalText + "'");
-            if (totalText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "El campo total está vacío", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("DEBUG: Error - txt_total está vacío");
-                return;
-            }
-
-            String cleanTotal = totalText.replace("$", "").replace(",", "");
-            System.out.println("DEBUG: Valor de cleanTotal: '" + cleanTotal + "'");
-            long pointCount = cleanTotal.chars().filter(ch -> ch == '.').count();
-            System.out.println("DEBUG: Cantidad de puntos decimales: " + pointCount);
-            if (pointCount > 1) {
-                JOptionPane.showMessageDialog(this, "El total contiene un formato inválido (múltiples puntos). Use un solo punto decimal, ej. 123.45", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("DEBUG: Error - Múltiples puntos en txt_total");
-                return;
-            }
-
-            double total = Double.parseDouble(cleanTotal);
-            guardarCotizacion(); // Llamada al método unificado
-        } catch (Exception e) {
-            System.out.println("DEBUG: Excepción al guardar: " + e.getMessage());
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_CrearCotizacionActionPerformed
-
     private boolean camposClienteLlenos() {
         return !txt_NombreCliente.getText().trim().isEmpty()
                 && !txt_ApellidoCliente.getText().trim().isEmpty()
@@ -788,9 +1045,8 @@ public class cotizacion extends javax.swing.JPanel {
     private void guardarEdicionamiento(Integer filaEditando) {
         throw new UnsupportedOperationException("Not supported yet."); // Debes implementarlo si planeas usarlo
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private RSMaterialComponent.RSButtonShape CrearCotizacion;
     private RSMaterialComponent.RSButtonShape HistorialCoti;
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
     private RSMaterialComponent.RSButtonShape btnCrearpdf;

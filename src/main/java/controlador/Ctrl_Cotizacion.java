@@ -17,7 +17,7 @@ public class Ctrl_Cotizacion {
 
     private cotizacion vista;
     private CotizacionDAO cotizacionDAO;
-    private static final int USUARIO_ID = 1; // ID del usuario logueado (ajustar según autenticación)
+    public static final int USUARIO_ID = 1; // ID del usuario logueado (ajustar según autenticación)
 
     public Ctrl_Cotizacion(cotizacion vista) {
         this.vista = vista;
