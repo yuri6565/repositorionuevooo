@@ -6,24 +6,31 @@ package vista;
 
 import controlador.Ctrl_Cliente;
 import controlador.Ctrl_Proveedor;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -44,116 +51,162 @@ public class Proveedor extends javax.swing.JPanel {
     private final int PROVEEDORES_POR_PAGINA = 19;
     private List<ProveedorDatos> todosLosProveedores = new ArrayList<>();
     private boolean[] seleccionados;
-private int idproveedor;
+    private int idproveedor;
 
     public Proveedor(JFrame jFrame, boolean par) {
         proveedorContro = new Ctrl_Proveedor();
         initComponents();
+        jPanel1.setPreferredSize(new java.awt.Dimension(1340, 750)); // Ajusta según necesites
+jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate que sea mayor que el contenido
         rSCheckBox1.addActionListener(e -> seleccionarTodo());
         cargartablaproveedores();
         aplicarTema();
+        rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar botón por defecto
         TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
     }
 
-   public void cargartablaproveedores() {
-    tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    public void cargartablaproveedores() {
+        tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    DefaultTableModel model = new DefaultTableModel() {
-        @Override
-        public boolean isCellEditable(int fila, int columna) {
-            return columna == 0 || columna == 8 || columna == 9; // "Seleccionar", "Productos", and "Acciones"
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int fila, int columna) {
+                return columna == 0 || columna == 9; // "Selec" y "Acciones"
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 0) return Boolean.class;
+                return String.class;
+            }
+        };
+
+        model.addColumn("Selec");
+        model.addColumn("Código");
+        model.addColumn("Nombres");
+        model.addColumn("Email");
+        model.addColumn("Teléfono");
+        model.addColumn("Dirección");
+        model.addColumn("Estado");
+        model.addColumn("Ubicación");
+        model.addColumn("Productos");
+        model.addColumn("Acciones");
+
+        List<ProveedorDatos> proveedores = proveedorContro.obtenerProveedoresConProductos();
+        todosLosProveedores = new ArrayList<>(proveedores);
+        System.out.println("Número de proveedores cargados: " + todosLosProveedores.size());
+
+        seleccionados = new boolean[todosLosProveedores.size()];
+
+        for (ProveedorDatos proveedor : todosLosProveedores) {
+            List<String> productos = proveedor.getProductos();
+            if (productos == null || productos.isEmpty()) {
+                productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
+            }
+            String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
+            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
+                    (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
+            String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre") + " " +
+                    (proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido");
+            model.addRow(new Object[]{
+                false,
+                proveedor.getId_proveedor(),
+                nombreCompleto,
+                proveedor.getCorreo_electronico(),
+                proveedor.getTelefono(),
+                proveedor.getDireccion(),
+                proveedor.getEstado(),
+                ubicacion,
+                new ProductCell(productosResumen, productos),
+                "Ver Productos"
+            });
         }
 
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            if (columnIndex == 0) return Boolean.class;
-            if (columnIndex == 8) return ProductCell.class;
-            return String.class;
-        }
-    };
+        tablaclientes.setModel(model);
+        mostrarPagina(currentPage);
 
-    model.addColumn("Seleccionar");
-    model.addColumn("Código");
-    model.addColumn("Nombres");
-    model.addColumn("Email");
-    model.addColumn("Teléfono");
-    model.addColumn("Dirección");
-    model.addColumn("Estado");
-    model.addColumn("Ubicación");
-    model.addColumn("Productos");
-    model.addColumn("Acciones");
+        // Configurar renderers y editores
+        tablaclientes.getColumnModel().getColumn(0).setCellRenderer(new CustomCheckboxRenderer());
+        tablaclientes.getColumnModel().getColumn(0).setCellEditor(new CustomCheckboxEditor());
+        tablaclientes.getColumnModel().getColumn(6).setCellRenderer(new StateCellRenderer());
+        tablaclientes.getColumnModel().getColumn(8).setCellRenderer(new ProductCellRenderer());
+        tablaclientes.getColumnModel().getColumn(8).setCellEditor(new ProductCellEditor());
+        tablaclientes.getColumnModel().getColumn(9).setCellRenderer(new ButtonPanelRenderer());
+        tablaclientes.getColumnModel().getColumn(9).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
 
-    List<ProveedorDatos> proveedores = proveedorContro.obtenerProveedoresConProductos();
-    todosLosProveedores = new ArrayList<>(proveedores);
-    System.out.println("Número de proveedores cargados: " + todosLosProveedores.size());
+        // Ajustar anchos
+       tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(50); // Reducir un poco
+tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
+// Ajusta los demás según necesites
+        tablaclientes.getColumnModel().getColumn(2).setPreferredWidth(180);
+        tablaclientes.getColumnModel().getColumn(3).setPreferredWidth(220);
+        tablaclientes.getColumnModel().getColumn(4).setPreferredWidth(110);
+        tablaclientes.getColumnModel().getColumn(5).setPreferredWidth(140);
+        tablaclientes.getColumnModel().getColumn(6).setPreferredWidth(80);
+        tablaclientes.getColumnModel().getColumn(7).setPreferredWidth(180);
+        tablaclientes.getColumnModel().getColumn(8).setPreferredWidth(130);
+        tablaclientes.getColumnModel().getColumn(9).setPreferredWidth(100);
+        tablaclientes.setRowHeight(29);
 
-    seleccionados = new boolean[todosLosProveedores.size()];
-
-    for (ProveedorDatos proveedor : todosLosProveedores) {
-        List<String> productos = proveedor.getProductos();
-        if (productos == null || productos.isEmpty()) {
-            productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
-        }
-        String productosResumen = (productos != null && !productos.isEmpty()) ? 
-                (productos.size() > 2 ? String.join(", ", productos.subList(0, 2)) + " + (" + (productos.size() - 2) + " más)" : String.join(", ", productos)) : 
-                "Sin productos";
-        String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
-                (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
-        String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre") + " " +
-                (proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido");
-        model.addRow(new Object[]{
-            false,
-            proveedor.getId_proveedor(),
-            nombreCompleto,
-            proveedor.getCorreo_electronico(),
-            proveedor.getTelefono(),
-            proveedor.getDireccion(),
-            proveedor.getEstado(), // Ensure this is "Activo" or "Inactivo"
-            ubicacion,
-            new ProductCell(productosResumen, productos),
-            "Ver Productos"
+        // Listener para detectar cambios en la selección
+        tablaclientes.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                actualizarEstadoBotonAccion();
+            }
+        });
+        tablaclientes.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int fila_point = tablaclientes.rowAtPoint(e.getPoint());
+                if (fila_point > -1) {
+                    try {
+                        id_proveedor = Integer.parseInt(tablaclientes.getValueAt(fila_point, 1).toString());
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Error al parsear id_proveedor: " + ex.getMessage());
+                    }
+                }
+                actualizarEstadoBotonAccion();
+            }
         });
     }
 
-    tablaclientes.setModel(model);
-    mostrarPagina(currentPage);
+   private void actualizarEstadoBotonAccion() {
+    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+    int inicio = currentPage * PROVEEDORES_POR_PAGINA;
+    List<Integer> seleccionadosIds = new ArrayList<>();
+    List<String> estados = new ArrayList<>();
 
-    // Configurar renderers y editores
-    tablaclientes.getColumnModel().getColumn(0).setCellRenderer(new CustomCheckboxRenderer());
-    tablaclientes.getColumnModel().getColumn(0).setCellEditor(new CustomCheckboxEditor());
-    tablaclientes.getColumnModel().getColumn(6).setCellRenderer(new StateCellRenderer()); // Add renderer for Estado
-    tablaclientes.getColumnModel().getColumn(8).setCellRenderer(new ProductCellRenderer());
-    tablaclientes.getColumnModel().getColumn(8).setCellEditor(new ProductCellEditor());
-    tablaclientes.getColumnModel().getColumn(9).setCellRenderer(new ButtonPanelRenderer());
-    tablaclientes.getColumnModel().getColumn(9).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
-
-    // Ajustar anchos basados en la imagen (aproximados en píxeles)
-    tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(120);
-    tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(130);
-    tablaclientes.getColumnModel().getColumn(2).setPreferredWidth(250);
-    tablaclientes.getColumnModel().getColumn(3).setPreferredWidth(240);
-    tablaclientes.getColumnModel().getColumn(4).setPreferredWidth(130);
-    tablaclientes.getColumnModel().getColumn(5).setPreferredWidth(180);
-    tablaclientes.getColumnModel().getColumn(6).setPreferredWidth(80); // Adjusted for Estado
-    tablaclientes.getColumnModel().getColumn(7).setPreferredWidth(200);
-    tablaclientes.getColumnModel().getColumn(8).setPreferredWidth(115);
-    tablaclientes.getColumnModel().getColumn(9).setPreferredWidth(80);
-    tablaclientes.setRowHeight(29);
-
-    tablaclientes.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            int fila_point = tablaclientes.rowAtPoint(e.getPoint());
-            if (fila_point > -1) {
-                try {
-                    id_proveedor = Integer.parseInt(tablaclientes.getValueAt(fila_point, 1).toString());
-                } catch (NumberFormatException ex) {
-                    System.out.println("Error al parsear id_proveedor: " + ex.getMessage());
-                }
-            }
+    for (int i = 0; i < model.getRowCount(); i++) {
+        if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
+            int id = Integer.parseInt(model.getValueAt(i, 1).toString());
+            String estado = model.getValueAt(i, 6).toString().toLowerCase();
+            seleccionadosIds.add(id);
+            estados.add(estado);
         }
-    });
+    }
+
+    if (seleccionadosIds.isEmpty()) {
+        rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si no hay selección
+    } else {
+        boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
+        boolean todosActivos = estados.stream().allMatch("activo"::equals);
+
+        if (todosInactivos) {
+            rSButtonMaterialRippleIcon1.setVisible(true);
+            rSButtonMaterialRippleIcon1.setToolTipText("Activar proveedores seleccionados");
+            rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE); // Ícono para activar
+            rSButtonMaterialRippleIcon1.setForeground(new Color(0, 102, 204)); // Azul para activar
+        } else if (todosActivos) {
+            rSButtonMaterialRippleIcon1.setVisible(true);
+            rSButtonMaterialRippleIcon1.setToolTipText("Desactivar proveedores seleccionados");
+            rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CANCEL); // Ícono para desactivar
+            rSButtonMaterialRippleIcon1.setForeground(Color.GRAY); // Gris para desactivar
+        } else {
+            rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si la selección es mixta
+        }
+    }
 }
+
     private void mostrarPagina(int pagina) {
         DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
         model.setRowCount(0);
@@ -173,24 +226,22 @@ private int idproveedor;
             if (productos == null || productos.isEmpty()) {
                 productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
             }
-            String productosResumen = (productos != null && !productos.isEmpty()) ? 
-                    (productos.size() > 2 ? String.join(", ", productos.subList(0, 2)) + " + (" + (productos.size() - 2) + " más)" : String.join(", ", productos)) : 
-                    "Sin productos";
+            String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
             String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "") + "/" +
                     (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "");
             String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "") + " " +
                     (proveedor.getApellido() != null ? proveedor.getApellido() : "");
             model.addRow(new Object[]{
-                    seleccionados[i],
-                    proveedor.getId_proveedor(),
-                    nombreCompleto,
-                    proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "",
-                    proveedor.getTelefono() != null ? proveedor.getTelefono() : "",
-                    proveedor.getDireccion() != null ? proveedor.getDireccion() : "",
-                    proveedor.getEstado() != null ? proveedor.getEstado() : "",
-                    ubicacion,
-                    new ProductCell(productosResumen, productos), // Store ProductCell for editor
-                    "Ver Productos"
+                seleccionados[i],
+                proveedor.getId_proveedor(),
+                nombreCompleto,
+                proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "",
+                proveedor.getTelefono() != null ? proveedor.getTelefono() : "",
+                proveedor.getDireccion() != null ? proveedor.getDireccion() : "",
+                proveedor.getEstado() != null ? proveedor.getEstado() : "",
+                ubicacion,
+                new ProductCell(productosResumen, productos),
+                "Ver Productos"
             });
         }
 
@@ -210,11 +261,12 @@ private int idproveedor;
             model.setValueAt(seleccionado, i, 0);
             seleccionados[inicio + i] = seleccionado;
         }
+        actualizarEstadoBotonAccion(); // Actualizar el estado del botón después de seleccionar todo
     }
 
     class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
         private RSLabelIcon editIcon;
-        private RSLabelIcon deleteIcon;
+        private RSLabelIcon stateIcon;
 
         public ButtonPanelRenderer() {
             setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
@@ -225,13 +277,11 @@ private int idproveedor;
             editIcon.setToolTipText("Editar");
             editIcon.setPreferredSize(new Dimension(20, 20));
 
-            deleteIcon = new RSLabelIcon();
-            deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
-            deleteIcon.setToolTipText("Eliminar");
-            deleteIcon.setPreferredSize(new Dimension(20, 20));
+            stateIcon = new RSLabelIcon();
+            stateIcon.setPreferredSize(new Dimension(20, 20));
 
             add(editIcon);
-            add(deleteIcon);
+            add(stateIcon);
 
             updateTheme();
             TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
@@ -242,47 +292,35 @@ private int idproveedor;
             Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
             setBackground(fondo);
             editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
             editIcon.setForeground(new Color(29, 30, 81));
-            deleteIcon.setForeground(new Color(29, 30, 81));
+            stateIcon.setForeground(new Color(29, 30, 81));
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
+            String estado = table.getValueAt(row, 6) != null ? table.getValueAt(row, 6).toString().toLowerCase() : "";
+
+            if (estado.equals("activo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CANCEL);
+                stateIcon.setForeground(Color.GRAY);
+                stateIcon.setToolTipText("Desactivar");
+            } else if (estado.equals("inactivo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE);
+                stateIcon.setForeground(new Color(0, 102, 204));
+                stateIcon.setToolTipText("Activar");
+            } else {
+                stateIcon.setIcons(ValoresEnum.ICONS.HELP);
+                stateIcon.setForeground(Color.BLACK);
+                stateIcon.setToolTipText("Estado Desconocido");
+            }
+
             if (isSelected) {
                 setBackground(new Color(240, 240, 240));
             } else {
                 updateTheme();
             }
-            return this;
-        }
-    }
-
-    class CustomCheckboxRenderer extends JCheckBox implements TableCellRenderer {
-        public CustomCheckboxRenderer() {
-            setHorizontalAlignment(CENTER);
-            setOpaque(true);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            boolean oscuro = TemaManager.getInstance().isOscuro();
-            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-            Color borde = oscuro ? new Color(100, 100, 150) : new Color(180, 180, 180);
-            Color seleccion = oscuro ? new Color(118, 142, 240) : new Color(72, 92, 188);
-
-            if (isSelected) {
-                setBackground(new Color(240, 240, 240));
-            } else {
-                setBackground(fondo);
-            }
-
-            setBorderPainted(true);
-            setForeground(seleccion);
-            setSelected(Boolean.TRUE.equals(value));
-            setBorder(javax.swing.BorderFactory.createLineBorder(borde));
             return this;
         }
     }
@@ -314,7 +352,7 @@ private int idproveedor;
     class ButtonPanelEditor extends DefaultCellEditor {
         private JPanel panel;
         private RSLabelIcon editIcon;
-        private RSLabelIcon deleteIcon;
+        private RSLabelIcon stateIcon;
         private String label;
         private boolean isPushed;
         private int selectedRow;
@@ -330,13 +368,12 @@ private int idproveedor;
             editIcon.setToolTipText("Editar");
             editIcon.setPreferredSize(new Dimension(20, 20));
 
-            deleteIcon = new RSLabelIcon();
-            deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
-            deleteIcon.setToolTipText("Eliminar");
-            deleteIcon.setPreferredSize(new Dimension(20, 20));
+            stateIcon = new RSLabelIcon();
+            stateIcon.setPreferredSize(new Dimension(20, 20));
+            stateIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             panel.add(editIcon);
-            panel.add(deleteIcon);
+            panel.add(stateIcon);
 
             editIcon.addMouseListener(new MouseAdapter() {
                 @Override
@@ -371,40 +408,53 @@ private int idproveedor;
                 }
             });
 
-            deleteIcon.addMouseListener(new MouseAdapter() {
+            stateIcon.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     isPushed = true;
                     fireEditingStopped();
                     try {
                         int codigo = Integer.parseInt(tablaclientes.getValueAt(selectedRow, 1).toString());
-                        if (proveedorContro.tieneProductos(codigo)) {
-                            int opcion = JOptionPane.showConfirmDialog(Proveedor.this,
-                                    "Este proveedor tiene productos asociados. ¿Desea marcarlo como inactivo?",
-                                    "Proveedor con Productos", JOptionPane.YES_NO_OPTION);
-                            if (opcion == JOptionPane.YES_OPTION) {
-                                if (proveedorContro.desactivar(codigo)) {
-                                    JOptionPane.showMessageDialog(Proveedor.this, "Proveedor marcado como inactivo.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                                    cargartablaproveedores();
-                                } else {
-                                    JOptionPane.showMessageDialog(Proveedor.this, "Error al marcar como inactivo.", "Error", JOptionPane.ERROR_MESSAGE);
-                                }
+                        String estadoActual = tablaclientes.getValueAt(selectedRow, 6).toString().toLowerCase();
+                        boolean activar = estadoActual.equals("inactivo");
+
+                        if (activar) {
+                            if (proveedorContro.activar(codigo)) {
+                                JOptionPane.showMessageDialog(Proveedor.this, "Proveedor activado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+                                model.setValueAt("Activo", selectedRow, 6);
+                            } else {
+                                JOptionPane.showMessageDialog(Proveedor.this, "No se encontró el proveedor o no se pudo activar.", "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         } else {
-                            int confirm = JOptionPane.showConfirmDialog(Proveedor.this,
-                                    "¿Está seguro de que desea eliminar el proveedor con código " + codigo + "?",
-                                    "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-                            if (confirm == JOptionPane.YES_OPTION) {
-                                if (proveedorContro.eliminar(codigo)) {
-                                    JOptionPane.showMessageDialog(Proveedor.this, "Proveedor eliminado correctamente");
-                                    cargartablaproveedores();
+                            if (proveedorContro.tieneProductos(codigo)) {
+                                int opcion = JOptionPane.showConfirmDialog(Proveedor.this,
+                                        "Este proveedor tiene productos asociados. ¿Desea marcarlo como inactivo?",
+                                        "Proveedor con Productos", JOptionPane.YES_NO_OPTION);
+                                if (opcion == JOptionPane.YES_OPTION) {
+                                    if (proveedorContro.desactivar(codigo)) {
+                                        JOptionPane.showMessageDialog(Proveedor.this, "Proveedor desactivado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+                                        model.setValueAt("Inactivo", selectedRow, 6);
+                                    } else {
+                                        JOptionPane.showMessageDialog(Proveedor.this, "No se encontró el proveedor o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                            } else {
+                                if (proveedorContro.desactivar(codigo)) {
+                                    JOptionPane.showMessageDialog(Proveedor.this, "Proveedor desactivado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+                                    model.setValueAt("Inactivo", selectedRow, 6);
                                 } else {
-                                    JOptionPane.showMessageDialog(Proveedor.this, "Error al eliminar el proveedor");
+                                    JOptionPane.showMessageDialog(Proveedor.this, "No se encontró el proveedor o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
                                 }
                             }
                         }
+                        tablaclientes.repaint();
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(Proveedor.this, "El código del proveedor no es un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(Proveedor.this, "Error al eliminar el proveedor: " + ex.getMessage());
+                        JOptionPane.showMessageDialog(Proveedor.this, "Error al cambiar el estado: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -418,9 +468,9 @@ private int idproveedor;
             Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
             panel.setBackground(fondo);
             editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
             editIcon.setForeground(new Color(29, 30, 81));
-            deleteIcon.setForeground(new Color(29, 30, 81));
+            stateIcon.setForeground(new Color(29, 30, 81));
         }
 
         @Override
@@ -429,6 +479,24 @@ private int idproveedor;
             label = (value == null) ? "" : value.toString();
             isPushed = true;
             selectedRow = row;
+
+            String estado = (row >= 0 && row < table.getRowCount() && table.getValueAt(row, 6) != null)
+                    ? table.getValueAt(row, 6).toString().toLowerCase()
+                    : "";
+            if (estado.equals("activo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CANCEL);
+                stateIcon.setForeground(Color.GRAY);
+                stateIcon.setToolTipText("Desactivar");
+            } else if (estado.equals("inactivo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE);
+                stateIcon.setForeground(new Color(0, 102, 204));
+                stateIcon.setToolTipText("Activar");
+            } else {
+                stateIcon.setIcons(ValoresEnum.ICONS.HELP);
+                stateIcon.setForeground(Color.BLACK);
+                stateIcon.setToolTipText("Estado Desconocido");
+            }
+
             if (row == table.getSelectedRow()) {
                 panel.setBackground(new Color(240, 240, 240));
             } else {
@@ -461,6 +529,11 @@ private int idproveedor;
             Color fondo = new Color(21, 21, 33);
             Color primario = new Color(40, 60, 150);
             Color texto = Color.WHITE;
+            rSButtonMaterialRippleIcon1.setBackground(fondo);
+            rSButtonMaterialRippleIcon1.setForegroundIcon(fondo);
+            rSButtonMaterialRippleIcon1.setForegroundHover(fondo);
+            rSButtonMaterialRippleIcon1.setForegroundIconHover(fondo);
+            rSButtonMaterialRippleIcon1.setForegroundText(fondo);
 
             jPanel1.setBackground(fondo);
             txtBuscar.setBackground(fondo);
@@ -469,10 +542,9 @@ private int idproveedor;
             txtBuscar.setPhColor(Color.LIGHT_GRAY);
             paginacion.setBackground(texto);
             rSCheckBox1.setColorCheck(new Color(21, 21, 33));
-            rSButtonMaterialRippleIcon1.setBackground(new Color(21, 21, 33));
-            tablaclientes.setBackground(new Color(21, 21, 33));
+            tablaclientes.setBackground(fondo);
             tablaclientes.setBackgoundHead(new Color(67, 71, 120));
-            tablaclientes.setForegroundHead(new Color(255, 255, 255));
+            tablaclientes.setForegroundHead(texto);
             tablaclientes.setBackgoundHover(new Color(40, 50, 90));
             tablaclientes.setFont(new Font("Tahoma", Font.PLAIN, 15));
             tablaclientes.setColorPrimary(new Color(37, 37, 52));
@@ -484,7 +556,7 @@ private int idproveedor;
             tablaclientes.setFontHead(new Font("Tahoma", Font.BOLD, 15));
             tablaclientes.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
             tablaclientes.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
-            tablaclientes.setEffectHover(true);
+            tablaclientes.setEffectHover(false);
             tablaclientes.setShowGrid(true);
             tablaclientes.setGridColor(Color.WHITE);
 
@@ -497,7 +569,7 @@ private int idproveedor;
             Color texto = Color.BLACK;
             Color primario = new Color(72, 92, 188);
             paginacion.setBackground(texto);
-            rSButtonMaterialRippleIcon1.setBackground(new Color(242, 247, 255));
+            rSButtonMaterialRippleIcon1.setBackground(fondo);
 
             jPanel1.setBackground(fondo);
             txtBuscar.setBackground(fondo);
@@ -505,21 +577,21 @@ private int idproveedor;
             txtBuscar.setColorIcon(texto);
             txtBuscar.setPhColor(Color.GRAY);
 
-            tablaclientes.setBackground(new Color(255, 255, 255));
+            tablaclientes.setBackground(Color.WHITE);
             tablaclientes.setBackgoundHead(new Color(46, 49, 82));
             tablaclientes.setForegroundHead(Color.WHITE);
-            tablaclientes.setBackgoundHover(new Color(67, 150, 209));
+            tablaclientes.setBackgoundHover(new Color(240, 240, 240));
             tablaclientes.setFont(new Font("Tahoma", Font.PLAIN, 15));
             tablaclientes.setColorPrimary(new Color(242, 242, 242));
             tablaclientes.setColorPrimaryText(texto);
-            tablaclientes.setColorSecondary(new Color(255, 255, 255));
+            tablaclientes.setColorSecondary(Color.WHITE);
             tablaclientes.setColorSecundaryText(texto);
             tablaclientes.setColorBorderHead(primario);
-            tablaclientes.setColorBorderRows(new Color(0, 0, 0));
+            tablaclientes.setColorBorderRows(Color.BLACK);
             tablaclientes.setFontHead(new Font("Tahoma", Font.BOLD, 15));
             tablaclientes.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
             tablaclientes.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
-            tablaclientes.setEffectHover(true);
+            tablaclientes.setEffectHover(false);
             tablaclientes.setSelectionBackground(new Color(67, 150, 209));
             tablaclientes.setShowGrid(true);
             tablaclientes.setGridColor(Color.BLACK);
@@ -658,19 +730,19 @@ private int idproveedor;
         jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 98, 40));
 
         rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(102, 102, 102));
-        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(253, 126, 20));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(51, 255, 0));
         rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
         rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(255, 51, 51));
         rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(255, 51, 51));
         rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(255, 51, 51));
         rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.DELETE);
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.BLOCK);
         rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rSButtonMaterialRippleIcon1ActionPerformed(evt);
             }
         });
-        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 680, 40, 40));
+        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 680, 40, 40));
 
         btnNuevo2.setBackground(new java.awt.Color(67, 94, 190));
         btnNuevo2.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -701,6 +773,11 @@ private int idproveedor;
 
         rSCheckBox1.setForeground(new java.awt.Color(102, 102, 255));
         rSCheckBox1.setText("Seleccionar Todo");
+        rSCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSCheckBox1ActionPerformed(evt);
+            }
+        });
         jPanel1.add(rSCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 680, 190, 20));
 
         paginacion.setBackground(new java.awt.Color(0, 0, 0));
@@ -718,17 +795,17 @@ private int idproveedor;
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo1ActionPerformed
- proveedornuevo dialog = new proveedornuevo(new javax.swing.JFrame(), true);
-    dialog.setLocationRelativeTo(null);
-    dialog.setVisible(true);
+   proveedornuevo dialog = new proveedornuevo(new javax.swing.JFrame(), true);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
 
-    if (dialog.isGuardado()) {
-        cargartablaproveedores(); 
-    }
+        if (dialog.isGuardado()) {
+            cargartablaproveedores(); 
+        }
     }//GEN-LAST:event_btnNuevo1ActionPerformed
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-       String textoBusqueda = txtBuscar.getText().trim();
+     String textoBusqueda = txtBuscar.getText().trim();
         if (textoBusqueda.isEmpty()) {
             cargartablaproveedores();
         } else {
@@ -750,79 +827,81 @@ int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEED
     }//GEN-LAST:event_Añadir4ActionPerformed
 
     private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
-  List<Integer> idsAEliminar = new ArrayList<>();
-        List<String> nombresProveedoresAEliminar = new ArrayList<>();
-        List<Integer> proveedoresConProductos = new ArrayList<>();
-        List<String> proveedoresConProductosNombres = new ArrayList<>();
+    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+    int inicio = currentPage * PROVEEDORES_POR_PAGINA;
+    List<Integer> seleccionadosIds = new ArrayList<>();
+    List<String> estados = new ArrayList<>();
 
-        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-        int inicio = currentPage * PROVEEDORES_POR_PAGINA;
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
-                int id = Integer.parseInt(model.getValueAt(i, 1).toString());
-                String nombre = model.getValueAt(i, 2).toString();
+    for (int i = 0; i < model.getRowCount(); i++) {
+        if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
+            int id = Integer.parseInt(model.getValueAt(i, 1).toString());
+            String estado = model.getValueAt(i, 6).toString().toLowerCase();
+            seleccionadosIds.add(id);
+            estados.add(estado);
+        }
+    }
+
+    boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
+    boolean todosActivos = estados.stream().allMatch("activo"::equals);
+
+    if (todosInactivos) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea activar " + seleccionadosIds.size() + " proveedor(es)?",
+                "Confirmar activación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean todosExitosos = true;
+            for (Integer id : seleccionadosIds) {
+                if (!proveedorContro.activar(id)) {
+                    todosExitosos = false;
+                    JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo activar.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            if (todosExitosos) {
+                JOptionPane.showMessageDialog(this, "Proveedor(es) activado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+            cargartablaproveedores(); // Recargar tabla
+        }
+    } else if (todosActivos) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea desactivar " + seleccionadosIds.size() + " proveedor(es)?",
+                "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean todosExitosos = true;
+            for (Integer id : seleccionadosIds) {
                 if (proveedorContro.tieneProductos(id)) {
-                    proveedoresConProductos.add(id);
-                    proveedoresConProductosNombres.add(nombre);
+                    int opcion = JOptionPane.showConfirmDialog(this,
+                            "El proveedor con ID " + id + " tiene productos asociados. ¿Desea marcarlo como inactivo?",
+                            "Proveedor con Productos", JOptionPane.YES_NO_OPTION);
+                    if (opcion == JOptionPane.YES_OPTION) {
+                        if (!proveedorContro.desactivar(id)) {
+                            todosExitosos = false;
+                            JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
                 } else {
-                    idsAEliminar.add(id);
-                    nombresProveedoresAEliminar.add(nombre);
-                }
-                seleccionados[inicio + i] = false;
-            }
-        }
-
-        if (!proveedoresConProductos.isEmpty()) {
-            String mensaje = "No se pueden eliminar los siguientes proveedores porque tienen productos asociados:\n" +
-                    String.join(", ", proveedoresConProductosNombres) +
-                    "\n¿Desea marcarlos como inactivos?";
-            int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Proveedores con Productos", JOptionPane.YES_NO_OPTION);
-            if (opcion == JOptionPane.YES_OPTION) {
-                for (Integer id : proveedoresConProductos) {
-                    if (proveedorContro.desactivar(id)) {
-                        JOptionPane.showMessageDialog(this, "Proveedor(es) marcados como inactivo(s).", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Error al marcar proveedor(es) como inactivo(s).", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (!proveedorContro.desactivar(id)) {
+                        todosExitosos = false;
+                        JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
-        }
-
-        if (!idsAEliminar.isEmpty()) {
-            String mensaje = "¿Está seguro que desea eliminar " +
-                    (idsAEliminar.size() > 1 ? "estos " + idsAEliminar.size() + " proveedores?" : "este proveedor?") +
-                    "\nProveedores: " + String.join(", ", nombresProveedoresAEliminar);
-            int confirm = JOptionPane.showConfirmDialog(this, mensaje, "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                boolean todasEliminadas = true;
-                for (Integer id : idsAEliminar) {
-                    if (!proveedorContro.eliminar(id)) {
-                        todasEliminadas = false;
-                        JOptionPane.showMessageDialog(this, "Error al eliminar el proveedor con ID: " + id);
-                    }
-                }
-                if (todasEliminadas) {
-                    JOptionPane.showMessageDialog(this, "Proveedor(es) eliminado(s) correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                }
-                todosLosProveedores.removeIf(proveedor -> idsAEliminar.contains(proveedor.getId_proveedor()));
-                mostrarPagina(currentPage);
+            if (todosExitosos) {
+                JOptionPane.showMessageDialog(this, "Proveedor(es) desactivado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             }
-        } else if (proveedoresConProductos.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay proveedores seleccionados para eliminar.", "Sin selección", JOptionPane.WARNING_MESSAGE);
+            cargartablaproveedores(); // Recargar tabla
         }
+    } else {
+        JOptionPane.showMessageDialog(this, "Seleccione solo proveedores con el mismo estado (todos activos o todos inactivos).", "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-        rSCheckBox1.setSelected(false);
+    rSCheckBox1.setSelected(false); // Desmarcar "Seleccionar Todo"
+    rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar el botón después de la acción
+
     
     }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
 
     private void btnNuevo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo2ActionPerformed
-//        crear_cliente dialog = new crear_cliente(new javax.swing.JFrame(), true);
-//        dialog.setLocationRelativeTo(null);
-//        dialog.setVisible(true);
-//
-//        if (dialog.isGuardado()) {
-//            cargartablaclientes(); // Use the correct method with all columns
-//        }
+
     }//GEN-LAST:event_btnNuevo2ActionPerformed
 
     private void Añadir5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir5ActionPerformed
@@ -835,6 +914,10 @@ if (currentPage > 0) {
     private void paginacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_paginacionMouseClicked
         // TODO add your handling code here: 777777
     }//GEN-LAST:event_paginacionMouseClicked
+
+    private void rSCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSCheckBox1ActionPerformed
+   seleccionarTodo();
+    }//GEN-LAST:event_rSCheckBox1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -851,258 +934,227 @@ if (currentPage > 0) {
     private RSMaterialComponent.RSTableMetroCustom tablaclientes;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtBuscar;
     // End of variables declaration//GEN-END:variables
- 
-    
-    
-   private void cargartablaproveedoresFiltrado(String textoBusqueda) {
-    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-    model.setRowCount(0);
+ private void cargartablaproveedoresFiltrado(String textoBusqueda) {
+        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+        model.setRowCount(0);
 
-    List<ProveedorDatos> proveedoresFiltrados = todosLosProveedores.stream()
-            .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase())) ||
-                         (p.getApellido() != null && p.getApellido().toLowerCase().contains(textoBusqueda.toLowerCase())))
-            .toList();
+        List<ProveedorDatos> proveedoresFiltrados = todosLosProveedores.stream()
+                .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase())) ||
+                        (p.getApellido() != null && p.getApellido().toLowerCase().contains(textoBusqueda.toLowerCase())))
+                .toList();
 
-    int inicio = currentPage * PROVEEDORES_POR_PAGINA;
-    int fin = Math.min(inicio + PROVEEDORES_POR_PAGINA, proveedoresFiltrados.size());
+        int inicio = currentPage * PROVEEDORES_POR_PAGINA;
+        int fin = Math.min(inicio + PROVEEDORES_POR_PAGINA, proveedoresFiltrados.size());
 
-    for (int i = inicio; i < fin; i++) {
-        ProveedorDatos proveedor = proveedoresFiltrados.get(i);
-        List<String> productos = proveedor.getProductos();
-        if (productos == null || productos.isEmpty()) {
-            productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
-        }
-        String productosResumen = (productos != null && !productos.isEmpty()) ? 
-                               (productos.size() > 2 ? String.join(", ", productos.subList(0, 2)) + " + (" + (productos.size() - 2) + " más)" : String.join(", ", productos)) : 
-                               "Sin productos";
-        String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
-                          (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
-        model.addRow(new Object[]{
-            false,
-            String.valueOf(proveedor.getId_proveedor()),
-            proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre",
-            proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido",
-            proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "Sin correo",
-            proveedor.getTelefono() != null ? proveedor.getTelefono() : "Sin teléfono",
-            proveedor.getDireccion() != null ? proveedor.getDireccion() : "Sin dirección",
-            proveedor.getEstado() != null ? proveedor.getEstado() : "Sin estado",
-            ubicacion,
-            new ProductCell(productosResumen, productos),
-            "Ver Productos"
-        });
-    }
-
-    int totalPaginas = (int) Math.ceil((double) proveedoresFiltrados.size() / PROVEEDORES_POR_PAGINA);
-    paginacion.setText("Página " + (currentPage + 1) + " de " + totalPaginas);
-    Añadir5.setEnabled(currentPage > 0);
-    Añadir4.setEnabled(currentPage < totalPaginas - 1);
-}
-    public void cargartablacliente() {
-    tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    DefaultTableModel model = new DefaultTableModel();
-    model.addColumn("Código");
-    model.addColumn("Nombre");
-    model.addColumn("Correo Electrónico");
-    model.addColumn("Teléfono");
-    model.addColumn("Dirección");
-    model.addColumn("Producto");
-
-    List<modelo.ProveedorDatos> proveedores = proveedorContro.obtenerProveedoresConProductos();
-    for (modelo.ProveedorDatos proveedor : proveedores) {
-        Object[] fila = new Object[6];
-        fila[0] = proveedor.getId_proveedor();
-        fila[1] = proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre";
-        fila[2] = proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "Sin correo";
-        fila[3] = proveedor.getTelefono() != null ? proveedor.getTelefono() : "Sin teléfono";
-        fila[4] = proveedor.getDireccion() != null ? proveedor.getDireccion() : "Sin dirección";
-        fila[5] = obtenerProductosPorProveedor(proveedor.getId_proveedor());
-        model.addRow(fila);
-    }
-
-    tablaclientes.setModel(model);
-    System.out.println("Número de filas en el modelo después de cargar: " + model.getRowCount());
-
-    // Listener para capturar la selección de una fila
-    tablaclientes.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            int fila_point = tablaclientes.rowAtPoint(e.getPoint());
-            if (fila_point > -1) {
-                id_proveedor = (int) tablaclientes.getValueAt(fila_point, 0); // Usa el campo de la clase
+        for (int i = inicio; i < fin; i++) {
+            ProveedorDatos proveedor = proveedoresFiltrados.get(i);
+            List<String> productos = proveedor.getProductos();
+            if (productos == null || productos.isEmpty()) {
+                productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
             }
-        }
-    });
-}
-    
-    
-    
-    
-  private String obtenerProductosPorProveedor(int idProveedor) {
-    String[] productos = null; // Inicializa como array para evitar null
-    try {
-        productos = proveedorContro.obtenerProductosDeProveedor(idProveedor).toArray(new String[0]);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    if (productos != null) {
-        return String.join(", ", productos); // Une los productos con comas
-    }
-    return "Sin productos";
-}
-
-    private void cargartablaclienteFiltrado(String textoBusqueda) {
-        tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Código");
-        model.addColumn("Nombre");
-        model.addColumn("Correo Electrónico");
-        model.addColumn("Teléfono");
-        model.addColumn("Dirección");
-        model.addColumn("Producto");
-
-        List<modelo.ProveedorDatos> proveedores = proveedorContro.obtenerProveedoresConProductos()
-            .stream()
-            .filter(p -> p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase()))
-            .toList();
-
-        for (modelo.ProveedorDatos proveedor : proveedores) {
-            Object[] fila = new Object[6];
-            fila[0] = proveedor.getId_proveedor();
-            fila[1] = proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre";
-            fila[2] = proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "Sin correo";
-            fila[3] = proveedor.getTelefono() != null ? proveedor.getTelefono() : "Sin teléfono";
-            fila[4] = proveedor.getDireccion() != null ? proveedor.getDireccion() : "Sin dirección";
-            fila[5] = obtenerProductosPorProveedor(proveedor.getId_proveedor());
-            model.addRow(fila);
+            String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
+            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
+                    (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
+            model.addRow(new Object[]{
+                false,
+                String.valueOf(proveedor.getId_proveedor()),
+                proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre",
+                proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido",
+                proveedor.getCorreo_electronico() != null ? proveedor.getCorreo_electronico() : "Sin correo",
+                proveedor.getTelefono() != null ? proveedor.getTelefono() : "Sin teléfono",
+                proveedor.getDireccion() != null ? proveedor.getDireccion() : "Sin dirección",
+                proveedor.getEstado() != null ? proveedor.getEstado() : "Sin estado",
+                ubicacion,
+                new ProductCell(productosResumen, productos),
+                "Ver Productos"
+            });
         }
 
-        tablaclientes.setModel(model);
+        int totalPaginas = (int) Math.ceil((double) proveedoresFiltrados.size() / PROVEEDORES_POR_PAGINA);
+        paginacion.setText("Página " + (currentPage + 1) + " de " + totalPaginas);
+        Añadir5.setEnabled(currentPage > 0);
+        Añadir4.setEnabled(currentPage < totalPaginas - 1);
     }
-    
+
+    private String obtenerProductosPorProveedor(int idProveedor) {
+        String[] productos = null;
+        try {
+            productos = proveedorContro.obtenerProductosDeProveedor(idProveedor).toArray(new String[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (productos != null) {
+            return String.join(", ", productos);
+        }
+        return "Sin productos";
+    }
+
     private static class ProductCell {
-    private final String summary;
-    private final List<String> fullList;
+        private final String summary;
+        private final List<String> fullList;
 
-    public ProductCell(String summary, List<String> fullList) {
-        this.summary = summary;
-        this.fullList = fullList;
-    }
-
-    public String getSummary() { return summary; }
-    public List<String> getFullList() { return fullList; }
-}
-
-
-// Renderer for the "Productos" column
-class ProductCellRenderer extends JPanel implements TableCellRenderer {
-    private final javax.swing.JLabel label;
-
-    public ProductCellRenderer() {
-        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-        setOpaque(true);
-        label = new javax.swing.JLabel();
-        label.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        add(label);
-
-        updateTheme();
-        TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
-    }
-
-    private void updateTheme() {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        Color texto = oscuro ? Color.WHITE : Color.BLACK;
-        setBackground(fondo);
-        label.setForeground(texto);
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        if (value instanceof ProductCell) {
-            ProductCell cell = (ProductCell) value;
-            label.setText(cell.getSummary());
-            if (isSelected) {
-                setBackground(new Color(240, 240, 240));
-                label.setForeground(Color.BLUE);
-            } else {
-                updateTheme();
-            }
+        public ProductCell(String summary, List<String> fullList) {
+            this.summary = summary;
+            this.fullList = fullList;
         }
-        return this;
+
+        public String getSummary() {
+            return summary;
+        }
+
+        public List<String> getFullList() {
+            return fullList;
+        }
     }
-}
 
-// Editor for the "Productos" column (to handle click for "Ver más")
-class ProductCellEditor extends DefaultCellEditor {
-    private final JPanel panel;
-    private final javax.swing.JLabel label;
-    private ProductCell currentCell;
+    class ProductCellRenderer extends JPanel implements TableCellRenderer {
+        private final JLabel label;
 
-    public ProductCellEditor() {
-        super(new JCheckBox());
-        panel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-        panel.setOpaque(true);
-        label = new javax.swing.JLabel();
-        label.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        label.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (currentCell != null && currentCell.getFullList() != null && !currentCell.getFullList().isEmpty()) {
-                    String fullList = String.join("\n", currentCell.getFullList());
-                    JOptionPane.showMessageDialog(Proveedor.this, fullList, "Lista de Productos", JOptionPane.INFORMATION_MESSAGE);
+        public ProductCellRenderer() {
+            setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+            setOpaque(true);
+            label = new JLabel();
+            label.setFont(new Font("Tahoma", Font.PLAIN, 12));
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            add(label);
+
+            updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
+        }
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+            Color texto = oscuro ? Color.WHITE : Color.BLACK;
+            setBackground(fondo);
+            label.setForeground(texto);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            if (value instanceof ProductCell) {
+                ProductCell cell = (ProductCell) value;
+                label.setText(cell.getSummary());
+                if (isSelected) {
+                    setBackground(new Color(240, 240, 240));
+                    label.setForeground(Color.BLUE);
+                } else {
+                    updateTheme();
                 }
-                fireEditingStopped();
             }
-        });
-        panel.add(label);
-
-        updateTheme();
-        TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
+            return this;
+        }
     }
 
-    private void updateTheme() {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        Color texto = oscuro ? Color.WHITE : Color.BLACK;
-        panel.setBackground(fondo);
-        label.setForeground(texto);
+    class ProductCellEditor extends AbstractCellEditor implements TableCellEditor {
+        private final JPanel panel;
+        private final JLabel label;
+        private ProductCell currentCell;
+
+        public ProductCellEditor() {
+            panel = new JPanel(new GridBagLayout());
+            panel.setOpaque(true);
+
+            label = new JLabel("Ver más");
+            label.setFont(new Font("Tahoma", Font.PLAIN, 12));
+            label.setForeground(new Color(40, 60, 150));
+            label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            label.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (currentCell != null && currentCell.getFullList() != null && !currentCell.getFullList().isEmpty()) {
+                        String fullList = String.join("\n", currentCell.getFullList());
+                        JOptionPane.showMessageDialog(Proveedor.this, fullList, "Lista de Productos", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    fireEditingStopped();
+                }
+            });
+
+            panel.add(label);
+            updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
+        }
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+            panel.setBackground(fondo);
+            label.setForeground(new Color(40, 60, 150));
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            if (value instanceof ProductCell) {
+                currentCell = (ProductCell) value;
+                label.setText("Ver más");
+            }
+            return panel;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return currentCell;
+        }
     }
 
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value,
-            boolean isSelected, int row, int column) {
-        if (value instanceof ProductCell) {
-            currentCell = (ProductCell) value;
-            label.setText(currentCell.getSummary());
+    class StateCellRenderer extends JPanel implements TableCellRenderer {
+        private final RSLabelIcon stateIcon;
+
+        public StateCellRenderer() {
+            setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+            setOpaque(true);
+            stateIcon = new RSLabelIcon();
+            stateIcon.setPreferredSize(new Dimension(20, 20));
+            add(stateIcon);
+
+            updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
+        }
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            setBackground(oscuro ? new Color(21, 21, 33) : Color.WHITE);
+            stateIcon.setBackground(getBackground());
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            String estado = value != null ? value.toString().toLowerCase() : "";
+
+            if (estado.equals("activo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE);
+                stateIcon.setForeground(new Color(0, 102, 204));
+            } else if (estado.equals("inactivo")) {
+                stateIcon.setIcons(ValoresEnum.ICONS.CANCEL);
+                stateIcon.setForeground(Color.GRAY);
+            } else {
+                stateIcon.setIcons(ValoresEnum.ICONS.HELP);
+                stateIcon.setForeground(Color.BLACK);
+            }
+
             if (isSelected) {
-                panel.setBackground(new Color(240, 240, 240));
-                label.setForeground(Color.BLUE);
+                setBackground(table.getSelectionBackground());
             } else {
                 updateTheme();
             }
+
+            stateIcon.setBackground(getBackground());
+            return this;
         }
-        return panel;
     }
+private static class CustomCheckboxRenderer extends JPanel implements TableCellRenderer {
+    private final JCheckBox checkBox;
 
-    @Override
-    public Object getCellEditorValue() {
-        return currentCell;
-    }
-}
-class StateCellRenderer extends JPanel implements TableCellRenderer {
-    private final javax.swing.JLabel label;
-
-    public StateCellRenderer() {
+    public CustomCheckboxRenderer() {
         setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
         setOpaque(true);
-        label = new javax.swing.JLabel();
-        label.setFont(new Font("Tahoma", Font.BOLD, 12)); // Bold for emphasis
-        add(label);
+        checkBox = new JCheckBox();
+        checkBox.setOpaque(true);
+        add(checkBox);
 
         updateTheme();
         TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
@@ -1110,38 +1162,23 @@ class StateCellRenderer extends JPanel implements TableCellRenderer {
 
     private void updateTheme() {
         boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondoBase = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        Color textoActivo = new Color(0, 128, 0); // Green for Activo
-        Color textoInactivo = new Color(100, 100, 100); // Gray for Inactivo
-        setBackground(fondoBase);
-        label.setForeground(textoActivo); // Default to Activo color
+        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+        setBackground(fondo);
+        checkBox.setBackground(fondo);
+        checkBox.setForeground(oscuro ? Color.WHITE : Color.BLACK);
     }
-
+//
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
-        String estado = (value != null) ? value.toString() : "";
-        label.setText(estado);
-
+        checkBox.setSelected(Boolean.TRUE.equals(value));
         if (isSelected) {
-            setBackground(new Color(240, 240, 240));
-            label.setForeground(Color.BLUE); // Highlight selected row
+            setBackground(table.getSelectionBackground());
+            checkBox.setBackground(table.getSelectionBackground());
         } else {
             updateTheme();
-            if ("Inactivo".equalsIgnoreCase(estado)) {
-                label.setForeground(new Color(100, 100, 100)); // Gray text for Inactivo
-                setBackground(new Color(200, 200, 200, 100)); // Semi-transparent gray background
-            } else if ("Activo".equalsIgnoreCase(estado)) {
-                label.setForeground(new Color(0, 128, 0)); // Green for Activo
-                setBackground(new Color(204, 255, 204, 50)); // Light green background
-            } else {
-                label.setForeground(Color.GRAY); // Default for unknown states
-                setBackground(getBackground()); // Use base theme color
-            }
         }
         return this;
     }
-
 }
-
 }
