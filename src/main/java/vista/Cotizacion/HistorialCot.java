@@ -34,6 +34,7 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import modelo.Cotizacion;
 
+/**/
 public class HistorialCot extends javax.swing.JPanel {
 
     private JPanel contenedor;
