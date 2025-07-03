@@ -44,12 +44,7 @@ public class NuevaContrasena extends javax.swing.JFrame {
         this.correoIngresado = correo;
     }
 
-    // Rutas de las imágenes
-    private final String eyeOpenPath = "/vista (1).png";   // Ojo abierto
-    private final String eyeClosedPath = "/ojo (2).png";   // Ojo cerrado
 
-    private ImageIcon eyeOpenIcon;
-    private ImageIcon eyeClosedIcon;
 
     public NuevaContrasena() {
         initComponents();
@@ -58,13 +53,6 @@ txtcontrasenanueva.addActionListener(e -> txtcontrasenanueva1.requestFocus());
 
 // Enter en la segunda contraseña: activar botón "Continuar"
 txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
-
-
-//        // Cargar íconos
-//        eyeOpenIcon = new ImageIcon(getClass().getResource(eyeOpenPath));
-//        eyeClosedIcon = new ImageIcon(getClass().getResource(eyeClosedPath));
-//        btnVer.setIcon(eyeClosedIcon); // Ícono inicial
-//        btnVer1.setIcon(eyeClosedIcon); // Ícono inicial para el segundo campo
 
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
@@ -86,6 +74,8 @@ txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
 
    
     }
+    
+   
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -107,6 +97,8 @@ txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
         txtcontrasenanueva = new RSMaterialComponent.RSPasswordIconOne();
         txtcontrasenanueva1 = new RSMaterialComponent.RSPasswordIconOne();
         jLabel12 = new javax.swing.JLabel();
+        rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
+        rSButtonMaterialRippleIcon2 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -199,6 +191,36 @@ txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
         jLabel12.setText("Contraseña:");
         jPanel6.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 280, -1, 20));
 
+        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY);
+        rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonMaterialRippleIcon1ActionPerformed(evt);
+            }
+        });
+        jPanel6.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 390, 40, 40));
+
+        rSButtonMaterialRippleIcon2.setBackground(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon2.setForeground(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setBackgroundHover(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon2.setForegroundHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundIcon(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundIconHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundText(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY);
+        rSButtonMaterialRippleIcon2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonMaterialRippleIcon2ActionPerformed(evt);
+            }
+        });
+        jPanel6.add(rSButtonMaterialRippleIcon2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 310, 40, 40));
+
         kGradientPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 140, 470, 610));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -270,6 +292,14 @@ txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
         // TODO add your handling code here:
     }//GEN-LAST:event_txtcontrasenanueva1ActionPerformed
 
+    private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
+ togglePasswordVisibility1();
+    }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
+
+    private void rSButtonMaterialRippleIcon2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon2ActionPerformed
+togglePasswordVisibility();
+    }//GEN-LAST:event_rSButtonMaterialRippleIcon2ActionPerformed
+
     /**
      * @param context
      * @param args the command line arguments
@@ -316,34 +346,39 @@ txtcontrasenanueva1.addActionListener(e -> iniciar.doClick());
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel6;
     private keeptoo.KGradientPanel kGradientPanel1;
+    private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon1;
+    private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon2;
     private rojerusan.RSPanelImage rSPanelImage1;
     private RSMaterialComponent.RSPasswordIconOne txtcontrasenanueva;
     private RSMaterialComponent.RSPasswordIconOne txtcontrasenanueva1;
     // End of variables declaration//GEN-END:variables
-//private void togglePasswordVisibility() {
-//        if (isPasswordVisible) {
-//            txtcontrasenanueva.setEchoChar('•');
-//            btnVer.setIcon(eyeClosedIcon);
-//        } else {
-//            txtcontrasenanueva.setEchoChar((char) 0);
-//            btnVer.setIcon(eyeOpenIcon);
-//        }
-//        isPasswordVisible = !isPasswordVisible;
-//    }
-//
-//    private void togglePasswordVisibility1() {
-//        if (isPasswordVisible1) {
-//            txtcontrasenanueva1.setEchoChar('•');
-//            btnVer1.setIcon(eyeClosedIcon);
-//        } else {
-//            txtcontrasenanueva1.setEchoChar((char) 0);
-//            btnVer1.setIcon(eyeOpenIcon);
-//        }
-//        isPasswordVisible1 = !isPasswordVisible1;
-//    }
 
-   
+
 
 
     //
+    
+    // Método para alternar visibilidad de la primera contraseña
+private void togglePasswordVisibility() {
+    if (isPasswordVisible) {
+        txtcontrasenanueva.setEchoChar('*'); // Ocultar con '*'
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY); // Ícono de ojo visible
+    } else {
+        txtcontrasenanueva.setEchoChar((char) 0); // Mostrar como texto plano
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY_OFF); // Ícono de ojo tachado
+    }
+    isPasswordVisible = !isPasswordVisible;
+}
+
+// Método para alternar visibilidad de la segunda contraseña
+private void togglePasswordVisibility1() {
+    if (isPasswordVisible1) {
+        txtcontrasenanueva1.setEchoChar('*'); // Ocultar con '*'
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY); // Ícono de ojo visible
+    } else {
+        txtcontrasenanueva1.setEchoChar((char) 0); // Mostrar como texto plano
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY_OFF); // Ícono de ojo tachado
+    }
+    isPasswordVisible1 = !isPasswordVisible1;
+}
 }

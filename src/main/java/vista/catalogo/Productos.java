@@ -66,77 +66,80 @@ public class Productos extends javax.swing.JPanel {
     private JPanel filterPanel;
     private List<String> filterColorValues = new ArrayList<>(); // Lista para múltiples colores
 
-    public Productos(int idCategoria, String nombreCategoria, JPanel parentPanel) {
-        this.idCategoria = idCategoria;
-        this.nombreCategoria = nombreCategoria != null ? nombreCategoria : "Categoría desconocida";
-        this.controladorProducto = new Ctrl_productocatalogo();
-        this.parentPanel = parentPanel; // Correctly assign the passed parent panel
-        initComponents(); // Let the GUI builder handle the layout
-          TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
-        aplicarTema();
-        panelCards.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        panelCards.setBackground(new Color(242, 247, 255));
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255)); // Blanco
-        scrollPane = new JScrollPane(panelCards);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBorder(null);
-        scrollPane.setPreferredSize(new Dimension(1055, 700)); // Set a reasonable initial size
+  public Productos(int idCategoria, String nombreCategoria, JPanel parentPanel) {
+    this.idCategoria = idCategoria;
+    this.nombreCategoria = nombreCategoria != null ? nombreCategoria : "Categoría desconocida";
+    this.controladorProducto = new Ctrl_productocatalogo();
+    this.parentPanel = parentPanel; // Correctly assign the passed parent panel
+    initComponents(); // Let the GUI builder handle the layout
+    TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
+    aplicarTema(); // Explicitly call aplicarTema at startup
+    panelCards.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+    panelCards.setBackground(new Color(242, 247, 255));
+    jPanel2.setBackground(new java.awt.Color(255, 255, 255)); // Blanco
+    scrollPane = new JScrollPane(panelCards);
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrollPane.setBorder(null);
+    scrollPane.setPreferredSize(new Dimension(1055, 700)); // Set a reasonable initial size
 
-        // Replace the existing panelCards in jPanel2 with scrollPane
-        jPanel2.remove(panelCards); // Remove the old panelCards
-        jPanel2.add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 150, 1078, 540));
-        cargarProductosDesdeBD();
-        setupFilterPopup();
-
-    }
+    // Replace the existing panelCards in jPanel2 with scrollPane
+    jPanel2.remove(panelCards); // Remove the old panelCards
+    jPanel2.add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 150, 1078, 540));
+    cargarProductosDesdeBD();
+    setupFilterPopup();
+}
     
     
     // ... (keep initComponents, action listeners, and cargartablacliente as they are)
+
     public void aplicarTema() {
-    boolean oscuro = TemaManager.getInstance().isOscuro();
-    Color fondo = oscuro ? new Color(21, 21, 33) : new Color(255, 255, 255);
-    Color texto = oscuro ? Color.WHITE : Color.BLACK;
-    Color primario = oscuro ? new Color(40, 60, 150) : new Color(72, 92, 188);
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+        Color fondo = oscuro ? new Color(21, 21, 33) : new Color(247, 247, 255);
+        Color primario = oscuro ? new Color(40, 60, 150) : new Color(72, 92, 188);
+        Color texto = oscuro ? Color.WHITE : Color.BLACK;
 
-    setBackground(fondo);
-    jPanel1.setBackground(fondo);
-    jPanel2.setBackground(oscuro ? fondo : new Color(242, 247, 255));
-    panelCards.setBackground(fondo);
+        setBackground(fondo);
+        jPanel1.setBackground(fondo);
+        jPanel2.setBackground(fondo);
+        panelCards.setBackground(oscuro ? fondo : new Color(203,203,203));
+        txtBuscar.setOpaque(true);
+        txtBuscar.setBackground(fondo);
+        txtBuscar.setForeground(texto);
+        txtBuscar.setColorIcon(texto);
+        txtBuscar.setPhColor(oscuro ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+        txtBuscar.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        Eliminar.setBackground (new Color(21, 21, 21));
+        rSCheckBox1.setBackground(fondo);
+        rSCheckBox1.setColorUnCheck(texto);
+        rSCheckBox1.setColorCheck(texto);
+        rSCheckBox1.setForeground(texto);
+        paginacion.setForeground(texto);
+        actualizarColoresLabels(texto);
 
-    txtBuscar.setBackground(fondo);
-    txtBuscar.setForeground(texto);
-    txtBuscar.setColorIcon(texto);
-    txtBuscar.setPhColor(oscuro ? Color.LIGHT_GRAY : Color.GRAY);
+        revalidate();
+        repaint();
+    }
 
-    // Update buttons
-    Anterior.setBackground(oscuro ? new Color(46, 49, 82) : primario);
-    Siguiente.setBackground(oscuro ? new Color(46, 49, 82) : primario);
-    Añadir2.setBackground(oscuro ? new Color(46, 49, 82) : primario);
-    Añadir3.setBackground(oscuro ? new Color(46, 49, 82) : primario);
-    btnVolver.setBackground(oscuro ? new Color(46, 49, 82) : primario);
-
-    // Update cards
-    for (Component comp : panelCards.getComponents()) {
-        if (comp instanceof RSPanelEffect) {
-            comp.setBackground(fondo);
-            for (Component subComp : ((RSPanelEffect) comp).getComponents()) {
-                if (subComp instanceof JPanel) {
-                    subComp.setBackground(fondo);
-                    for (Component label : ((JPanel) subComp).getComponents()) {
-                        if (label instanceof JLabel) {
-                            ((JLabel) label).setForeground(texto);
+    private void actualizarColoresLabels(Color color) {
+        for (Component comp : panelCards.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel cardWrapper = (JPanel) comp;
+                for (Component subComp : cardWrapper.getComponents()) {
+                    if (subComp instanceof JPanel) {
+                        JPanel subPanel = (JPanel) subComp;
+                        for (Component innerComp : subPanel.getComponents()) {
+                            if (innerComp instanceof JLabel) {
+                                ((JLabel) innerComp).setForeground(color);
+                            }
                         }
                     }
                 }
             }
         }
+        panelCards.revalidate();
+        panelCards.repaint();
     }
-
-    revalidate();
-    repaint();
-}
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

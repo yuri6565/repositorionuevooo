@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +43,6 @@ import javax.swing.JFrame;
 import javax.swing.JFrame;
 
 import vista.alertas.alertaEliminar11;
-
 public class catalogo22 extends javax.swing.JPanel {
 
     private Map<Integer, Boolean> seleccionados = new HashMap<>();
@@ -49,141 +50,156 @@ public class catalogo22 extends javax.swing.JPanel {
     private int currentPage = 0;
     private Ctrl_catalogocategoria controladorCategoria = new Ctrl_catalogocategoria();
     private static final int CATEGORIAS_POR_PAGINA = 10;
-    private java.util.List<modelo.Catalogocategoria> todasLasCategorias = new java.util.ArrayList<>();
+    private List<modelo.Catalogocategoria> todasLasCategorias = new ArrayList<>();
+    private List<modelo.Catalogocategoria> categoriasMostradas = new ArrayList<>();
     private int idCategoria;
     private String nombreCategoria;
     private JPanel parentPanel;
 
-  public catalogo22(JFrame jFrame, boolean par, JPanel parentPanel) {
+    public catalogo22(JFrame jFrame, boolean par, JPanel parentPanel) {
         this.parentPanel = parentPanel;
-        setOpaque(true); // Ensure catalogo22 is opaque
+        setOpaque(true);
         initComponents();
-        jPanel1.setOpaque(true); // Ensure jPanel1 is opaque
-        jPanel2.setOpaque(true); // Ensure jPanel2 is opaque
-        panelCards.setOpaque(true); // Ensure panelCards is opaque
+        jPanel1.setOpaque(true);
+        jPanel2.setOpaque(true);
+        panelCards.setOpaque(true);
         jPanel2.add(panelCards, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 150, 900, 530));
         cargarCategoriasDesdeBD();
         TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
         aplicarTema();
+        inicializarBusqueda(); // Inicializar el listener de búsqueda
     }
 
     public void mostrarProductos(int idCategoria, String nombreCategoria) {
-        // Ocultar jPanel2 para quitar el contenedor de categorías
         jPanel2.setVisible(false);
-
-        // Limpiar y preparar panelCards para mostrar productos
-        removeAll(); // Limpiar todo el contenido de catalogo22
-        setLayout(new BorderLayout()); // Usar BorderLayout para el contenedor principal
-
-        // Crear el panel de productos
+        removeAll();
+        setLayout(new BorderLayout());
         Productos productosPanel = new Productos(idCategoria, nombreCategoria, parentPanel);
         add(productosPanel, BorderLayout.CENTER);
-
-        // Ajustar tamaño dinámicamente (opcional, ya que Productos lo manejará)
         revalidate();
         repaint();
     }
 
-    // Método para volver a la vista de categorías
     public void volverACategorias() {
         panelCards.removeAll();
-        panelCards.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10)); // Restaurar layout original
-        panelCards.setPreferredSize(new Dimension(970, 450)); // Restaurar tamaño original
+        panelCards.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        panelCards.setPreferredSize(new Dimension(970, 450));
         cargarCategoriasDesdeBD();
-        jPanel2.setPreferredSize(new Dimension(1320, 700)); // Restaurar tamaño original de jPanel2
+        jPanel2.setPreferredSize(new Dimension(1320, 700));
         jPanel2.revalidate();
         jPanel2.repaint();
-        TemaManager.getInstance().addThemeChangeListener(() -> {
-            aplicarTema(); // Update theme when it changes
-        });
+        TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
     }
 
-    // ... (keep initComponents, action listeners, and cargartablacliente as they are)
- public void aplicarTema() {
-    boolean oscuro = TemaManager.getInstance().isOscuro();
+    public void aplicarTema() {
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+        Color fondo = oscuro ? new Color(21, 21, 33) : new Color(247, 247, 255);
+        Color primario = oscuro ? new Color(40, 60, 150) : new Color(72, 92, 188);
+        Color texto = oscuro ? Color.WHITE : Color.BLACK;
 
-    if (oscuro) {
-        Color fondo = new Color(21, 21, 33);
-        Color primario = new Color(40, 60, 150);
-        Color texto = Color.WHITE;
-
-        // Apply to the main panel (catalogo22)
         setBackground(fondo);
-        // Apply to nested panels
         jPanel1.setBackground(fondo);
         jPanel2.setBackground(fondo);
-        panelCards.setBackground(fondo);
-        // Apply to text field
+        panelCards.setBackground(oscuro ? fondo : new Color(255, 255, 255));
         txtBuscar.setOpaque(true);
         txtBuscar.setBackground(fondo);
         txtBuscar.setForeground(texto);
         txtBuscar.setColorIcon(texto);
-        txtBuscar.setPhColor(Color.LIGHT_GRAY);
+        txtBuscar.setPhColor(oscuro ? Color.LIGHT_GRAY : Color.DARK_GRAY);
         txtBuscar.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        // Apply to checkbox
         rSButtonMaterialRippleIcon1.setBackground(fondo);
         rSCheckBox1.setBackground(fondo);
         rSCheckBox1.setColorUnCheck(texto);
         rSCheckBox1.setColorCheck(texto);
         rSCheckBox1.setForeground(texto);
-        // Apply to pagination label
         paginacion.setForeground(texto);
-        // Apply to dynamic category labels
         actualizarColoresLabels(texto);
-    } else {
-        Color fondo = new Color(247, 247, 255); // Use the desired light blue-white color
-        Color texto = Color.BLACK;
-        Color primario = new Color(72, 92, 188);
- rSButtonMaterialRippleIcon1.setBackground(fondo);
-        // Apply to the main panel (catalogo22)
-        setBackground(fondo);
-        // Apply to nested panels
-        jPanel1.setBackground(fondo);
-        jPanel2.setBackground(fondo);
-        panelCards.setBackground(new Color(255,255,255)); 
-        // Apply to text field
-        txtBuscar.setOpaque(true);
-        txtBuscar.setBackground(fondo); // Match the panel background
-        txtBuscar.setForeground(texto);
-        txtBuscar.setColorIcon(texto);
-        txtBuscar.setPhColor(Color.DARK_GRAY); // Contrast with new background
-        txtBuscar.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        // Apply to checkbox
-        rSCheckBox1.setBackground(fondo);
-        rSCheckBox1.setColorUnCheck(texto);
-        rSCheckBox1.setColorCheck(texto);
-        rSCheckBox1.setForeground(texto);
-        // Apply to pagination label
-        paginacion.setForeground(texto);
-        // Apply to dynamic category labels
-        actualizarColoresLabels(texto);
+
+        revalidate();
+        repaint();
     }
 
-    // Ensure all components are repainted
-    revalidate();
-    repaint();
-}
-
-// Método auxiliar para actualizar el color de los JLabel dinámicos
-private void actualizarColoresLabels(Color color) {
-    for (Component comp : panelCards.getComponents()) {
-        if (comp instanceof JPanel) { // cardWrapper es un JPanel
-            JPanel cardWrapper = (JPanel) comp;
-            for (Component subComp : cardWrapper.getComponents()) {
-                if (subComp instanceof JPanel) {
-                    JPanel subPanel = (JPanel) subComp;
-                    for (Component innerComp : subPanel.getComponents()) {
-                        if (innerComp instanceof JLabel) { // Encontramos el JLabel (tituloCategoria)
-                            ((JLabel) innerComp).setForeground(color);
+    private void actualizarColoresLabels(Color color) {
+        for (Component comp : panelCards.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel cardWrapper = (JPanel) comp;
+                for (Component subComp : cardWrapper.getComponents()) {
+                    if (subComp instanceof JPanel) {
+                        JPanel subPanel = (JPanel) subComp;
+                        for (Component innerComp : subPanel.getComponents()) {
+                            if (innerComp instanceof JLabel) {
+                                ((JLabel) innerComp).setForeground(color);
+                            }
                         }
                     }
                 }
             }
         }
+        panelCards.revalidate();
+        panelCards.repaint();
     }
-    panelCards.revalidate();
-    panelCards.repaint();
-}
+
+    private void inicializarBusqueda() {
+        txtBuscar.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String textoBusqueda = txtBuscar.getText().trim().toLowerCase();
+                filtrarCategorias(textoBusqueda);
+            }
+        });
+    }
+
+    private void filtrarCategorias(String textoBusqueda) {
+        categoriasMostradas.clear();
+        if (textoBusqueda.isEmpty()) {
+            categoriasMostradas.addAll(todasLasCategorias);
+        } else {
+            for (modelo.Catalogocategoria categoria : todasLasCategorias) {
+                if (categoria.getNombre().toLowerCase().contains(textoBusqueda)) {
+                    categoriasMostradas.add(categoria);
+                }
+            }
+        }
+        currentPage = 0;
+        mostrarPaginaFiltrada(categoriasMostradas, currentPage);
+    }
+
+    private void mostrarPaginaFiltrada(List<modelo.Catalogocategoria> categoriasFiltradas, int pagina) {
+        panelCards.removeAll();
+        panelCards.setLayout(null);
+
+        int inicio = pagina * CATEGORIAS_POR_PAGINA;
+        int fin = Math.min(inicio + CATEGORIAS_POR_PAGINA, categoriasFiltradas.size());
+
+        for (int i = inicio; i < fin; i++) {
+            modelo.Catalogocategoria categoria = categoriasFiltradas.get(i);
+            ImageIcon icono;
+            if (categoria.getImagen() != null && categoria.getImagen().length > 0) {
+                icono = new ImageIcon(categoria.getImagen());
+            } else {
+                try {
+                    icono = new ImageIcon(getClass().getResource("/produccionIcono.png"));
+                    if (icono.getIconWidth() == -1) {
+                        System.err.println("Default image not found or invalid.");
+                        icono = new ImageIcon();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error loading default image: " + e.getMessage());
+                    icono = new ImageIcon();
+                }
+            }
+            agregarCardDesdeBytes(icono, categoria.getNombre(), categoria);
+        }
+
+        int totalPaginas = (int) Math.ceil((double) categoriasFiltradas.size() / CATEGORIAS_POR_PAGINA);
+        Añadir5.setEnabled(currentPage > 0);
+        Añadir4.setEnabled(currentPage < totalPaginas - 1);
+        paginacion.setText("Página " + (currentPage + 1) + " de " + (totalPaginas == 0 ? 1 : totalPaginas));
+
+        panelCards.revalidate();
+        panelCards.repaint();
+        actualizarEstadoSeleccionarTodo();
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -297,7 +313,7 @@ private void actualizarColoresLabels(Color color) {
                 paginacionMouseClicked(evt);
             }
         });
-        jPanel2.add(paginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 710, -1, -1));
+        jPanel2.add(paginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 710, -1, -1));
 
         rSCheckBox1.setForeground(new java.awt.Color(0, 0, 0));
         rSCheckBox1.setText("Seleccionar todo");
@@ -323,7 +339,7 @@ private void actualizarColoresLabels(Color color) {
                 btnNuevo1ActionPerformed(evt);
             }
         });
-        jPanel2.add(btnNuevo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1330, 130, 110, 30));
+        jPanel2.add(btnNuevo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 710, 40, 30));
 
         add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -50, 1620, 800));
         jPanel2.getAccessibleContext().setAccessibleName("");
@@ -349,28 +365,25 @@ private void actualizarColoresLabels(Color color) {
     }//GEN-LAST:event_Añadir5ActionPerformed
 
     private void rSCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSCheckBox1ActionPerformed
-        boolean seleccionarTodo = rSCheckBox1.isSelected();
+     boolean seleccionarTodo = rSCheckBox1.isSelected();
         List<String> categoriasConProductos = new ArrayList<>();
         List<Integer> idsConProductos = new ArrayList<>();
 
-        // Inicializar todas las categorías según el estado del checkbox
         for (modelo.Catalogocategoria categoria : todasLasCategorias) {
             int id = categoria.getIdCategoria();
             seleccionados.put(id, seleccionarTodo);
         }
 
-        // Si se seleccionó "Seleccionar todo", verificar y desmarcar categorías con productos
         if (seleccionarTodo) {
             for (modelo.Catalogocategoria categoria : todasLasCategorias) {
                 int id = categoria.getIdCategoria();
                 if (controladorCategoria.tieneProductos(id)) {
                     categoriasConProductos.add(categoria.getNombre());
                     idsConProductos.add(id);
-                    seleccionados.put(id, false); // Desmarcar categorías con productos
+                    seleccionados.put(id, false);
                 }
             }
 
-            // Mostrar alerta si hay categorías con productos
             if (!categoriasConProductos.isEmpty()) {
                 String mensaje = "No se pueden seleccionar las siguientes categorías porque contienen productos:\n"
                         + String.join(", ", categoriasConProductos);
@@ -381,16 +394,14 @@ private void actualizarColoresLabels(Color color) {
                 dialog.setVisible(true);
             }
         } else {
-            // Si se desmarca "Seleccionar todo", deseleccionar todas
             for (modelo.Catalogocategoria categoria : todasLasCategorias) {
                 seleccionados.put(categoria.getIdCategoria(), false);
             }
         }
 
-        // Actualizar la página visible y el estado de "Seleccionar todo"
-        mostrarPagina(currentPage);
+        mostrarPaginaFiltrada(categoriasMostradas, currentPage);
         actualizarEstadoSeleccionarTodo();
-
+    
 
     }//GEN-LAST:event_rSCheckBox1ActionPerformed
 
@@ -399,12 +410,11 @@ private void actualizarColoresLabels(Color color) {
     }//GEN-LAST:event_paginacionMouseClicked
 
     private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
-        List<Integer> idsAEliminar = new ArrayList<>();
+       List<Integer> idsAEliminar = new ArrayList<>();
         List<String> categoriasConProductos = new ArrayList<>();
         List<String> nombresCategoriasAEliminar = new ArrayList<>();
         List<Integer> idsConProductos = new ArrayList<>();
 
-        // Recolectar IDs y nombres de categorías seleccionadas
         for (Map.Entry<Integer, Boolean> entry : seleccionados.entrySet()) {
             if (entry.getValue()) {
                 int id = entry.getKey();
@@ -424,7 +434,6 @@ private void actualizarColoresLabels(Color color) {
             }
         }
 
-        // Si hay categorías con productos, mostrar alerta y deseleccionarlas
         if (!categoriasConProductos.isEmpty()) {
             String mensaje = "No se pueden eliminar las siguientes categorías porque contienen productos:\n"
                     + String.join(", ", categoriasConProductos);
@@ -434,16 +443,14 @@ private void actualizarColoresLabels(Color color) {
                     "/warning-triangle-sign-free-vector-removebg-preview.png");
             dialog.setVisible(true);
 
-            // Deseleccionar categorías con productos
             for (Integer id : idsConProductos) {
                 seleccionados.put(id, false);
             }
-            mostrarPagina(currentPage);
+            mostrarPaginaFiltrada(categoriasMostradas, currentPage);
             actualizarEstadoSeleccionarTodo();
             return;
         }
 
-        // Si no hay categorías seleccionadas, mostrar mensaje
         if (idsAEliminar.isEmpty()) {
             alertaEliminar11 dialog = new alertaEliminar11(new javax.swing.JFrame(), true,
                     "Sin selección",
@@ -453,7 +460,6 @@ private void actualizarColoresLabels(Color color) {
             return;
         }
 
-        // Confirmación para eliminar categorías
         String mensaje = "¿Está seguro que desea eliminar "
                 + (idsAEliminar.size() > 1 ? "estas " + idsAEliminar.size() + " categorías?" : "esta categoría?")
                 + "\nCategorías: " + String.join(", ", nombresCategoriasAEliminar);
@@ -480,12 +486,13 @@ private void actualizarColoresLabels(Color color) {
                 borradooconexito exito = new borradooconexito();
                 exito.setVisible(true);
             }
-            mostrarPagina(currentPage);
+            cargarCategoriasDesdeBD();
         }
+    
     }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
 
     private void btnNuevo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo1ActionPerformed
-      catalogocategoria cat = new catalogocategoria((JFrame) getTopLevelAncestor(), true);
+     catalogocategoria cat = new catalogocategoria((JFrame) getTopLevelAncestor(), true);
         cat.setVisible(true);
 
         String rutaImagen = cat.getRutaImagenSeleccionada();
@@ -506,7 +513,7 @@ private void actualizarColoresLabels(Color color) {
                 boolean guardado = controladorCategoria.guardar(categoria);
 
                 if (guardado) {
-                    cargarCategoriasDesdeBD(); // Will now preserve currentPage
+                    cargarCategoriasDesdeBD();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al guardar la categoría en la base de datos.");
                 }
@@ -516,6 +523,7 @@ private void actualizarColoresLabels(Color color) {
         } else {
             JOptionPane.showMessageDialog(this, "Debes escribir un nombre para la categoría.");
         }
+    
     }//GEN-LAST:event_btnNuevo1ActionPerformed
 
 
@@ -534,7 +542,7 @@ private void actualizarColoresLabels(Color color) {
     // End of variables declaration//GEN-END:variables
     // End of variables declaration                   
 
-    private void agregarCardDesdeBytes(ImageIcon imagen, String categoriaNombre, modelo.Catalogocategoria categoria) {
+  private void agregarCardDesdeBytes(ImageIcon imagen, String categoriaNombre, modelo.Catalogocategoria categoria) {
         JPanel cardWrapper = new JPanel();
         cardWrapper.setLayout(new BoxLayout(cardWrapper, BoxLayout.Y_AXIS));
         cardWrapper.setOpaque(false);
@@ -542,9 +550,9 @@ private void actualizarColoresLabels(Color color) {
         checkBox.setOpaque(false);
         checkBox.setPreferredSize(new Dimension(30, 30));
         checkBox.putClientProperty("categoriaId", categoria.getIdCategoria());
-        boolean seleccionada = seleccionados.getOrDefault(categoria.getIdCategoria(), false); // Solo usa el estado de seleccionados
+        boolean seleccionada = seleccionados.getOrDefault(categoria.getIdCategoria(), false);
         checkBox.setSelected(seleccionada);
-        checkBox.setEnabled(true); // Siempre habilitado
+        checkBox.setEnabled(true);
         checkBox.addActionListener(e -> {
             JCheckBox cb = (JCheckBox) e.getSource();
             seleccionados.put(categoria.getIdCategoria(), cb.isSelected());
@@ -607,9 +615,8 @@ private void actualizarColoresLabels(Color color) {
         JLabel tituloCategoria = new JLabel(categoriaNombre);
         tituloCategoria.setFont(new Font("Century751 BT", 0, 16));
         tituloCategoria.setHorizontalAlignment(JLabel.CENTER);
-        titlePanel.add(tituloCategoria);
         tituloCategoria.setForeground(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
-    titlePanel.add(tituloCategoria);
+        titlePanel.add(tituloCategoria);
 
         cardWrapper.add(Box.createVerticalStrut(5));
         cardWrapper.add(checkBoxPanel);
@@ -636,19 +643,119 @@ private void actualizarColoresLabels(Color color) {
 
     private void cargarCategoriasDesdeBD() {
         todasLasCategorias = controladorCategoria.obtenerCategorias();
+        categoriasMostradas = new ArrayList<>(todasLasCategorias);
         seleccionados.clear();
-        // Calculate total pages
         int totalPaginas = (int) Math.ceil((double) todasLasCategorias.size() / CATEGORIAS_POR_PAGINA);
-        // Adjust currentPage if it exceeds the new total pages
         if (currentPage >= totalPaginas && totalPaginas > 0) {
-            currentPage = totalPaginas - 1; // Go to the last valid page
+            currentPage = totalPaginas - 1;
         } else if (totalPaginas == 0) {
-            currentPage = 0; // No categories, stay at page 0
+            currentPage = 0;
         }
-        // Stay on currentPage otherwise
-        mostrarPagina(currentPage);
+        mostrarPaginaFiltrada(categoriasMostradas, currentPage);
     }
 
+    private void eliminar(modelo.Catalogocategoria categoria, JPanel cardWrapper) {
+        if (controladorCategoria.tieneProductos(categoria.getIdCategoria())) {
+            alertaEliminar11 alertaeli = new alertaEliminar11((JFrame) getTopLevelAncestor(), true, "Error",
+                    "No se puede eliminar la categoría '" + categoria.getNombre() + "' porque contiene productos.",
+                    "/warning-triangle-sign-free-vector-removebg-preview.png");
+            alertaeli.setLocationRelativeTo(this);
+            alertaeli.setVisible(true);
+            return;
+        }
+
+        String message = "¿Estás seguro de que desea eliminar la categoría '" + categoria.getNombre() + "'?";
+        alertaEliminarcategoria111 dialog = new alertaEliminarcategoria111((JFrame) getTopLevelAncestor(), true, "¿Estás seguro?",
+                message, "/warning-triangle-sign-free-vector-removebg-preview.png");
+        dialog.setLocationRelativeTo(this);
+        boolean confirm = dialog.confirmarEliminar();
+
+        if (confirm) {
+            boolean eliminado = controladorCategoria.eliminar(categoria.getIdCategoria());
+            if (eliminado) {
+                todasLasCategorias.removeIf(c -> c.getIdCategoria() == categoria.getIdCategoria());
+                seleccionados.remove(categoria.getIdCategoria());
+                panelCards.remove(cardWrapper);
+                cargarCategoriasDesdeBD();
+                borradooconexito exito = new borradooconexito();
+                exito.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al eliminar la categoría de la base de datos.");
+            }
+        }
+    }
+
+    private void editarCategoria(modelo.Catalogocategoria categoria) {
+        catalogocategoria dialogo = new catalogocategoria((JFrame) getTopLevelAncestor(), true);
+        dialogo.setCategoriaNombre(categoria.getNombre());
+        dialogo.setImagenDesdeBytes(categoria.getImagen());
+        dialogo.setVisible(true);
+
+        String nuevoNombre = dialogo.getCategoriaNombre();
+        String nuevaRuta = dialogo.getRutaImagenSeleccionada();
+
+        System.out.println("nuevoNombre recibido: '" + (nuevoNombre != null ? nuevoNombre : "null") + "'");
+        System.out.println("nuevaRuta recibida: '" + (nuevaRuta != null ? nuevaRuta : "null") + "'");
+
+        if (nuevoNombre == null || nuevoNombre.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El nombre de la categoría es un campo obligatorio.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        categoria.setNombre(nuevoNombre.trim());
+
+        if (nuevaRuta != null && !nuevaRuta.trim().isEmpty()) {
+            try {
+                categoria.setImagen(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(nuevaRuta)));
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error al leer la nueva imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        boolean actualizado = controladorCategoria.editar(categoria, categoria.getIdCategoria());
+        if (actualizado) {
+            JOptionPane.showMessageDialog(this, "Categoría actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            cargarCategoriasDesdeBD();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al actualizar la categoría.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void actualizarEstadoSeleccionarTodo() {
+        boolean todasSeleccionadas = true;
+        boolean algunaSeleccionada = false;
+        for (modelo.Catalogocategoria categoria : todasLasCategorias) {
+            int id = categoria.getIdCategoria();
+            boolean tieneProductos = controladorCategoria.tieneProductos(id);
+            boolean seleccionada = seleccionados.getOrDefault(id, false);
+            if (!tieneProductos && !seleccionada) {
+                todasSeleccionadas = false;
+            }
+            if (!tieneProductos && seleccionada) {
+                algunaSeleccionada = true;
+            }
+        }
+        rSCheckBox1.setSelected(todasSeleccionadas && algunaSeleccionada);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private void mostrarPagina(int pagina) {
         panelCards.removeAll();
         panelCards.setLayout(null);
@@ -687,102 +794,7 @@ private void actualizarColoresLabels(Color color) {
         actualizarEstadoSeleccionarTodo();
     }
 
-    private void eliminar(modelo.Catalogocategoria categoria, JPanel cardWrapper) {
-        if (controladorCategoria.tieneProductos(categoria.getIdCategoria())) {
-            alertaEliminar11 alertaeli = new alertaEliminar11((JFrame) getTopLevelAncestor(), true, "Error",
-                    "No se puede eliminar la categoría '" + categoria.getNombre() + "' porque contiene productos.",
-                    "/warning-triangle-sign-free-vector-removebg-preview.png");
-            alertaeli.setLocationRelativeTo(this); // Position relative to catalogo22
-            alertaeli.setVisible(true);
-            return;
-        }
 
-        String message = "¿Estás seguro de que desea eliminar la categoría '" + categoria.getNombre() + "'?";
-        alertaEliminarcategoria111 dialog = new alertaEliminarcategoria111((JFrame) getTopLevelAncestor(), true, "¿Estás seguro?",
-                message, "/warning-triangle-sign-free-vector-removebg-preview.png");
-        dialog.setLocationRelativeTo(this); // Position relative to catalogo22
-        boolean confirm = dialog.confirmarEliminar();
 
-        if (confirm) {
-            boolean eliminado = controladorCategoria.eliminar(categoria.getIdCategoria());
-            if (eliminado) {
-                todasLasCategorias.removeIf(c -> c.getIdCategoria() == categoria.getIdCategoria());
-                seleccionados.remove(categoria.getIdCategoria());
-                panelCards.remove(cardWrapper);
-                mostrarPagina(currentPage);
-                borradooconexito exito = new borradooconexito();
-                exito.setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al eliminar la categoría de la base de datos.");
-            }
-        }
-    }
-
-    private void editarCategoria(modelo.Catalogocategoria categoria) {
-        // Crear y configurar el diálogo
-        catalogocategoria dialogo = new catalogocategoria((JFrame) getTopLevelAncestor(), true);
-        dialogo.setCategoriaNombre(categoria.getNombre());
-        dialogo.setImagenDesdeBytes(categoria.getImagen());
-        dialogo.setVisible(true);
-
-        // Obtener los valores del diálogo
-        String nuevoNombre = dialogo.getCategoriaNombre();
-        String nuevaRuta = dialogo.getRutaImagenSeleccionada();
-
-        // Depuración: Imprimir los valores devueltos
-        System.out.println("nuevoNombre recibido: '" + (nuevoNombre != null ? nuevoNombre : "null") + "'");
-        System.out.println("nuevaRuta recibida: '" + (nuevaRuta != null ? nuevaRuta : "null") + "'");
-
-        // Validación estricta del nombre como campo obligatorio
-        if (nuevoNombre == null || nuevoNombre.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre de la categoría es un campo obligatorio.", "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Salir del método si el nombre es inválido
-        }
-
-        // Actualizar la categoría con el nuevo nombre
-        categoria.setNombre(nuevoNombre.trim()); // Usar trim para eliminar espacios innecesarios
-
-        // Manejar la nueva imagen solo si se proporciona una ruta válida
-        if (nuevaRuta != null && !nuevaRuta.trim().isEmpty()) {
-            try {
-                categoria.setImagen(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(nuevaRuta)));
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error al leer la nueva imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Salir si falla la lectura de la imagen
-            }
-        }
-
-        // Intentar actualizar en la base de datos
-        boolean actualizado = controladorCategoria.editar(categoria, categoria.getIdCategoria());
-        if (actualizado) {
-            JOptionPane.showMessageDialog(this, "Categoría actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            cargarCategoriasDesdeBD(); // Recargar las categorías para reflejar los cambios
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al actualizar la categoría.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void actualizarEstadoSeleccionarTodo() {
-        boolean todasSeleccionadas = true;
-        boolean algunaSeleccionada = false;
-        for (modelo.Catalogocategoria categoria : todasLasCategorias) {
-            int id = categoria.getIdCategoria();
-            boolean tieneProductos = controladorCategoria.tieneProductos(id);
-            boolean seleccionada = seleccionados.getOrDefault(id, false);
-            if (!tieneProductos && !seleccionada) {
-                todasSeleccionadas = false;
-                break;
-            } else if (!tieneProductos) {
-                algunaSeleccionada = true;
-            }
-        }
-        if (todasSeleccionadas && algunaSeleccionada) {
-            rSCheckBox1.setSelected(true);
-        } else if (!algunaSeleccionada) {
-            rSCheckBox1.setSelected(false);
-        } else {
-            rSCheckBox1.setSelected(false); // O podrías usar un estado intermedio si el componente lo soporta
-        }
-    }
 
 }

@@ -72,16 +72,16 @@ public class Login1121 extends javax.swing.JFrame {
     }
 
     private void togglePasswordVisibility() {
-        if (isPasswordVisible) {
-            passtxt.setEchoChar('•');
-          
-
-        } else {
-            passtxt.setEchoChar((char) 0);
-           
-        }
-        isPasswordVisible = !isPasswordVisible;
+    if (isPasswordVisible) {
+        passtxt.setEchoChar('*'); // Usar '*' para ocultar la contraseña
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY); // Ícono de ojo visible
+    } else {
+        passtxt.setEchoChar((char) 0); // Mostrar contraseña como texto plano
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY_OFF); // Ícono de ojo tachado
     }
+    isPasswordVisible = !isPasswordVisible;
+}
+ 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -96,6 +96,7 @@ public class Login1121 extends javax.swing.JFrame {
         iniciar = new rojerusan.RSMaterialButtonRectangle();
         txt_usuario = new RSMaterialComponent.RSTextFieldIconOne();
         passtxt = new RSMaterialComponent.RSPasswordIconOne();
+        rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
         rSPanelImage2 = new rojerusan.RSPanelImage();
         rSPanelImage3 = new rojerusan.RSPanelImage();
 
@@ -178,6 +179,21 @@ public class Login1121 extends javax.swing.JFrame {
         passtxt.setPlaceholder("Ingrese su contraseña");
         jPanel6.add(passtxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, 360, 30));
 
+        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY);
+        rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonMaterialRippleIcon1ActionPerformed(evt);
+            }
+        });
+        jPanel6.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 370, 30, 30));
+
         kGradientPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 130, 460, 590));
 
         rSPanelImage2.setImagen(new javax.swing.ImageIcon(getClass().getResource("/Vector 6.png"))); // NOI18N
@@ -233,6 +249,11 @@ public class Login1121 extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jLabel2MousePressed
 
+    private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
+     
+togglePasswordVisibility();
+    }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -278,6 +299,7 @@ public class Login1121 extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private keeptoo.KGradientPanel kGradientPanel1;
     private RSMaterialComponent.RSPasswordIconOne passtxt;
+    private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon1;
     private rojerusan.RSPanelImage rSPanelImage1;
     private rojerusan.RSPanelImage rSPanelImage2;
     private rojerusan.RSPanelImage rSPanelImage3;
@@ -332,6 +354,5 @@ public class Login1121 extends javax.swing.JFrame {
     } else {
         JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Verifica tus datos.", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
     }
-}
-
+    }
 }
