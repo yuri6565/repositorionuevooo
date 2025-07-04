@@ -113,7 +113,6 @@ public class crear_usuario extends javax.swing.JDialog {
         tipoidentificacion6 = new javax.swing.JLabel();
         tipoidentificacion7 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
@@ -128,6 +127,9 @@ public class crear_usuario extends javax.swing.JDialog {
         numerotxt = new RSMaterialComponent.RSTextFieldMaterial();
         tipoidentificacion8 = new javax.swing.JLabel();
         tipoidentificacion9 = new javax.swing.JLabel();
+        rSButtonMaterialRippleIcon2 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
+        rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
+        jLabel24 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setUndecorated(true);
@@ -345,11 +347,6 @@ public class crear_usuario extends javax.swing.JDialog {
         jLabel14.setText("*");
         jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 260, 20, -1));
 
-        jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel21.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel21.setText("(opcional)");
-        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 450, 70, -1));
-
         jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(255, 51, 51));
         jLabel15.setText("*");
@@ -373,7 +370,7 @@ public class crear_usuario extends javax.swing.JDialog {
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(255, 51, 51));
         jLabel19.setText("*");
-        jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 450, 20, -1));
+        jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 450, 20, -1));
 
         jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel20.setForeground(new java.awt.Color(255, 51, 51));
@@ -429,6 +426,41 @@ public class crear_usuario extends javax.swing.JDialog {
         tipoidentificacion9.setText("TIPO");
         jPanel1.add(tipoidentificacion9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 240, 200, -1));
 
+        rSButtonMaterialRippleIcon2.setBackground(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon2.setForeground(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setBackgroundHover(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon2.setForegroundHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundIcon(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundIconHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setForegroundText(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY);
+        rSButtonMaterialRippleIcon2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonMaterialRippleIcon2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(rSButtonMaterialRippleIcon2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 290, 40, 40));
+
+        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
+        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(0, 0, 0));
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY);
+        rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonMaterialRippleIcon1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 380, 40, 40));
+
+        jLabel24.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel24.setForeground(new java.awt.Color(255, 51, 51));
+        jLabel24.setText("*");
+        jPanel1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 450, 20, -1));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -452,102 +484,109 @@ public class crear_usuario extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
-        StringBuilder errores = new StringBuilder();
+    Ctrl_Perfil controladorPerfil = new Ctrl_Perfil();
+    StringBuilder errores = new StringBuilder();
 
-        // Obtener valores de los campos
-        String nombre = nombretxt.getText().trim();
-        String apellido = apellidotxt.getText().trim();
-        String usuario = usuariotxt.getText().trim();
-        String correo = correotxt.getText().trim();
-        String telefono = telefonotxt.getText().trim();
-        String contrasena = new String(contrasenatxt.getPassword()).trim();
-        String contrasenaConfirm = new String(txtcontrasenanueva1.getPassword()).trim();
-        String rol = roltxt.getSelectedItem().toString();
-        String tipoIdentificacion = identificaciontxt.getSelectedItem().toString();
-        String numeroIdentificacion = numerotxt.getText().trim();
+    // Obtener valores de los campos
+    String nombre = nombretxt.getText().trim();
+    String apellido = apellidotxt.getText().trim();
+    String usuario = usuariotxt.getText().trim();
+    String correo = correotxt.getText().trim();
+    String telefono = telefonotxt.getText().trim();
+    String contrasena = new String(contrasenatxt.getPassword()).trim();
+    String contrasenaConfirm = new String(txtcontrasenanueva1.getPassword()).trim();
+    String rol = roltxt.getSelectedItem().toString();
+    String tipoIdentificacion = identificaciontxt.getSelectedItem().toString();
+    String numeroIdentificacion = numerotxt.getText().trim();
 
-        // Validaciones
-        if (nombre.isEmpty()) {
-            errores.append("El nombre es obligatorio.\n");
-        }
-        if (apellido.isEmpty()) {
-            errores.append("El apellido es obligatorio.\n");
-        }
-        if (usuario.isEmpty()) {
-            errores.append("El usuario es obligatorio.\n");
-        }
-        if (correo.isEmpty()) {
-            errores.append("El correo electrónico es obligatorio.\n");
-        }
-        if (contrasena.isEmpty()) {
-            errores.append("La contraseña es obligatoria.\n");
-        }
-        if (rol.equals("Escoja el rol:")) {
-            errores.append("Debe seleccionar un rol.\n");
-        }
-        if (tipoIdentificacion.equals("tipo de identificación")) {
-            errores.append("Debe seleccionar un tipo de identificación.\n");
-        }
-        if (numeroIdentificacion.isEmpty()) {
-            errores.append("El número de identificación es obligatorio.\n");
-        }
+    // Validaciones
+    if (nombre.isEmpty()) {
+        errores.append("El nombre es obligatorio.\n");
+    }
+    if (apellido.isEmpty()) {
+        errores.append("El apellido es obligatorio.\n");
+    }
+    if (usuario.isEmpty()) {
+        errores.append("El usuario es obligatorio.\n");
+    }
+    if (correo.isEmpty()) {
+        errores.append("El correo electrónico es obligatorio.\n");
+    }
+    if (contrasena.isEmpty()) {
+        errores.append("La contraseña es obligatoria.\n");
+    }
+    if (rol.equals("Escoja el rol:")) {
+        errores.append("Debe seleccionar un rol.\n");
+    }
+    if (tipoIdentificacion.equals("tipo de identificación")) {
+        errores.append("Debe seleccionar un tipo de identificación.\n");
+    }
+    if (numeroIdentificacion.isEmpty()) {
+        errores.append("El número de identificación es obligatorio.\n");
+    }
 
-        // Validaciones adicionales
-        if (!correo.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            errores.append("El correo electrónico no es válido.\n");
-        }
-        if (!telefono.isEmpty() && !telefono.matches("\\d{7,15}")) {
-            errores.append("El teléfono debe contener solo números y tener entre 7 y 15 dígitos.\n");
-        }
-        if (!esContrasenaValida(contrasena)) {
-            errores.append("La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales (@$!%*?&._-).\n");
-        }
-        if (!contrasena.equals(contrasenaConfirm)) {
-            errores.append("Las contraseñas no coinciden.\n");
-        }
-        if (!numeroIdentificacion.matches("\\d+")) {
-            errores.append("El número de identificación debe contener solo números.\n");
-        }
-        if (controladorPerfil.existeUsuario(usuario)) {
-            errores.append("El nombre de usuario ya existe. Por favor, elige otro.\n");
-        }
-        if (controladorPerfil.existeIdUsuario(numeroIdentificacion)) {
-            errores.append("El número de identificación ya está registrado.\n");
-        }
+    // Validaciones adicionales
+    if (!correo.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        errores.append("El correo electrónico no es válido.\n");
+    }
+    if (!telefono.isEmpty() && !telefono.matches("\\d{7,15}")) {
+        errores.append("El teléfono debe contener solo números y tener entre 7 y 15 dígitos.\n");
+    }
+    if (!esContrasenaValida(contrasena)) {
+        errores.append("La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales (@$!%*?&._-).\n");
+    }
+    if (!contrasena.equals(contrasenaConfirm)) {
+        errores.append("Las contraseñas no coinciden.\n");
+    }
+    if (!numeroIdentificacion.matches("\\d+")) {
+        errores.append("El número de identificación debe contener solo números.\n");
+    }
+    if (controladorPerfil.existeUsuario(usuario)) {
+        errores.append("El nombre de usuario ya existe. Por favor, elige otro.\n");
+    }
+    if (controladorPerfil.existeIdUsuario(numeroIdentificacion)) {
+        errores.append("El número de identificación ya está registrado.\n");
+    }
+    
+    // Validar correo único
+    if (controladorPerfil.existeCorreo(correo, 0)) { // 0 porque es un nuevo usuario
+        errores.append("El correo electrónico ya está registrado.\n");
+    }
 
-        // Mostrar errores si los hay
-        if (errores.length() > 0) {
-            JOptionPane.showMessageDialog(this, errores.toString(), "Errores de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    // Mostrar errores si los hay
+    if (errores.length() > 0) {
+        JOptionPane.showMessageDialog(this, errores.toString(), "Errores de Validación", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        // Crear y configurar el modelo de usuario
-        UsuarioModelo nuevoUsuario = new UsuarioModelo();
-        nuevoUsuario.setNombre(nombre);
-        nuevoUsuario.setApellido(apellido);
-        nuevoUsuario.setUsuario(usuario);
-        nuevoUsuario.setCorreo_electronico(correo);
-        nuevoUsuario.setContrasena(contrasena);
-        nuevoUsuario.setTelefono(telefono);
-        nuevoUsuario.setRol(rol);
-        nuevoUsuario.setTipodeiden(tipoIdentificacion);
-        try {
-            nuevoUsuario.setId_usuario(Integer.parseInt(numeroIdentificacion));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El número de identificación debe ser un valor numérico válido.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    // Resto del código para guardar el usuario...
+    // Crear y configurar el modelo de usuario
+    UsuarioModelo nuevoUsuario = new UsuarioModelo();
+    nuevoUsuario.setNombre(nombre);
+    nuevoUsuario.setApellido(apellido);
+    nuevoUsuario.setUsuario(usuario);
+    nuevoUsuario.setCorreo_electronico(correo);
+    nuevoUsuario.setContrasena(contrasena);
+    nuevoUsuario.setTelefono(telefono);
+    nuevoUsuario.setRol(rol);
+    nuevoUsuario.setTipodeiden(tipoIdentificacion);
+    try {
+        nuevoUsuario.setId_usuario(Integer.parseInt(numeroIdentificacion));
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El número de identificación debe ser un valor numérico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        // Guardar el usuario
-        if (controladorPerfil.guardar(nuevoUsuario)) {
-            JOptionPane.showMessageDialog(this, "Usuario guardado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            guardado = true;
-            datos = new String[]{nombre, apellido, usuario, correo, telefono, rol, tipoIdentificacion, numeroIdentificacion};
-            dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al guardar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    // Guardar el usuario
+    if (controladorPerfil.guardar(nuevoUsuario)) {
+        JOptionPane.showMessageDialog(this, "Usuario guardado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        guardado = true;
+        datos = new String[]{nombre, apellido, usuario, correo, telefono, rol, tipoIdentificacion, numeroIdentificacion};
+        dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "Error al guardar el usuario", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
 
 
     }//GEN-LAST:event_btnGuardarActionPerformed
@@ -587,6 +626,14 @@ public class crear_usuario extends javax.swing.JDialog {
     private void numerotxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numerotxtActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_numerotxtActionPerformed
+
+    private void rSButtonMaterialRippleIcon2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon2ActionPerformed
+        togglePasswordVisibility();
+    }//GEN-LAST:event_rSButtonMaterialRippleIcon2ActionPerformed
+
+    private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
+        togglePasswordVisibility1();
+    }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
 
     /**
      */
@@ -650,9 +697,9 @@ public class crear_usuario extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -663,6 +710,8 @@ public class crear_usuario extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private RSMaterialComponent.RSTextFieldMaterial nombretxt;
     private RSMaterialComponent.RSTextFieldMaterial numerotxt;
+    private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon1;
+    private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon2;
     private RSMaterialComponent.RSComboBoxMaterial roltxt;
     private RSMaterialComponent.RSTextFieldMaterial telefonotxt;
     private javax.swing.JLabel tipoidentificacion;
@@ -1020,4 +1069,27 @@ public boolean esContrasenaValida(String contrasena) {
             }
         }
     }
+    
+    private void togglePasswordVisibility() {
+    if (isPasswordVisible) {
+        contrasenatxt.setEchoChar('*'); // Ocultar con '*'
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY); // Ícono de ojo visible
+    } else {
+        contrasenatxt.setEchoChar((char) 0); // Mostrar como texto plano
+        rSButtonMaterialRippleIcon2.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY_OFF); // Ícono de ojo tachado
+    }
+    isPasswordVisible = !isPasswordVisible;
+}
+
+// Método para alternar visibilidad de la segunda contraseña
+private void togglePasswordVisibility1() {
+    if (isPasswordVisible1) {
+        txtcontrasenanueva1.setEchoChar('*'); // Ocultar con '*'
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY); // Ícono de ojo visible
+    } else {
+        txtcontrasenanueva1.setEchoChar((char) 0); // Mostrar como texto plano
+        rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.VISIBILITY_OFF); // Ícono de ojo tachado
+    }
+    isPasswordVisible1 = !isPasswordVisible1;
+}
 }
