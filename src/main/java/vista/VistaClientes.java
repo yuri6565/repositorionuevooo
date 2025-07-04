@@ -17,18 +17,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import modelo.Cliente;
 import modelo.Conexion;
 import rojeru_san.RSButton;
@@ -41,9 +47,6 @@ import vista.Usuarios1.CustomCheckboxRenderer;
  *
  * @author ZenBook
  */
-
-
-
 public class VistaClientes extends javax.swing.JPanel {
 
     private int id_cliente;
@@ -52,6 +55,12 @@ public class VistaClientes extends javax.swing.JPanel {
     private final int CLIENTES_POR_PAGINA = 19;
     private List<Cliente> todasLasClientes = new ArrayList<>();
     private boolean[] seleccionados;
+    private TableRowSorter<DefaultTableModel> sorter; // Declaración de sorter
+    private JPopupMenu popupFiltrosAvanzados; // Popup para filtros avanzados
+    private List<JCheckBox> chkEstados = new ArrayList<>(); // Lista para checkboxes de estados
+    private List<JCheckBox> chkDepartamentos = new ArrayList<>(); // Lista para checkboxes de departamentos
+    private List<JCheckBox> chkProductos = new ArrayList<>(); // Lista para checkboxes de tipos de documento
+    private rojeru_san.RSButtonRiple btnAplicarFiltros;
 
     public VistaClientes(JFrame jFrame, boolean par) {
         controlador = new Ctrl_Cliente();
@@ -94,7 +103,9 @@ public class VistaClientes extends javax.swing.JPanel {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Boolean.class;
+                if (columnIndex == 0) {
+                    return Boolean.class;
+                }
                 return String.class;
             }
         };
@@ -116,8 +127,8 @@ public class VistaClientes extends javax.swing.JPanel {
         seleccionados = new boolean[todasLasClientes.size()];
 
         for (Cliente cliente : todasLasClientes) {
-            String ubicacion = (cliente.getDepartamento() != null ? cliente.getDepartamento() : "Sin departamento") + "/" +
-                    (cliente.getMunicipio() != null ? cliente.getMunicipio() : "Sin municipio");
+            String ubicacion = (cliente.getDepartamento() != null ? cliente.getDepartamento() : "Sin departamento") + "/"
+                    + (cliente.getMunicipio() != null ? cliente.getMunicipio() : "Sin municipio");
             model.addRow(new Object[]{
                 false,
                 String.valueOf(cliente.getId_cliente()),
@@ -228,8 +239,8 @@ public class VistaClientes extends javax.swing.JPanel {
 
         for (int i = inicio; i < fin; i++) {
             Cliente cliente = todasLasClientes.get(i);
-            String ubicacion = (cliente.getDepartamento() != null ? cliente.getDepartamento() : "") + "/" +
-                    (cliente.getMunicipio() != null ? cliente.getMunicipio() : "");
+            String ubicacion = (cliente.getDepartamento() != null ? cliente.getDepartamento() : "") + "/"
+                    + (cliente.getMunicipio() != null ? cliente.getMunicipio() : "");
             model.addRow(new Object[]{
                 seleccionados[i],
                 String.valueOf(cliente.getId_cliente()),
@@ -288,6 +299,7 @@ public class VistaClientes extends javax.swing.JPanel {
     }
 
     class CustomCheckboxRenderer extends JPanel implements TableCellRenderer {
+
         private final JCheckBox checkBox;
 
         public CustomCheckboxRenderer() {
@@ -323,6 +335,7 @@ public class VistaClientes extends javax.swing.JPanel {
     }
 
     class CustomCheckboxEditor extends DefaultCellEditor {
+
         private final JCheckBox checkBox;
 
         public CustomCheckboxEditor() {
@@ -347,6 +360,7 @@ public class VistaClientes extends javax.swing.JPanel {
     }
 
     class StateCellRenderer extends JPanel implements TableCellRenderer {
+
         private final RSLabelIcon stateIcon;
 
         public StateCellRenderer() {
@@ -390,6 +404,7 @@ public class VistaClientes extends javax.swing.JPanel {
     }
 
     class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
+
         private RSLabelIcon editIcon;
         private RSLabelIcon stateIcon;
 
@@ -445,6 +460,7 @@ public class VistaClientes extends javax.swing.JPanel {
     }
 
     class ButtonPanelEditor extends DefaultCellEditor {
+
         private JPanel panel;
         private RSLabelIcon editIcon;
         private RSLabelIcon stateIcon;
@@ -867,63 +883,63 @@ public class VistaClientes extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo1ActionPerformed
-      crear_cliente dialog = new crear_cliente(new javax.swing.JFrame(), true);
-    dialog.setLocationRelativeTo(null);
-    dialog.setVisible(true);
+        crear_cliente dialog = new crear_cliente(new javax.swing.JFrame(), true);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
 
-    if (dialog.isGuardado()) {
-        cargartablaclientes(); // Use the correct method with all columns
-    }
+        if (dialog.isGuardado()) {
+            cargartablaclientes(); // Use the correct method with all columns
+        }
     }//GEN-LAST:event_btnNuevo1ActionPerformed
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-    String textoBusqueda = txtBuscar.getText().trim();
-    if (textoBusqueda.isEmpty()) {
-        todasLasClientes = new ArrayList<>(controlador.obtenerClientes());
-        currentPage = 0;
-        seleccionados = new boolean[todasLasClientes.size()];
-        mostrarPagina(currentPage);
-        return;
-    }
+        String textoBusqueda = txtBuscar.getText().trim();
+        if (textoBusqueda.isEmpty()) {
+            todasLasClientes = new ArrayList<>(controlador.obtenerClientes());
+            currentPage = 0;
+            seleccionados = new boolean[todasLasClientes.size()];
+            mostrarPagina(currentPage);
+            return;
+        }
 
-    try {
-        int codigo = Integer.parseInt(textoBusqueda);
-        Cliente cliente = controlador.buscarClientePorCodigo(codigo);
-        if (cliente != null) {
-            todasLasClientes = new ArrayList<>();
-            todasLasClientes.add(cliente);
-            seleccionados = new boolean[todasLasClientes.size()];
-            currentPage = 0;
-            mostrarPagina(currentPage);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró cliente con código: " + codigo, "No encontrado", JOptionPane.WARNING_MESSAGE);
+        try {
+            int codigo = Integer.parseInt(textoBusqueda);
+            Cliente cliente = controlador.buscarClientePorCodigo(codigo);
+            if (cliente != null) {
+                todasLasClientes = new ArrayList<>();
+                todasLasClientes.add(cliente);
+                seleccionados = new boolean[todasLasClientes.size()];
+                currentPage = 0;
+                mostrarPagina(currentPage);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró cliente con código: " + codigo, "No encontrado", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            List<Cliente> resultados = controlador.buscarClientePorNombre(textoBusqueda);
+            if (!resultados.isEmpty()) {
+                todasLasClientes = new ArrayList<>(resultados);
+                seleccionados = new boolean[todasLasClientes.size()];
+                currentPage = 0;
+                mostrarPagina(currentPage);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontraron clientes con el nombre: " + textoBusqueda, "No encontrado", JOptionPane.WARNING_MESSAGE);
+                todasLasClientes = new ArrayList<>();
+                seleccionados = new boolean[todasLasClientes.size()];
+                mostrarPagina(currentPage);
+            }
         }
-    } catch (NumberFormatException e) {
-        List<Cliente> resultados = controlador.buscarClientePorNombre(textoBusqueda);
-        if (!resultados.isEmpty()) {
-            todasLasClientes = new ArrayList<>(resultados);
-            seleccionados = new boolean[todasLasClientes.size()];
-            currentPage = 0;
-            mostrarPagina(currentPage);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontraron clientes con el nombre: " + textoBusqueda, "No encontrado", JOptionPane.WARNING_MESSAGE);
-            todasLasClientes = new ArrayList<>();
-            seleccionados = new boolean[todasLasClientes.size()];
-            mostrarPagina(currentPage);
-        }
-    }
 
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void Añadir5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir5ActionPerformed
- if (currentPage > 0) {
+        if (currentPage > 0) {
             currentPage--;
             mostrarPagina(currentPage);
         }
     }//GEN-LAST:event_Añadir5ActionPerformed
 
     private void Añadir4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir4ActionPerformed
-  int totalPaginas = (int) Math.ceil((double) todasLasClientes.size() / CLIENTES_POR_PAGINA);
+        int totalPaginas = (int) Math.ceil((double) todasLasClientes.size() / CLIENTES_POR_PAGINA);
         if (currentPage < totalPaginas - 1) {
             currentPage++;
             mostrarPagina(currentPage);
@@ -999,7 +1015,7 @@ public class VistaClientes extends javax.swing.JPanel {
 
         rSCheckBox1.setSelected(false);
         rSButtonMaterialRippleIcon1.setVisible(false);
-    
+
     }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
 
     private void paginacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_paginacionMouseClicked
@@ -1008,6 +1024,10 @@ public class VistaClientes extends javax.swing.JPanel {
 
     private void btnNotificacion1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificacion1MouseClicked
         // TODO add your handling code here:
+        System.out.println("Clic en btnNotificacion1");
+        inicializarPopupFiltrosAvanzados();
+        popupFiltrosAvanzados.show(btnNotificacion1, evt.getX(), evt.getY());
+
     }//GEN-LAST:event_btnNotificacion1MouseClicked
 
 
@@ -1024,83 +1044,239 @@ public class VistaClientes extends javax.swing.JPanel {
     private RSMaterialComponent.RSTableMetroCustom tablaclientes;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtBuscar;
     // End of variables declaration//GEN-END:variables
-    
-public void cargartablacliente() {
-    tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    DefaultTableModel model = new DefaultTableModel() {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return column == 0 || column == 9; // Solo "Seleccionar" y "Acciones" son editables
+    public void cargartablacliente() {
+        tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 0 || column == 9; // Solo "Seleccionar" y "Acciones" son editables
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnIndex == 0 ? Boolean.class : String.class; // Checkbox en la primera columna
+            }
+        };
+
+        // Definir columnas
+        model.addColumn("Seleccionar"); // Checkbox
+        model.addColumn("Código");
+        model.addColumn("Doc. Tipo");
+        model.addColumn("Nombre");
+        model.addColumn("Apellido");
+        model.addColumn("Teléfono");
+        model.addColumn("Departamento/Municipio");
+        model.addColumn("Dirección");
+        model.addColumn("Estado");
+        model.addColumn("Acciones");
+
+        // Obtener clientes y llenar la tabla
+        List<Cliente> clientes = controlador.obtenerClientes();
+        for (Cliente cliente : clientes) {
+            Object[] fila = new Object[10];
+            fila[0] = false; // Checkbox no seleccionado
+            fila[1] = String.valueOf(cliente.getId_cliente()); // Código
+            fila[2] = cliente.getIdentificacion() != null ? cliente.getIdentificacion() : "Sin identificación";
+            fila[3] = cliente.getNombre() != null ? cliente.getNombre() : "Sin nombre";
+            fila[4] = cliente.getApellido() != null ? cliente.getApellido() : "Sin apellido";
+            fila[5] = cliente.getTelefono() != null ? cliente.getTelefono() : "Sin teléfono";
+            String departamento = cliente.getDepartamento() != null ? cliente.getDepartamento() : "";
+            String municipio = cliente.getMunicipio() != null ? cliente.getMunicipio() : "";
+            fila[6] = (!departamento.isEmpty() || !municipio.isEmpty()) ? departamento + " / " + municipio : "Sin ubicación";
+            fila[7] = cliente.getDireccion() != null ? cliente.getDireccion() : "Sin dirección";
+            fila[8] = cliente.isActivo() ? "Activo" : "Inactivo"; // Estado
+            fila[9] = ""; // Acciones
+            model.addRow(fila);
         }
 
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnIndex == 0 ? Boolean.class : String.class; // Checkbox en la primera columna
-        }
-    };
+        // Asignar el modelo a la tabla
+        tablaclientes.setModel(model);
 
-    // Definir columnas
-    model.addColumn("Seleccionar"); // Checkbox
-    model.addColumn("Código");
-    model.addColumn("Doc. Tipo");
-    model.addColumn("Nombre");
-    model.addColumn("Apellido");
-    model.addColumn("Teléfono");
-    model.addColumn("Departamento/Municipio");
-    model.addColumn("Dirección");
-    model.addColumn("Estado");
-    model.addColumn("Acciones");
+        // Configurar renderers y editores
+        tablaclientes.getColumnModel().getColumn(9).setCellRenderer(new ButtonPanelRenderer());
+        tablaclientes.getColumnModel().getColumn(9).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
 
-    // Obtener clientes y llenar la tabla
-    List<Cliente> clientes = controlador.obtenerClientes();
-    for (Cliente cliente : clientes) {
-        Object[] fila = new Object[10];
-        fila[0] = false; // Checkbox no seleccionado
-        fila[1] = String.valueOf(cliente.getId_cliente()); // Código
-        fila[2] = cliente.getIdentificacion() != null ? cliente.getIdentificacion() : "Sin identificación";
-        fila[3] = cliente.getNombre() != null ? cliente.getNombre() : "Sin nombre";
-        fila[4] = cliente.getApellido() != null ? cliente.getApellido() : "Sin apellido";
-        fila[5] = cliente.getTelefono() != null ? cliente.getTelefono() : "Sin teléfono";
-        String departamento = cliente.getDepartamento() != null ? cliente.getDepartamento() : "";
-        String municipio = cliente.getMunicipio() != null ? cliente.getMunicipio() : "";
-        fila[6] = (!departamento.isEmpty() || !municipio.isEmpty()) ? departamento + " / " + municipio : "Sin ubicación";
-        fila[7] = cliente.getDireccion() != null ? cliente.getDireccion() : "Sin dirección";
-        fila[8] = cliente.isActivo() ? "Activo" : "Inactivo"; // Estado
-        fila[9] = ""; // Acciones
-        model.addRow(fila);
+        // Ajustar anchos de columnas
+        tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(60);  // Seleccionar
+        tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(70);  // Código
+        tablaclientes.getColumnModel().getColumn(2).setPreferredWidth(70);  // Tipo de identificación
+        tablaclientes.getColumnModel().getColumn(3).setPreferredWidth(100); // Nombre
+        tablaclientes.getColumnModel().getColumn(4).setPreferredWidth(100); // Apellido
+        tablaclientes.getColumnModel().getColumn(5).setPreferredWidth(80);  // Teléfono
+        tablaclientes.getColumnModel().getColumn(6).setPreferredWidth(150); // Departamento/Municipio
+        tablaclientes.getColumnModel().getColumn(7).setPreferredWidth(160); // Dirección
+        tablaclientes.getColumnModel().getColumn(8).setPreferredWidth(70);  // Estado
+        tablaclientes.getColumnModel().getColumn(9).setPreferredWidth(80);  // Acciones
+        tablaclientes.setRowHeight(24);
+
+        // Listener para capturar la selección de una fila
+        tablaclientes.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int fila_point = tablaclientes.rowAtPoint(e.getPoint());
+                if (fila_point > -1) {
+                    id_cliente = (int) tablaclientes.getValueAt(fila_point, 1);
+                }
+            }
+        });
     }
 
-    // Asignar el modelo a la tabla
-    tablaclientes.setModel(model);
+    private void obtenerValoresUnicos(List<String> estados, List<String> departamentos, List<String> tiposDocumento) {
+        estados.clear();
+        departamentos.clear();
+        tiposDocumento.clear();
+        Set<String> estadosSet = new HashSet<>();
+        Set<String> departamentosSet = new HashSet<>();
+        Set<String> tiposDocumentoSet = new HashSet<>();
 
-    // Configurar renderers y editores
-    tablaclientes.getColumnModel().getColumn(9).setCellRenderer(new ButtonPanelRenderer());
-    tablaclientes.getColumnModel().getColumn(9).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
+        try {
+            for (Cliente cliente : todasLasClientes) {
+                // Estado
+                estadosSet.add(cliente.isActivo() ? "Activo" : "Inactivo"); // Eliminar la verificación != null
+                // Departamento
+                if (cliente.getDepartamento() != null && !cliente.getDepartamento().isEmpty()) {
+                    departamentosSet.add(cliente.getDepartamento());
+                }
+                // Tipo de Documento
+                if (cliente.getIdentificacion() != null && !cliente.getIdentificacion().isEmpty()) {
+                    tiposDocumentoSet.add(cliente.getIdentificacion());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error en obtenerValoresUnicos: " + e.getMessage());
+            e.printStackTrace();
+        }
 
-    // Ajustar anchos de columnas
-    tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(60);  // Seleccionar
-    tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(70);  // Código
-    tablaclientes.getColumnModel().getColumn(2).setPreferredWidth(70);  // Tipo de identificación
-    tablaclientes.getColumnModel().getColumn(3).setPreferredWidth(100); // Nombre
-    tablaclientes.getColumnModel().getColumn(4).setPreferredWidth(100); // Apellido
-    tablaclientes.getColumnModel().getColumn(5).setPreferredWidth(80);  // Teléfono
-    tablaclientes.getColumnModel().getColumn(6).setPreferredWidth(150); // Departamento/Municipio
-    tablaclientes.getColumnModel().getColumn(7).setPreferredWidth(160); // Dirección
-    tablaclientes.getColumnModel().getColumn(8).setPreferredWidth(70);  // Estado
-    tablaclientes.getColumnModel().getColumn(9).setPreferredWidth(80);  // Acciones
-    tablaclientes.setRowHeight(24);
+        estados.addAll(estadosSet.stream().sorted().toList());
+        departamentos.addAll(departamentosSet.stream().sorted().toList());
+        tiposDocumento.addAll(tiposDocumentoSet.stream().sorted().toList());
 
-    // Listener para capturar la selección de una fila
-    tablaclientes.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            int fila_point = tablaclientes.rowAtPoint(e.getPoint());
-            if (fila_point > -1) {
-                id_cliente = (int) tablaclientes.getValueAt(fila_point, 1);
+        System.out.println("Valores únicos - Estados: " + estados);
+        System.out.println("Valores únicos - Departamentos: " + departamentos);
+        System.out.println("Valores únicos - Tipos de Documento: " + tiposDocumento);
+    }
+
+    private void inicializarPopupFiltrosAvanzados() {
+        popupFiltrosAvanzados = new JPopupMenu();
+        chkEstados.clear();
+        chkDepartamentos.clear();
+        chkProductos.clear(); // Note: We're repurposing this list for tiposDocumento
+
+        List<String> estados = new ArrayList<>();
+        List<String> departamentos = new ArrayList<>();
+        List<String> tiposDocumento = new ArrayList<>();
+        obtenerValoresUnicos(estados, departamentos, tiposDocumento);
+
+        System.out.println("Iniciando popup. Estados: " + estados + ", Departamentos: " + departamentos + ", Tipos de Documento: " + tiposDocumento);
+
+        if (estados.isEmpty() && departamentos.isEmpty() && tiposDocumento.isEmpty()) {
+            popupFiltrosAvanzados.add(new JLabel("No hay filtros disponibles"));
+        } else {
+            // Estados
+            if (!estados.isEmpty()) {
+                popupFiltrosAvanzados.add(new JLabel("Estados:"));
+                for (String estado : estados) {
+                    JCheckBox chkEstado = new JCheckBox(estado);
+                    chkEstados.add(chkEstado);
+                    popupFiltrosAvanzados.add(chkEstado);
+                }
+                popupFiltrosAvanzados.addSeparator();
+            }
+
+            // Departamentos
+            if (!departamentos.isEmpty()) {
+                popupFiltrosAvanzados.add(new JLabel("Departamentos:"));
+                for (String depto : departamentos) {
+                    JCheckBox chkDepto = new JCheckBox(depto);
+                    chkDepartamentos.add(chkDepto);
+                    popupFiltrosAvanzados.add(chkDepto);
+                }
+                popupFiltrosAvanzados.addSeparator();
+            }
+
+            // Tipos de Documento
+            if (!tiposDocumento.isEmpty()) {
+                popupFiltrosAvanzados.add(new JLabel("Tipos de Documento:"));
+                for (String tipo : tiposDocumento) {
+                    JCheckBox chkTipo = new JCheckBox(tipo);
+                    chkProductos.add(chkTipo); // Reusing chkProductos for tiposDocumento
+                    popupFiltrosAvanzados.add(chkTipo);
+                }
             }
         }
-    });
-}
 
+        btnAplicarFiltros = new rojeru_san.RSButtonRiple();
+        btnAplicarFiltros.setText("Aplicar");
+        btnAplicarFiltros.setBackground(new Color(46, 49, 82));
+        btnAplicarFiltros.setColorHover(new Color(0, 153, 51));
+        popupFiltrosAvanzados.addSeparator();
+        popupFiltrosAvanzados.add(btnAplicarFiltros);
+
+        // Apply theme to popup
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+        Color texto = oscuro ? Color.WHITE : Color.BLACK;
+        popupFiltrosAvanzados.setBackground(fondo);
+        for (Component comp : popupFiltrosAvanzados.getComponents()) {
+            comp.setBackground(fondo);
+            comp.setForeground(texto);
+        }
+
+        btnAplicarFiltros.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+    }
+
+    private void aplicarFiltrosAvanzados() {
+        List<String> filtrosEstado = new ArrayList<>();
+        for (JCheckBox chk : chkEstados) {
+            if (chk.isSelected()) {
+                filtrosEstado.add(chk.getText());
+            }
+        }
+
+        List<String> filtrosDepartamento = new ArrayList<>();
+        for (JCheckBox chk : chkDepartamentos) {
+            if (chk.isSelected()) {
+                filtrosDepartamento.add(chk.getText());
+            }
+        }
+
+        List<String> filtrosTipoDocumento = new ArrayList<>();
+        for (JCheckBox chk : chkProductos) { // Reusing chkProductos for tiposDocumento
+            if (chk.isSelected()) {
+                filtrosTipoDocumento.add(chk.getText());
+            }
+        }
+
+        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+        sorter = new TableRowSorter<>(model);
+        tablaclientes.setRowSorter(sorter);
+
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+        // Filter by Estado (column 8)
+        if (!filtrosEstado.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosEstado) + ")$", 8));
+        }
+
+        // Filter by Departamento (column 6, which contains Departamento/Municipio)
+        if (!filtrosDepartamento.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosDepartamento) + ").*", 6));
+        }
+
+        // Filter by Tipo de Documento (column 2)
+        if (!filtrosTipoDocumento.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosTipoDocumento) + ")$", 2));
+        }
+
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+        } else {
+            sorter.setRowFilter(null);
+        }
+    }
 }

@@ -16,7 +16,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -27,17 +29,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import modelo.ProveedorDatos;
 import rojeru_san.efectos.ValoresEnum;
 import rojerusan.RSLabelIcon;
-
 
 /**
  *
@@ -57,12 +62,19 @@ public class Proveedor extends javax.swing.JPanel {
         proveedorContro = new Ctrl_Proveedor();
         initComponents();
         jPanel1.setPreferredSize(new java.awt.Dimension(1340, 750)); // Ajusta según necesites
-jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate que sea mayor que el contenido
+        jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate que sea mayor que el contenido
         rSCheckBox1.addActionListener(e -> seleccionarTodo());
         cargartablaproveedores();
         aplicarTema();
+      
         rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar botón por defecto
         TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
+        SwingUtilities.invokeLater(() -> {
+            cargartablaproveedores();
+            rSCheckBox1.addActionListener(e -> seleccionarTodo());
+            inicializarPopupFiltrosAvanzados();
+            System.out.println("tablaclientes initialized with " + tablaclientes.getColumnCount() + " columns");
+        });
     }
 
     public void cargartablaproveedores() {
@@ -76,7 +88,9 @@ jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate 
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Boolean.class;
+                if (columnIndex == 0) {
+                    return Boolean.class;
+                }
                 return String.class;
             }
         };
@@ -104,10 +118,10 @@ jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate 
                 productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
             }
             String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
-            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
-                    (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
-            String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre") + " " +
-                    (proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido");
+            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/"
+                    + (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
+            String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "Sin nombre") + " "
+                    + (proveedor.getApellido() != null ? proveedor.getApellido() : "Sin apellido");
             model.addRow(new Object[]{
                 false,
                 proveedor.getId_proveedor(),
@@ -135,8 +149,8 @@ jScrollPane3.setPreferredSize(new java.awt.Dimension(1200, 550)); // Asegúrate 
         tablaclientes.getColumnModel().getColumn(9).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
 
         // Ajustar anchos
-       tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(50); // Reducir un poco
-tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tablaclientes.getColumnModel().getColumn(0).setPreferredWidth(50); // Reducir un poco
+        tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
 // Ajusta los demás según necesites
         tablaclientes.getColumnModel().getColumn(2).setPreferredWidth(180);
         tablaclientes.getColumnModel().getColumn(3).setPreferredWidth(220);
@@ -170,42 +184,42 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
         });
     }
 
-   private void actualizarEstadoBotonAccion() {
-    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-    int inicio = currentPage * PROVEEDORES_POR_PAGINA;
-    List<Integer> seleccionadosIds = new ArrayList<>();
-    List<String> estados = new ArrayList<>();
+    private void actualizarEstadoBotonAccion() {
+        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+        int inicio = currentPage * PROVEEDORES_POR_PAGINA;
+        List<Integer> seleccionadosIds = new ArrayList<>();
+        List<String> estados = new ArrayList<>();
 
-    for (int i = 0; i < model.getRowCount(); i++) {
-        if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
-            int id = Integer.parseInt(model.getValueAt(i, 1).toString());
-            String estado = model.getValueAt(i, 6).toString().toLowerCase();
-            seleccionadosIds.add(id);
-            estados.add(estado);
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
+                int id = Integer.parseInt(model.getValueAt(i, 1).toString());
+                String estado = model.getValueAt(i, 6).toString().toLowerCase();
+                seleccionadosIds.add(id);
+                estados.add(estado);
+            }
         }
-    }
 
-    if (seleccionadosIds.isEmpty()) {
-        rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si no hay selección
-    } else {
-        boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
-        boolean todosActivos = estados.stream().allMatch("activo"::equals);
-
-        if (todosInactivos) {
-            rSButtonMaterialRippleIcon1.setVisible(true);
-            rSButtonMaterialRippleIcon1.setToolTipText("Activar proveedores seleccionados");
-            rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE); // Ícono para activar
-            rSButtonMaterialRippleIcon1.setForeground(new Color(0, 102, 204)); // Azul para activar
-        } else if (todosActivos) {
-            rSButtonMaterialRippleIcon1.setVisible(true);
-            rSButtonMaterialRippleIcon1.setToolTipText("Desactivar proveedores seleccionados");
-            rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CANCEL); // Ícono para desactivar
-            rSButtonMaterialRippleIcon1.setForeground(Color.GRAY); // Gris para desactivar
+        if (seleccionadosIds.isEmpty()) {
+            rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si no hay selección
         } else {
-            rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si la selección es mixta
+            boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
+            boolean todosActivos = estados.stream().allMatch("activo"::equals);
+
+            if (todosInactivos) {
+                rSButtonMaterialRippleIcon1.setVisible(true);
+                rSButtonMaterialRippleIcon1.setToolTipText("Activar proveedores seleccionados");
+                rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE); // Ícono para activar
+                rSButtonMaterialRippleIcon1.setForeground(new Color(0, 102, 204)); // Azul para activar
+            } else if (todosActivos) {
+                rSButtonMaterialRippleIcon1.setVisible(true);
+                rSButtonMaterialRippleIcon1.setToolTipText("Desactivar proveedores seleccionados");
+                rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CANCEL); // Ícono para desactivar
+                rSButtonMaterialRippleIcon1.setForeground(Color.GRAY); // Gris para desactivar
+            } else {
+                rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar si la selección es mixta
+            }
         }
     }
-}
 
     private void mostrarPagina(int pagina) {
         DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
@@ -227,10 +241,10 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
                 productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
             }
             String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
-            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "") + "/" +
-                    (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "");
-            String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "") + " " +
-                    (proveedor.getApellido() != null ? proveedor.getApellido() : "");
+            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "") + "/"
+                    + (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "");
+            String nombreCompleto = (proveedor.getNombre() != null ? proveedor.getNombre() : "") + " "
+                    + (proveedor.getApellido() != null ? proveedor.getApellido() : "");
             model.addRow(new Object[]{
                 seleccionados[i],
                 proveedor.getId_proveedor(),
@@ -265,6 +279,7 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
     }
 
     class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
+
         private RSLabelIcon editIcon;
         private RSLabelIcon stateIcon;
 
@@ -326,6 +341,7 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
     }
 
     class CustomCheckboxEditor extends DefaultCellEditor {
+
         private final JCheckBox checkBox;
 
         public CustomCheckboxEditor() {
@@ -350,6 +366,7 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
     }
 
     class ButtonPanelEditor extends DefaultCellEditor {
+
         private JPanel panel;
         private RSLabelIcon editIcon;
         private RSLabelIcon stateIcon;
@@ -795,17 +812,17 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo1ActionPerformed
-   proveedornuevo dialog = new proveedornuevo(new javax.swing.JFrame(), true);
+        proveedornuevo dialog = new proveedornuevo(new javax.swing.JFrame(), true);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
 
         if (dialog.isGuardado()) {
-            cargartablaproveedores(); 
+            cargartablaproveedores();
         }
     }//GEN-LAST:event_btnNuevo1ActionPerformed
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-     String textoBusqueda = txtBuscar.getText().trim();
+        String textoBusqueda = txtBuscar.getText().trim();
         if (textoBusqueda.isEmpty()) {
             cargartablaproveedores();
         } else {
@@ -815,11 +832,13 @@ tablaclientes.getColumnModel().getColumn(1).setPreferredWidth(100);
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnNotificacion1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificacion1MouseClicked
-        // TODO add your handling code here:
+        System.out.println("Clic en btnNotificacion1");
+        inicializarPopupFiltrosAvanzados();
+        popupFiltrosAvanzados.show(btnNotificacion1, evt.getX(), evt.getY());
     }//GEN-LAST:event_btnNotificacion1MouseClicked
 
     private void Añadir4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir4ActionPerformed
-int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEEDORES_POR_PAGINA);
+        int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEEDORES_POR_PAGINA);
         if (currentPage < totalPaginas - 1) {
             currentPage++;
             mostrarPagina(currentPage);
@@ -827,77 +846,77 @@ int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEED
     }//GEN-LAST:event_Añadir4ActionPerformed
 
     private void rSButtonMaterialRippleIcon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonMaterialRippleIcon1ActionPerformed
-    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-    int inicio = currentPage * PROVEEDORES_POR_PAGINA;
-    List<Integer> seleccionadosIds = new ArrayList<>();
-    List<String> estados = new ArrayList<>();
+        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+        int inicio = currentPage * PROVEEDORES_POR_PAGINA;
+        List<Integer> seleccionadosIds = new ArrayList<>();
+        List<String> estados = new ArrayList<>();
 
-    for (int i = 0; i < model.getRowCount(); i++) {
-        if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
-            int id = Integer.parseInt(model.getValueAt(i, 1).toString());
-            String estado = model.getValueAt(i, 6).toString().toLowerCase();
-            seleccionadosIds.add(id);
-            estados.add(estado);
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (Boolean.TRUE.equals(model.getValueAt(i, 0))) {
+                int id = Integer.parseInt(model.getValueAt(i, 1).toString());
+                String estado = model.getValueAt(i, 6).toString().toLowerCase();
+                seleccionadosIds.add(id);
+                estados.add(estado);
+            }
         }
-    }
 
-    boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
-    boolean todosActivos = estados.stream().allMatch("activo"::equals);
+        boolean todosInactivos = estados.stream().allMatch("inactivo"::equals);
+        boolean todosActivos = estados.stream().allMatch("activo"::equals);
 
-    if (todosInactivos) {
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro de que desea activar " + seleccionadosIds.size() + " proveedor(es)?",
-                "Confirmar activación", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean todosExitosos = true;
-            for (Integer id : seleccionadosIds) {
-                if (!proveedorContro.activar(id)) {
-                    todosExitosos = false;
-                    JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo activar.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (todosInactivos) {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "¿Está seguro de que desea activar " + seleccionadosIds.size() + " proveedor(es)?",
+                    "Confirmar activación", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean todosExitosos = true;
+                for (Integer id : seleccionadosIds) {
+                    if (!proveedorContro.activar(id)) {
+                        todosExitosos = false;
+                        JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo activar.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+                if (todosExitosos) {
+                    JOptionPane.showMessageDialog(this, "Proveedor(es) activado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                }
+                cargartablaproveedores(); // Recargar tabla
             }
-            if (todosExitosos) {
-                JOptionPane.showMessageDialog(this, "Proveedor(es) activado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            }
-            cargartablaproveedores(); // Recargar tabla
-        }
-    } else if (todosActivos) {
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro de que desea desactivar " + seleccionadosIds.size() + " proveedor(es)?",
-                "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean todosExitosos = true;
-            for (Integer id : seleccionadosIds) {
-                if (proveedorContro.tieneProductos(id)) {
-                    int opcion = JOptionPane.showConfirmDialog(this,
-                            "El proveedor con ID " + id + " tiene productos asociados. ¿Desea marcarlo como inactivo?",
-                            "Proveedor con Productos", JOptionPane.YES_NO_OPTION);
-                    if (opcion == JOptionPane.YES_OPTION) {
+        } else if (todosActivos) {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "¿Está seguro de que desea desactivar " + seleccionadosIds.size() + " proveedor(es)?",
+                    "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean todosExitosos = true;
+                for (Integer id : seleccionadosIds) {
+                    if (proveedorContro.tieneProductos(id)) {
+                        int opcion = JOptionPane.showConfirmDialog(this,
+                                "El proveedor con ID " + id + " tiene productos asociados. ¿Desea marcarlo como inactivo?",
+                                "Proveedor con Productos", JOptionPane.YES_NO_OPTION);
+                        if (opcion == JOptionPane.YES_OPTION) {
+                            if (!proveedorContro.desactivar(id)) {
+                                todosExitosos = false;
+                                JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    } else {
                         if (!proveedorContro.desactivar(id)) {
                             todosExitosos = false;
                             JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                } else {
-                    if (!proveedorContro.desactivar(id)) {
-                        todosExitosos = false;
-                        JOptionPane.showMessageDialog(this, "No se encontró el proveedor con ID: " + id + " o no se pudo desactivar.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
                 }
+                if (todosExitosos) {
+                    JOptionPane.showMessageDialog(this, "Proveedor(es) desactivado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                }
+                cargartablaproveedores(); // Recargar tabla
             }
-            if (todosExitosos) {
-                JOptionPane.showMessageDialog(this, "Proveedor(es) desactivado(s) exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            }
-            cargartablaproveedores(); // Recargar tabla
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione solo proveedores con el mismo estado (todos activos o todos inactivos).", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } else {
-        JOptionPane.showMessageDialog(this, "Seleccione solo proveedores con el mismo estado (todos activos o todos inactivos).", "Error", JOptionPane.ERROR_MESSAGE);
-    }
 
-    rSCheckBox1.setSelected(false); // Desmarcar "Seleccionar Todo"
-    rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar el botón después de la acción
+        rSCheckBox1.setSelected(false); // Desmarcar "Seleccionar Todo"
+        rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar el botón después de la acción
 
-    
+
     }//GEN-LAST:event_rSButtonMaterialRippleIcon1ActionPerformed
 
     private void btnNuevo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo2ActionPerformed
@@ -905,7 +924,7 @@ int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEED
     }//GEN-LAST:event_btnNuevo2ActionPerformed
 
     private void Añadir5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir5ActionPerformed
-if (currentPage > 0) {
+        if (currentPage > 0) {
             currentPage--;
             mostrarPagina(currentPage);
         }
@@ -916,7 +935,7 @@ if (currentPage > 0) {
     }//GEN-LAST:event_paginacionMouseClicked
 
     private void rSCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSCheckBox1ActionPerformed
-   seleccionarTodo();
+        seleccionarTodo();
     }//GEN-LAST:event_rSCheckBox1ActionPerformed
 
 
@@ -939,8 +958,8 @@ if (currentPage > 0) {
         model.setRowCount(0);
 
         List<ProveedorDatos> proveedoresFiltrados = todosLosProveedores.stream()
-                .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase())) ||
-                        (p.getApellido() != null && p.getApellido().toLowerCase().contains(textoBusqueda.toLowerCase())))
+                .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase()))
+                || (p.getApellido() != null && p.getApellido().toLowerCase().contains(textoBusqueda.toLowerCase())))
                 .toList();
 
         int inicio = currentPage * PROVEEDORES_POR_PAGINA;
@@ -953,8 +972,8 @@ if (currentPage > 0) {
                 productos = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
             }
             String productosResumen = (productos != null && !productos.isEmpty()) ? "Ver más" : "Sin productos";
-            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/" +
-                    (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
+            String ubicacion = (proveedor.getDepartamento() != null ? proveedor.getDepartamento() : "Sin departamento") + "/"
+                    + (proveedor.getMunicipio() != null ? proveedor.getMunicipio() : "Sin municipio");
             model.addRow(new Object[]{
                 false,
                 String.valueOf(proveedor.getId_proveedor()),
@@ -991,6 +1010,7 @@ if (currentPage > 0) {
     }
 
     private static class ProductCell {
+
         private final String summary;
         private final List<String> fullList;
 
@@ -1009,6 +1029,7 @@ if (currentPage > 0) {
     }
 
     class ProductCellRenderer extends JPanel implements TableCellRenderer {
+
         private final JLabel label;
 
         public ProductCellRenderer() {
@@ -1049,6 +1070,7 @@ if (currentPage > 0) {
     }
 
     class ProductCellEditor extends AbstractCellEditor implements TableCellEditor {
+
         private final JPanel panel;
         private final JLabel label;
         private ProductCell currentCell;
@@ -1101,6 +1123,7 @@ if (currentPage > 0) {
     }
 
     class StateCellRenderer extends JPanel implements TableCellRenderer {
+
         private final RSLabelIcon stateIcon;
 
         public StateCellRenderer() {
@@ -1146,39 +1169,204 @@ if (currentPage > 0) {
             return this;
         }
     }
-private static class CustomCheckboxRenderer extends JPanel implements TableCellRenderer {
-    private final JCheckBox checkBox;
 
-    public CustomCheckboxRenderer() {
-        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
-        setOpaque(true);
-        checkBox = new JCheckBox();
-        checkBox.setOpaque(true);
-        add(checkBox);
+    private static class CustomCheckboxRenderer extends JPanel implements TableCellRenderer {
 
-        updateTheme();
-        TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
-    }
+        private final JCheckBox checkBox;
 
-    private void updateTheme() {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        setBackground(fondo);
-        checkBox.setBackground(fondo);
-        checkBox.setForeground(oscuro ? Color.WHITE : Color.BLACK);
-    }
-//
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        checkBox.setSelected(Boolean.TRUE.equals(value));
-        if (isSelected) {
-            setBackground(table.getSelectionBackground());
-            checkBox.setBackground(table.getSelectionBackground());
-        } else {
+        public CustomCheckboxRenderer() {
+            setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+            setOpaque(true);
+            checkBox = new JCheckBox();
+            checkBox.setOpaque(true);
+            add(checkBox);
+
             updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
         }
-        return this;
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+            setBackground(fondo);
+            checkBox.setBackground(fondo);
+            checkBox.setForeground(oscuro ? Color.WHITE : Color.BLACK);
+        }
+//
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            checkBox.setSelected(Boolean.TRUE.equals(value));
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                checkBox.setBackground(table.getSelectionBackground());
+            } else {
+                updateTheme();
+            }
+            return this;
+        }
     }
-}
+
+    private void obtenerValoresUnicos(List<String> estados, List<String> departamentos, List<String> productos) {
+        estados.clear();
+        departamentos.clear();
+        productos.clear();
+        Set<String> estadosSet = new HashSet<>();
+        Set<String> departamentosSet = new HashSet<>();
+        Set<String> productosSet = new HashSet<>();
+
+        for (ProveedorDatos proveedor : todosLosProveedores) {
+            if (proveedor.getEstado() != null && !proveedor.getEstado().isEmpty()) {
+                estadosSet.add(proveedor.getEstado());
+            }
+            if (proveedor.getDepartamento() != null && !proveedor.getDepartamento().isEmpty()) {
+                departamentosSet.add(proveedor.getDepartamento());
+            }
+            List<String> productosProveedor = proveedor.getProductos();
+            if (productosProveedor == null || productosProveedor.isEmpty()) {
+                productosProveedor = proveedorContro.obtenerProductosDeProveedor(proveedor.getId_proveedor());
+            }
+            if (productosProveedor != null && !productosProveedor.isEmpty()) {
+                for (String producto : productosProveedor) {
+                    if (producto != null && !producto.isEmpty()) {
+                        productosSet.add(producto);
+                    }
+                }
+            }
+        }
+
+        estados.addAll(estadosSet);
+        departamentos.addAll(departamentosSet.stream().sorted().toList());
+        productos.addAll(productosSet.stream().sorted().toList());
+    }
+// Popup menu para filtros avanzados
+    // Popup menu para filtros avanzados
+    private JPopupMenu popupFiltrosAvanzados;
+    private List<JCheckBox> chkEstados = new ArrayList<>();
+    private List<JCheckBox> chkDepartamentos = new ArrayList<>();
+    private List<JCheckBox> chkProductos = new ArrayList<>();
+    private rojeru_san.RSButtonRiple btnAplicarFiltros;
+    private TableRowSorter<DefaultTableModel> sorter;
+
+    private void inicializarPopupFiltrosAvanzados() {
+        popupFiltrosAvanzados = new JPopupMenu();
+        chkEstados.clear();
+        chkDepartamentos.clear();
+        chkProductos.clear();
+
+        List<String> estados = new ArrayList<>();
+        List<String> departamentos = new ArrayList<>();
+        List<String> productos = new ArrayList<>();
+        obtenerValoresUnicos(estados, departamentos, productos);
+
+        System.out.println("Iniciando popup. Estados: " + estados + ", Departamentos: " + departamentos + ", Productos: " + productos);
+
+        if (estados.isEmpty() && departamentos.isEmpty() && productos.isEmpty()) {
+            popupFiltrosAvanzados.add(new JLabel("No hay filtros disponibles"));
+        } else {
+            for (String estado : estados) {
+                JCheckBox chkEstado = new JCheckBox("Estado: " + estado);
+                chkEstados.add(chkEstado);
+                popupFiltrosAvanzados.add(chkEstado);
+            }
+            popupFiltrosAvanzados.addSeparator();
+            for (String depto : departamentos) {
+                JCheckBox chkDepto = new JCheckBox("Departamento: " + depto);
+                chkDepartamentos.add(chkDepto);
+                popupFiltrosAvanzados.add(chkDepto);
+            }
+            popupFiltrosAvanzados.addSeparator();
+            for (String producto : productos) {
+                JCheckBox chkProducto = new JCheckBox("Producto: " + producto);
+                chkProductos.add(chkProducto);
+                popupFiltrosAvanzados.add(chkProducto);
+            }
+        }
+
+        btnAplicarFiltros = new rojeru_san.RSButtonRiple();
+        btnAplicarFiltros.setText("Aplicar");
+        btnAplicarFiltros.setBackground(new Color(46, 49, 82));
+        btnAplicarFiltros.setColorHover(new Color(0, 153, 51));
+        popupFiltrosAvanzados.add(btnAplicarFiltros);
+
+        btnAplicarFiltros.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+
+        popupFiltrosAvanzados.setBackground(Color.WHITE);
+        for (Component comp : popupFiltrosAvanzados.getComponents()) {
+            comp.setBackground(Color.WHITE);
+            comp.setForeground(Color.BLACK);
+        }
+    }
+
+    private void aplicarFiltrosAvanzados() {
+        List<String> filtrosEstado = new ArrayList<>();
+        for (JCheckBox chk : chkEstados) {
+            if (chk.isSelected()) {
+                filtrosEstado.add(chk.getText().replace("Estado: ", ""));
+            }
+        }
+
+        List<String> filtrosDepartamento = new ArrayList<>();
+        for (JCheckBox chk : chkDepartamentos) {
+            if (chk.isSelected()) {
+                filtrosDepartamento.add(chk.getText().replace("Departamento: ", ""));
+            }
+        }
+
+        List<String> filtrosProducto = new ArrayList<>();
+        for (JCheckBox chk : chkProductos) {
+            if (chk.isSelected()) {
+                filtrosProducto.add(chk.getText().replace("Producto: ", ""));
+            }
+        }
+
+        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+        sorter = new TableRowSorter<>(model);
+        tablaclientes.setRowSorter(sorter);
+
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+        if (!filtrosEstado.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosEstado) + ")$", 6));
+        }
+
+        if (!filtrosDepartamento.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosDepartamento) + ").*", 7));
+        }
+
+        if (!filtrosProducto.isEmpty()) {
+            filtros.add(new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                    Object value = entry.getValue(8);
+                    if (!(value instanceof ProductCell)) {
+                        return false;
+                    }
+                    ProductCell cell = (ProductCell) value;
+                    List<String> productos = cell.getFullList();
+                    if (productos == null || productos.isEmpty()) {
+                        return false;
+                    }
+                    for (String producto : filtrosProducto) {
+                        if (productos.contains(producto)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+        }
+
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+        } else {
+            sorter.setRowFilter(null);
+        }
+
+        mostrarPagina(currentPage);
+    }
 }

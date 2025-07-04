@@ -393,7 +393,6 @@ private perfil1 perfilPanel;
             siete1.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios_1.png")));
             ocho.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service_1.png")));
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
-            Diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/ajustesblanco.png")));
 
             item1.setIcon(new ImageIcon(getClass().getResource("/imagenes/tratar-con-cuidado.png")));
             item2.setIcon(new ImageIcon(getClass().getResource("/imagenes/llave-inglesa.png")));
@@ -450,7 +449,6 @@ private perfil1 perfilPanel;
             siete1.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios.png")));
             ocho.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service.png")));
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
-            Diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/ajustess.png")));
             rSLabelImage1.setIcon(new ImageIcon(getClass().getResource("/imagenes/feliz-sol (6).png")));
             rSLabelImage3.setIcon(new ImageIcon(getClass().getResource("/imagenes/luna (7).png")));
 
@@ -482,7 +480,7 @@ private perfil1 perfilPanel;
         cambiarEstiloBotonRS(siete1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(ocho, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(nueve, fondoBoton, textoBoton);
-        cambiarEstiloBotonRS(Diez, fondoBoton, textoBoton);
+ 
 
         cambiarEstiloBotonRS(item1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(item2, fondoBoton, textoBoton);
@@ -547,7 +545,6 @@ private perfil1 perfilPanel;
         siete1.setText(expanded ? "Usuarios" : "");
         ocho.setText(expanded ? "Clientes" : "");
         nueve.setText(expanded ? "Catálogo" : "");
-        Diez.setText(expanded ? "Config" : "");
 
         // Oculta submenús si se contrae el menú
         if (!expanded) {
@@ -585,21 +582,15 @@ private void cargarImagenAvatar() {
     userPopupMenu.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
 
     // Crear los ítems del menú  
-    JMenuItem settingsItem = new JMenuItem("Configuraciones");
+
     JMenuItem profileItem = new JMenuItem("Perfil");
-    JMenuItem messagesItem = new JMenuItem("Mensajes");
+    
     JMenuItem logoutItem = new JMenuItem("Salir");
 
     // Personalizar los ítems
     Font menuFont = new Font("Arial", Font.PLAIN, 14);
     Dimension itemSize = new Dimension(150, 30);
 
-    settingsItem.setFont(menuFont);
-    settingsItem.setForeground(new Color(100, 100, 100));
-    settingsItem.setBackground(new Color(255, 255, 255));
-    settingsItem.setOpaque(false);
-    settingsItem.setPreferredSize(itemSize);
-    settingsItem.setBorderPainted(false);
 
     profileItem.setFont(menuFont);
     profileItem.setForeground(new Color(100, 100, 100));
@@ -608,12 +599,7 @@ private void cargarImagenAvatar() {
     profileItem.setPreferredSize(itemSize);
     profileItem.setBorderPainted(false);
 
-    messagesItem.setFont(menuFont);
-    messagesItem.setForeground(new Color(100, 100, 100));
-    messagesItem.setBackground(new Color(255, 255, 255));
-    messagesItem.setOpaque(false);
-    messagesItem.setPreferredSize(itemSize);
-    messagesItem.setBorderPainted(false);
+
 
     logoutItem.setFont(menuFont);
     logoutItem.setForeground(new Color(100, 100, 100));
@@ -623,9 +609,8 @@ private void cargarImagenAvatar() {
     logoutItem.setBorderPainted(false);
 
     // Agregar ítems al menú  
-    userPopupMenu.add(settingsItem);
+  
     userPopupMenu.add(profileItem);
-    userPopupMenu.add(messagesItem);
     userPopupMenu.add(logoutItem);
 
     // Mostrar el JPopupMenu al hacer clic en rSLabelCircleImage1  
@@ -638,7 +623,7 @@ private void cargarImagenAvatar() {
     });
 
     // Acciones de los ítems del menú  
-    settingsItem.addActionListener(e -> JOptionPane.showMessageDialog(null, "Abriendo configuración..."));
+   
     profileItem.addActionListener(e -> {
         // Crear una nueva instancia de perfil1 cada vez
         perfil1 perfilPanel = new perfil1(idUsuario);
@@ -650,12 +635,7 @@ private void cargarImagenAvatar() {
         contenedor.repaint();
         lblTituloPrincipal.setText("Perfil");
     });
-    messagesItem.addActionListener(e -> JOptionPane.showMessageDialog(null, "Abriendo mensajes..."));
-    logoutItem.addActionListener(e -> {
-        dispose(); // Cerrar la ventana actual
-        Login1121 login = new Login1121();
-        login.setVisible(true);
-    });
+   
 }
 
     private void animacion() {
@@ -1023,7 +1003,6 @@ private void cargarImagenAvatar() {
         nueve = new rojeru_san.RSButton();
         uno = new rojeru_san.RSButton();
         rSPanelImage3 = new rojerusan.RSPanelImage();
-        Diez = new rojeru_san.RSButton();
         jPanel4 = new javax.swing.JPanel();
         uno1 = new rojeru_san.RSButton();
         dos1 = new rojeru_san.RSButton();
@@ -1318,20 +1297,6 @@ private void cargarImagenAvatar() {
             .addGap(0, 130, Short.MAX_VALUE)
         );
 
-        Diez.setBackground(new java.awt.Color(29, 30, 81));
-        Diez.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 30, 1, 1));
-        Diez.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ajustes (1).png"))); // NOI18N
-        Diez.setText("Configuracion");
-        Diez.setToolTipText("");
-        Diez.setColorHover(new java.awt.Color(128, 128, 128));
-        Diez.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        Diez.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        Diez.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DiezActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -1348,7 +1313,6 @@ private void cargarImagenAvatar() {
             .addComponent(ocho, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(Diez, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1379,8 +1343,7 @@ private void cargarImagenAvatar() {
                         .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(4, 4, 4)
                 .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
-                .addComponent(Diez, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(253, 253, 253))
         );
 
         jPanel4.setBackground(new java.awt.Color(29, 30, 81));
@@ -1931,27 +1894,6 @@ JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         // TODO add your handling code here:
     }//GEN-LAST:event_nueve1ActionPerformed
 
-    private void DiezActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DiezActionPerformed
-        // TODO add your handling code here:
-
-        if (!this.Diez.isSelected()) {
-            deseleccionar();
-            this.Diez.setSelected(true);
-
-            // Crear y mostrar el panel de inventario
-            config cong = new config();
-            cong.setSize(1290, 730);
-            cong.setLocation(0, 0);
-
-            contenedor.removeAll();
-            contenedor.add(cong);
-            contenedor.revalidate();
-            contenedor.repaint();
-
-        }
-        animacion();
-    }//GEN-LAST:event_DiezActionPerformed
-
     private void dosMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dosMouseEntered
 
     }//GEN-LAST:event_dosMouseEntered
@@ -2015,7 +1957,6 @@ JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private rojeru_san.RSButton Diez;
     private rojerusan.RSLabelIcon btnNotificacion1;
     private rojeru_san.RSButton cinco;
     private rojeru_san.RSButton cinco1;

@@ -15,10 +15,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import vista.TemaManager;
 
 /**
@@ -127,6 +129,21 @@ public class pedido extends javax.swing.JPanel {
         }
     }
 
+    private void filtrarTabla() {
+        String textoBusqueda = txtBuscar.getText().trim().toLowerCase();
+        DefaultTableModel modelo = (DefaultTableModel) tablaM.getModel();
+        TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(modelo);
+        tablaM.setRowSorter(tr);
+
+        if (textoBusqueda.isEmpty()) {
+            tr.setRowFilter(null);
+            return;
+        }
+
+        // Filtro para buscar en todas las columnas
+        tr.setRowFilter(RowFilter.regexFilter("(?i)" + textoBusqueda));
+
+    }
 // Renderizador para la columna "Ver"
     private class ButtonRenderer extends DefaultTableCellRenderer {
 
@@ -419,7 +436,7 @@ public class pedido extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-        // TODO add your handling code here:
+filtrarTabla();
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed

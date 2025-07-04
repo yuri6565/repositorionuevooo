@@ -542,6 +542,11 @@ public class materiales extends javax.swing.JPanel {
         cmbCategoria.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione una categoria:" }));
         cmbCategoria.setColorMaterial(new java.awt.Color(153, 153, 153));
         cmbCategoria.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        cmbCategoria.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbCategoriaActionPerformed(evt);
+            }
+        });
         panelprincipal.add(cmbCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 90, 280, 30));
 
         txtBuscar.setForeground(new java.awt.Color(0, 0, 0));
@@ -604,6 +609,10 @@ public class materiales extends javax.swing.JPanel {
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtBuscarActionPerformed
+
+    private void cmbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCategoriaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbCategoriaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

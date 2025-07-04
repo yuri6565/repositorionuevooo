@@ -1,4 +1,5 @@
-package controlador;
+package vista;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,23 +17,24 @@ import modelo.UsuarioModelo;
  */
 public class Ctrl_Perfil {
 
+    // Check if an email already exists in the database
     public boolean existeCorreo(String correo, int excludeIdUsuario) {
-    boolean existe = false;
-    String sql = "SELECT id_usuario FROM usuario WHERE correo_electronico = ? AND id_usuario != ?";
-    try (Connection conn = Conexion.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, correo);
-        ps.setInt(2, excludeIdUsuario);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                existe = true;
+        boolean existe = false;
+        String sql = "SELECT id_usuario FROM usuario WHERE correo_electronico = ? AND id_usuario != ?";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ps.setInt(2, excludeIdUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    existe = true;
+                }
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al verificar existencia del correo: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Error al verificar existencia del correo: " + e.getMessage());
+        return existe;
     }
-    return existe;
-}
 
     public UsuarioModelo obtenerUsuario(int id_usuario) {
         UsuarioModelo usuario = new UsuarioModelo();

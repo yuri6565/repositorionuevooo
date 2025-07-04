@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
+import modelo.Cliente;
 import modelo.Conexion;
 import modelo.Pedido;
 import modelo.PedidoDetalle;
@@ -23,6 +24,14 @@ import modelo.PedidoDetalle;
  * @author ZenBook
  */
 public class Ctrl_Pedido {
+
+    public Cliente buscarClientePorCodigo(int codigo) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public List<Cliente> buscarClientePorNombre(String textoBusqueda) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 
     // Clase para combinar pedido y nombre del cliente
     public static class MaterialConDetalles {
