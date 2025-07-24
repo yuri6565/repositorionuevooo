@@ -1594,7 +1594,7 @@ private void cargarImagenAvatar() {
             deseleccionar();
             this.ocho.setSelected(true);
 
-            VistaClientes cliente = new VistaClientes(new javax.swing.JFrame(), true);
+            backup cliente = new backup(new javax.swing.JFrame(), true);
             cliente.setSize(1290, 730);
             cliente.setLocation(0, 0);
 
@@ -1771,7 +1771,7 @@ private void cargarImagenAvatar() {
         lblTituloPrincipal.setText("Inventario");
     }//GEN-LAST:event_dosActionPerformed
 
-
+//
     private void siete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siete1ActionPerformed
         ocultarSubmenus();
         if (!this.siete1.isSelected()) {

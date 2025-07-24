@@ -184,33 +184,53 @@ public class Ctrl_InventarioMaterial {
     }
 
 // Método para obtener materiales con stock bajo
-    public List<MaterialConDetalles> obtenerMaterialesConStockBajo() {
-        List<MaterialConDetalles> materialesBajos = new ArrayList<>();
-        for (MaterialConDetalles detalle : obtenerMateriales()) {
-            try {
-                String cantidadOriginal = detalle.getMaterial().getCantidad();
-                String stockMinimoOriginal = detalle.getMaterial().getStockMinimo();
+   public List<MaterialConDetalles> obtenerMaterialesConStockBajo() {
+    List<MaterialConDetalles> materialesBajos = new ArrayList<>();
+    for (MaterialConDetalles detalle : obtenerMateriales()) {
+        try {
+            String cantidadOriginal = detalle.getMaterial().getCantidad();
+            String stockMinimoOriginal = detalle.getMaterial().getStockMinimo();
 
-                // Reemplazar coma por punto y limpiar solo si es necesario
-                String cantidadStr = cantidadOriginal.replace(",", ".").replaceAll("[^0-9.]", "");
-                String stockMinimoStr = stockMinimoOriginal.replace(",", ".").replaceAll("[^0-9.]", "");
-
-                // Convertir a double con manejo de valores vacíos
-                double cantidad = cantidadStr.isEmpty() ? 0.0 : Double.parseDouble(cantidadStr);
-                double stockMinimo = stockMinimoStr.isEmpty() ? 0.0 : Double.parseDouble(stockMinimoStr);
-
-                
-
-                // Comparar y agregar si la cantidad es menor o igual al stock mínimo
-                if (cantidad <= stockMinimo) {
-                    materialesBajos.add(detalle);
-                }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+            // Validar que los valores no sean nulos
+            if (cantidadOriginal == null || stockMinimoOriginal == null) {
+                System.err.println("Valor nulo encontrado - Material: " + detalle.getMaterial().getNombre());
+                continue;
             }
+
+            // Normalizar la cadena: reemplazar comas por puntos y eliminar caracteres no deseados
+            String cantidadStr = cantidadOriginal.replace(",", ".").replaceAll("[^0-9.]", "");
+            String stockMinimoStr = stockMinimoOriginal.replace(",", ".").replaceAll("[^0-9.]", "");
+
+            // Validar que la cadena tenga un formato válido de número decimal (máximo un punto)
+            if (!isValidDecimal(cantidadStr) || !isValidDecimal(stockMinimoStr)) {
+            
+                continue;
+            }
+
+            // Convertir a double con manejo de valores vacíos
+            double cantidad = cantidadStr.isEmpty() ? 0.0 : Double.parseDouble(cantidadStr);
+            double stockMinimo = stockMinimoStr.isEmpty() ? 0.0 : Double.parseDouble(stockMinimoStr);
+
+            // Comparar y agregar si la cantidad es menor o igual al stock mínimo
+            if (cantidad <= stockMinimo) {
+                materialesBajos.add(detalle);
+            }
+        } catch (NumberFormatException e) {
+          
+            e.printStackTrace();
         }
-        return materialesBajos;
     }
+    return materialesBajos;
+}
+
+// Método para validar que la cadena sea un número decimal válido (máximo un punto)
+private boolean isValidDecimal(String value) {
+    if (value == null || value.isEmpty()) {
+        return false;
+    }
+    // Expresión regular para un número decimal: opcionalmente un signo, dígitos, opcionalmente un punto y más dígitos
+    return value.matches("^-?\\d*\\.?\\d*$");
+}
 
     public boolean eliminar(int idInventario) {
         String sql = "DELETE FROM inventario WHERE id_inventario = ? AND tipo = 'material'";
