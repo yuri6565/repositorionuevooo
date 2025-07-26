@@ -217,6 +217,72 @@ private perfil1 perfilPanel;
         submenuInventario.add(item2);
 //submenu inventario------------------
 
+
+
+//scrollpanel---------------------------
+        // Definir un JScrollPane y envolver el contenedor
+        JScrollPane scrollPane = new JScrollPane(contenedor);
+        scrollPane.setBounds(260, 80, 1020, 550); // Tamaño del área visible
+
+// Asegurar el desplazamiento horizontal y vertical
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); // Forzar barra horizontal
+
+        scrollPane.setBorder(null); // Quitar el borde del JScrollPane
+        contenedor.setBorder(null); // Quitar el borde del JPanel
+
+// Ajustar el tamaño preferido del contenedor para que sea más grande que el JScrollPane
+        contenedor.setPreferredSize(new Dimension(1290, 870)); // Asegura un tamaño mayor al viewport
+
+// Agregar el JScrollPane al panel principal
+        //jPanel1.add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 80, 1020, 730));
+        // Correcto (especificar posición):
+        //jPanel1.add(scrollPane, BorderLayout.WEST); // o NORTH, SOUTH, etc.
+        // Reemplázalas con esto:
+        scrollPane.setBounds(260, 80, 1020, 730); // Ajusta según necesidad
+        jPanel1.add(scrollPane); // Sin layout manager absoluto
+
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8));
+
+        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(153, 153, 153);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return new JButton() {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(0, 0);
+                    }
+                };
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return new JButton() {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(0, 0);
+                    }
+                };
+            }
+
+            @Override
+            protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(thumbColor);
+                g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+                g2.dispose();
+            }
+        });
+//scrollpanel ---------------------
+
+
 //submenu ventas------------------
 // Inicializar el submenú de Ventas
         submenuVentas = new JPanel();
@@ -903,9 +969,7 @@ private void cargarImagenAvatar() {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 // Fondo
-                g2.setColor(TemaManager.getInstance().isOscuro()
-                        ? new Color(50, 50, 65)
-                        : Color.WHITE);
+                g2.setColor(Color.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
                 // Borde gris
