@@ -22,6 +22,16 @@ public class Ctrl_UnidadMaterial {
     private final String tipo = "material";  // ⚙️ Fijamos el tipo automáticamente
 
     public boolean insertar(Unidad unidad) {
+
+        // Primero verificar si ya existe
+        if (existeCategoria(unidad.getNombre())) {
+            JOptionPane.showMessageDialog(null,
+                    "Ya existe una categoría con este nombre",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
         String sql = "INSERT INTO unidad_medida (nombre, tipo) VALUES (?, ?)";
         try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, unidad.getNombre());
@@ -88,5 +98,59 @@ public class Ctrl_UnidadMaterial {
         }
         return lista;
     }
-    
+
+    public boolean categoriaEnUso(int codigoCategoria) {
+        String sql = "SELECT COUNT(*) FROM inventario WHERE unidad_medida_idunidad_medida = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, codigoCategoria);
+            stmt.setString(2, this.tipo); // Usamos el tipo definido en el controlador (material)
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Si count > 0, la categoría está en uso
+            }
+            return false;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al verificar uso de categoría: " + e.getMessage());
+            e.printStackTrace();
+            return true; // Por seguridad, asumir que está en uso si hay error
+        }
+    }
+
+    public int eliminarConVerificacion(int codigo) {
+        if (categoriaEnUso(codigo)) {
+            return -1; // Código para "categoría en uso"
+        }
+
+        String sql = "DELETE FROM unidad_medida WHERE idunidad_medida = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, codigo);
+            stmt.setString(2, this.tipo);
+            return stmt.executeUpdate() > 0 ? 1 : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -2; // Código para error de conexión
+        }
+    }
+
+    public boolean existeCategoria(String nombre) {
+        String sql = "SELECT COUNT(*) FROM unidad_medida WHERE nombre = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, nombre);
+            stmt.setString(2, this.tipo);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al verificar categoría existente: " + e.getMessage());
+            e.printStackTrace();
+            return true; // Por seguridad, asumir que existe si hay error
+        }
+    }
+
 }

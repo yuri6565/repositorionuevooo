@@ -5,9 +5,23 @@
 package vista.Inventario0;
 
 import controlador.Ctrl_UnidadMaterial;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import modelo.Unidad;
 
 /**
@@ -15,7 +29,10 @@ import modelo.Unidad;
  * @author ZenBook
  */
 public class materialUnidad extends javax.swing.JDialog {
+
     private int ultimaFilaSeleccionada = -1;
+    private boolean[] seleccionados;
+
     /**
      * Creates new form materialUnidad
      */
@@ -24,47 +41,170 @@ public class materialUnidad extends javax.swing.JDialog {
         initComponents();
         actualizarTabla();
         tabla1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        
-            // Listener para selección de filas
+
+        // Ocultar la columna de código (columna 1)
+        TableColumn column = tabla1.getColumnModel().getColumn(2);
+        column.setMinWidth(0);
+        column.setMaxWidth(0);
+        column.setWidth(0);
+        column.setPreferredWidth(0);
+
+        // Listener para selección de filas
         tabla1.getSelectionModel().addListSelectionListener(e -> {
-        if (!e.getValueIsAdjusting()) {
-            cargarDatosSeleccionados();
-        }
-    });
+            if (!e.getValueIsAdjusting()) {
+                cargarDatosSeleccionados();
+            }
+        });
+
+        // Listener para checkboxes
+        tabla1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = tabla1.columnAtPoint(e.getPoint());
+                int row = tabla1.rowAtPoint(e.getPoint());
+
+                if (column == 0) { // Click en checkbox
+                    tabla1.setRowSelectionInterval(row, row);
+                    cargarDatosSeleccionados(); // Actualizar campo de nombre
+                }
+            }
+        });
+
+        tabla1.setShowHorizontalLines(true);
+        tabla1.setShowVerticalLines(true);
     }
-    
+
     private void actualizarTabla() {
-    DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
-    model.setRowCount(0); // Limpiar tabla
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Seleccionar", "Nombre", "Código"} // Añadir columna para el código
+        ) {
+            Class[] types = new Class[]{Boolean.class, String.class, Integer.class}; // Tipo para el código
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return columnIndex == 0; // Solo la columna de checkboxes es editable
+            }
+        };
+
+        tabla1.setModel(model);
+        model.setRowCount(0); // Limpiar tabla
 
         Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
-    
-    for (Unidad unidad : dao.obtenerCategoriasMaterial()) {
-        model.addRow(new Object[]{unidad.getCodigo(), unidad.getNombre()});
-    } 
-   }
-    
-    private void cargarDatosSeleccionados() {
-    int[] selectedRows = tabla1.getSelectedRows(); // Obtener todas las filas seleccionadas
+        List<Unidad> categorias = dao.obtenerCategoriasMaterial();
+        if (categorias != null) {
+            for (Unidad categoria : categorias) {
+                model.addRow(new Object[]{false, categoria.getNombre(), categoria.getCodigo()}); // Incluir código
+            }
+        }
 
-    if (selectedRows.length == 1) { // Solo cargar datos si hay exactamente una fila seleccionada
-        int filaSeleccionada = selectedRows[0];
-        DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
-        txtCodigo.setText(model.getValueAt(filaSeleccionada, 0).toString()); // Código
-        txtNombre.setText(model.getValueAt(filaSeleccionada, 1).toString()); // Nombre
-        ultimaFilaSeleccionada = filaSeleccionada;
-    } else {
-        // Si hay más de una fila seleccionada o ninguna, limpiar los campos
-        limpiarCampos();
-        ultimaFilaSeleccionada = -1;
+        // Configurar el renderizador y editor para los checkboxes
+        tabla1.getColumnModel().getColumn(0).setCellRenderer(new CheckBoxRenderer());
+        tabla1.getColumnModel().getColumn(0).setCellEditor(new CheckBoxEditor(new JCheckBox()));
+
+        // Ocultar la columna de código (índice 2)
+        TableColumn codeColumn = tabla1.getColumnModel().getColumn(2);
+        codeColumn.setMinWidth(0);
+        codeColumn.setMaxWidth(0);
+        codeColumn.setWidth(0);
+        codeColumn.setPreferredWidth(0);
     }
+
+    private void cargarDatosSeleccionados() {
+        List<Integer> filasSeleccionadas = getFilasSeleccionadas();
+
+        if (filasSeleccionadas.size() == 1) {
+            // Solo una fila seleccionada - mostrar datos
+            int filaSeleccionada = filasSeleccionadas.get(0);
+            DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
+            txtNombre.setText(model.getValueAt(filaSeleccionada, 1).toString()); // Nombre
+            ultimaFilaSeleccionada = filaSeleccionada;
+        } else {
+            // Múltiples selecciones o ninguna - limpiar campo
+            limpiarCampos();
+            ultimaFilaSeleccionada = -1;
+        }
     }
-    
-    
+
     private void limpiarCampos() {
-    txtCodigo.setText("");
-    txtNombre.setText("");
+        txtNombre.setText("");
     }
+
+    // Clase para renderizar los checkboxes
+    class CheckBoxRenderer extends JCheckBox implements TableCellRenderer {
+
+        public CheckBoxRenderer() {
+            setHorizontalAlignment(JLabel.CENTER);
+            setOpaque(true);
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createLineBorder(new Color(153, 153, 153)));
+
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            setSelected(Boolean.TRUE.equals(value));
+
+            // Mantener el fondo blanco del checkbox
+            setBackground(Color.WHITE);
+
+            // Cambiar el borde según selección
+            if (isSelected) {
+                // Borde azul cuando está seleccionado
+                setBorder(BorderFactory.createLineBorder(new Color(67, 150, 209)));
+                // Color de fondo de la fila (opcional)
+                setBackground(table.getSelectionBackground());
+            } else {
+                // Borde gris normal
+                setBorder(BorderFactory.createLineBorder(new Color(153, 153, 153)));
+                setBackground(Color.WHITE);
+            }
+
+            return this;
+
+        }
+    }
+
+// Clase para editar los checkboxes
+    class CheckBoxEditor extends DefaultCellEditor {
+
+        public CheckBoxEditor(JCheckBox checkBox) {
+            super(checkBox);
+            checkBox.setHorizontalAlignment(JLabel.CENTER);
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.WHITE);
+            checkBox.setBorder(BorderFactory.createLineBorder(new Color(153, 153, 153)));
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            JCheckBox checkBox = (JCheckBox) super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            checkBox.setSelected(Boolean.TRUE.equals(value));
+            checkBox.setBackground(Color.WHITE);
+            return checkBox;
+        }
+    }
+
+    private List<Integer> getFilasSeleccionadas() {
+        List<Integer> filasSeleccionadas = new ArrayList<>();
+        DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if ((Boolean) model.getValueAt(i, 0)) { // Columna 0 = checkboxes
+                filasSeleccionadas.add(i);
+            }
+        }
+
+        return filasSeleccionadas;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -77,11 +217,10 @@ public class materialUnidad extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        lblSalir = new rojerusan.RSLabelImage();
         jPanel3 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
         txtNombre = new RSMaterialComponent.RSTextFieldMaterial();
         jLabel4 = new javax.swing.JLabel();
-        txtCodigo = new necesario.TextField();
         btnEliminar = new RSMaterialComponent.RSButtonShape();
         btnAñadir = new RSMaterialComponent.RSButtonShape();
         btnActualizar = new RSMaterialComponent.RSButtonShape();
@@ -89,26 +228,38 @@ public class materialUnidad extends javax.swing.JDialog {
         tabla1 = new RSMaterialComponent.RSTableMetroCustom();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(46, 49, 82));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setFont(new java.awt.Font("Century751 BT", 1, 17)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("SansSerif", 1, 17)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Unidades de medida");
         jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
+
+        lblSalir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/x.png"))); // NOI18N
+        lblSalir.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblSalirMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                lblSalirMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                lblSalirMouseExited(evt);
+            }
+        });
+        jPanel2.add(lblSalir, new org.netbeans.lib.awtextra.AbsoluteConstraints(688, 3, 20, 20));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 710, 26));
 
         jPanel3.setBackground(new java.awt.Color(245, 246, 250));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
-        jLabel3.setText("Codigo:");
-        jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, -1, -1));
 
         txtNombre.setForeground(new java.awt.Color(0, 0, 0));
         txtNombre.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -121,19 +272,11 @@ public class materialUnidad extends javax.swing.JDialog {
                 txtNombreActionPerformed(evt);
             }
         });
-        jPanel3.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 50, 200, 30));
+        jPanel3.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 50, 200, 30));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel4.setText("Nombre:");
-        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 20, -1, -1));
-
-        txtCodigo.setEditable(false);
-        txtCodigo.setBackground(new java.awt.Color(244, 244, 244));
-        txtCodigo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        txtCodigo.setForeground(new java.awt.Color(0, 0, 0));
-        txtCodigo.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        txtCodigo.setPlaceholder("");
-        jPanel3.add(txtCodigo, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, 100, 30));
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, -1, -1));
 
         btnEliminar.setBackground(new java.awt.Color(46, 49, 82));
         btnEliminar.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -146,7 +289,7 @@ public class materialUnidad extends javax.swing.JDialog {
                 btnEliminarActionPerformed(evt);
             }
         });
-        jPanel3.add(btnEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 90, 110, 30));
+        jPanel3.add(btnEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 90, 110, 30));
 
         btnAñadir.setBackground(new java.awt.Color(46, 49, 82));
         btnAñadir.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -159,7 +302,7 @@ public class materialUnidad extends javax.swing.JDialog {
                 btnAñadirActionPerformed(evt);
             }
         });
-        jPanel3.add(btnAñadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 10, 110, 30));
+        jPanel3.add(btnAñadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 10, 110, 30));
 
         btnActualizar.setBackground(new java.awt.Color(46, 49, 82));
         btnActualizar.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -172,7 +315,7 @@ public class materialUnidad extends javax.swing.JDialog {
                 btnActualizarActionPerformed(evt);
             }
         });
-        jPanel3.add(btnActualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 50, 110, 30));
+        jPanel3.add(btnActualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 50, 110, 30));
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 690, 130));
 
@@ -181,7 +324,7 @@ public class materialUnidad extends javax.swing.JDialog {
                 {null, null}
             },
             new String [] {
-                "Codigo", "Nombre"
+                "Seleccionar", "Nombre"
             }
         ) {
             Class[] types = new Class [] {
@@ -202,7 +345,7 @@ public class materialUnidad extends javax.swing.JDialog {
         tabla1.setBackgoundHead(new java.awt.Color(46, 49, 82));
         tabla1.setBackgoundHover(new java.awt.Color(67, 150, 209));
         tabla1.setBorderHead(null);
-        tabla1.setBorderRows(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        tabla1.setBorderRows(null);
         tabla1.setColorBorderHead(new java.awt.Color(46, 49, 82));
         tabla1.setColorBorderRows(new java.awt.Color(46, 49, 82));
         tabla1.setColorPrimaryText(new java.awt.Color(0, 0, 0));
@@ -237,121 +380,188 @@ public class materialUnidad extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void lblSalirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSalirMouseClicked
+        this.dispose();
+    }//GEN-LAST:event_lblSalirMouseClicked
+
+    private void lblSalirMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSalirMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_lblSalirMouseEntered
+
+    private void lblSalirMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSalirMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_lblSalirMouseExited
+
     private void txtNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        int[] filasSeleccionadas = tabla1.getSelectedRows();
+        List<Integer> filasSeleccionadas = getFilasSeleccionadas();
 
-        if (filasSeleccionadas.length == 0) {
+        if (filasSeleccionadas.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "Selecciona al menos una categoría primero",
-                "Advertencia",
-                JOptionPane.WARNING_MESSAGE);
+                    "Selecciona al menos una categoría primero",
+                    "Advertencia",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Mensaje diferente para 1 vs múltiples elementos
-        String mensajeConfirmacion;
-        if (filasSeleccionadas.length == 1) {
-            mensajeConfirmacion = "¿Estás seguro de eliminar esta categoría?";
-        } else {
-            mensajeConfirmacion = "¿Estás seguro de eliminar estas " + filasSeleccionadas.length + " categorías?";
+        String mensajeConfirmacion = filasSeleccionadas.size() == 1
+                ? "¿Eliminar esta categoría de material?"
+                : "¿Eliminar estas " + filasSeleccionadas.size() + " categorías de material?";
+
+        if (JOptionPane.showConfirmDialog(this, mensajeConfirmacion, "Confirmar",
+                JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            return;
         }
 
-        int confirmacion = JOptionPane.showConfirmDialog(
-            this,
-            mensajeConfirmacion,
-            "Confirmar eliminación",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE
-        );
+        DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
+        Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+        int eliminadas = 0;
+        StringBuilder enUso = new StringBuilder();
+        StringBuilder errores = new StringBuilder();
 
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
-            Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
-            boolean errorOcurrido = false;
-            int eliminadosExitosos = 0;
+        for (int i = filasSeleccionadas.size() - 1; i >= 0; i--) {
+            int fila = filasSeleccionadas.get(i);
+            int codigo = (int) model.getValueAt(fila, 2);
+            String nombre = model.getValueAt(fila, 1).toString();
 
-            // Eliminar en orden inverso para mantener los índices correctos
-            for (int i = filasSeleccionadas.length - 1; i >= 0; i--) {
-                int fila = filasSeleccionadas[i];
-                int codigo = (int) model.getValueAt(fila, 0);
+            int resultado = dao.eliminarConVerificacion(codigo);
 
-                if (dao.eliminar(codigo)) {
+            switch (resultado) {
+                case 1: // Éxito
                     model.removeRow(fila);
-                    eliminadosExitosos++;
-                } else {
-                    errorOcurrido = true;
-                }
+                    eliminadas++;
+                    break;
+                case -1: // En uso
+                    enUso.append("- ").append(nombre).append("\n");
+                    break;
+                default: // Error
+                    errores.append("- ").append(nombre).append("\n");
+                    break;
             }
-
-            // Mostrar resultados
-            if (errorOcurrido) {
-                if (eliminadosExitosos > 0) {
-                    JOptionPane.showMessageDialog(this,
-                        "Se eliminaron " + eliminadosExitosos + " categorías, pero hubo errores con algunas.",
-                        "Resultado parcial",
-                        JOptionPane.WARNING_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                        "Error al eliminar todas las categorías seleccionadas",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                String mensajeExito = (filasSeleccionadas.length == 1)
-                ? "¡Categoría eliminada correctamente!"
-                : "¡Se eliminaron " + filasSeleccionadas.length + " categorías correctamente!";
-
-                JOptionPane.showMessageDialog(this,
-                    mensajeExito,
-                    "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE);
-            }
-
-            limpiarCampos();
         }
+
+        // Mostrar resultados
+        StringBuilder mensajeFinal = new StringBuilder();
+
+        if (eliminadas > 0) {
+            mensajeFinal.append(eliminadas == 1
+                    ? "1 categoría eliminada correctamente\n\n"
+                    : eliminadas + " categorías eliminadas correctamente\n\n");
+        }
+
+        if (enUso.length() > 0) {
+            mensajeFinal.append("No se pudieron eliminar (están en uso en el inventario):\n")
+                    .append(enUso.toString()).append("\n");
+        }
+
+        if (errores.length() > 0) {
+            mensajeFinal.append("Errores al eliminar:\n")
+                    .append(errores.toString());
+        }
+
+        if (mensajeFinal.length() > 0) {
+            JOptionPane.showMessageDialog(this,
+                    mensajeFinal.toString(),
+                    "Resultado",
+                    eliminadas > 0 ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        }
+
+        limpiarCampos();
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnAñadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAñadirActionPerformed
-        String nombre = txtNombre.getText().trim(); // Obtener solo el nombre
+        String nombre = txtNombre.getText().trim();
 
-        if (!nombre.isEmpty()) { // Verifica que el campo no esté vacío
-            Unidad categoria = new Unidad(nombre);
-            Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Ingrese un nombre para la categoría",
+                    "Campo requerido",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            if (dao.insertar(categoria)) {
-                actualizarTabla(); // Refresca la tabla con los datos nuevos
-                JOptionPane.showMessageDialog(this, "Categoría añadida correctamente.");
-                txtNombre.setText(""); // Limpiar campo de entrada
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al añadir categoría.");
-            }
+        // Validar que no exista (aunque el controlador también lo valida)
+        Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+        if (dao.existeCategoria(nombre)) {
+            JOptionPane.showMessageDialog(this,
+                    "Ya existe una categoría con este nombre",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Unidad categoria = new Unidad(nombre);
+        if (dao.insertar(categoria)) {
+            actualizarTabla();
+            JOptionPane.showMessageDialog(this,
+                    "Categoría añadida correctamente",
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+            txtNombre.setText("");
         } else {
-            JOptionPane.showMessageDialog(this, "Ingrese un nombre.");
+            JOptionPane.showMessageDialog(this,
+                    "Error al añadir categoría",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAñadirActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        // Obtener datos de los campos
-        int codigo = Integer.parseInt(txtCodigo.getText());
+        List<Integer> filasSeleccionadas = getFilasSeleccionadas();
+
+        if (filasSeleccionadas.size() != 1) {
+            JOptionPane.showMessageDialog(this,
+                    "Debes seleccionar exactamente una categoría para actualizar",
+                    "Advertencia",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String nuevoNombre = txtNombre.getText().trim();
 
-        if (!nuevoNombre.isEmpty()) {
-            Unidad categoria = new Unidad(codigo, nuevoNombre);
-            Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+        if (nuevoNombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "El nombre no puede estar vacío",
+                    "Advertencia",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            if (dao.actualizar(categoria)) {  // Necesitarás implementar este método
-                actualizarTabla();
-                JOptionPane.showMessageDialog(this, "¡Categoría actualizada!");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al actualizar", "Error", JOptionPane.ERROR_MESSAGE);
+        DefaultTableModel model = (DefaultTableModel) tabla1.getModel();
+        int filaSeleccionada = filasSeleccionadas.get(0);
+        int codigo = (int) model.getValueAt(filaSeleccionada, 2);
+        String nombreActual = model.getValueAt(filaSeleccionada, 1).toString();
+
+        // Solo validar si el nombre cambió
+        if (!nuevoNombre.equalsIgnoreCase(nombreActual)) {
+            Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+            if (dao.existeCategoria(nuevoNombre)) {
+                JOptionPane.showMessageDialog(this,
+                        "Ya existe una categoría con este nombre",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
+        }
+
+        Unidad categoria = new Unidad(codigo, nuevoNombre);
+        Ctrl_UnidadMaterial dao = new Ctrl_UnidadMaterial();
+
+        if (dao.actualizar(categoria)) {
+            actualizarTabla();
+            JOptionPane.showMessageDialog(this,
+                    "¡Categoría actualizada!",
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+            limpiarCampos();
         } else {
-            JOptionPane.showMessageDialog(this, "El nombre no puede estar vacío", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Error al actualizar",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
@@ -406,14 +616,13 @@ public class materialUnidad extends javax.swing.JDialog {
     private RSMaterialComponent.RSButtonShape btnAñadir;
     private RSMaterialComponent.RSButtonShape btnEliminar;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
+    private rojerusan.RSLabelImage lblSalir;
     private RSMaterialComponent.RSTableMetroCustom tabla1;
-    private necesario.TextField txtCodigo;
     private RSMaterialComponent.RSTextFieldMaterial txtNombre;
     // End of variables declaration//GEN-END:variables
 }

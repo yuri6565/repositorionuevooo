@@ -232,19 +232,106 @@ private boolean isValidDecimal(String value) {
     return value.matches("^-?\\d*\\.?\\d*$");
 }
 
-    public boolean eliminar(int idInventario) {
-        String sql = "DELETE FROM inventario WHERE id_inventario = ? AND tipo = 'material'";
 
-        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
 
-            stmt.setInt(1, idInventario);
-            return stmt.executeUpdate() > 0;
-
+    // Métodos para verificar y eliminar con validación
+    public boolean materialEnUso(int idMaterial) {
+        String sqlSuministra = "SELECT COUNT(*) FROM suministra WHERE inventario_id_inventario = ?";
+        String sqlUtilizado = "SELECT COUNT(*) FROM utilizado WHERE inventario_id_inventario = ?";
+        
+        try (Connection con = Conexion.getConnection()) {
+            // Verificar en suministra
+            try (PreparedStatement stmt = con.prepareStatement(sqlSuministra)) {
+                stmt.setInt(1, idMaterial);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+            
+            // Verificar en utilizado
+            try (PreparedStatement stmt = con.prepareStatement(sqlUtilizado)) {
+                stmt.setInt(1, idMaterial);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+            
+            return false;
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar material: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al verificar uso del material: " + e.getMessage());
             e.printStackTrace();
+            return true;
+        }
+    }
+
+    public String obtenerDetallesUso(int idMaterial) {
+        StringBuilder detalles = new StringBuilder();
+        
+        try (Connection con = Conexion.getConnection()) {
+            // Verificar en suministra
+            String sqlSuministra = "SELECT COUNT(*) FROM suministra WHERE inventario_id_inventario = ?";
+            try (PreparedStatement stmt = con.prepareStatement(sqlSuministra)) {
+                stmt.setInt(1, idMaterial);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                   
+                }
+            }
+            
+            // Verificar en utilizado
+            String sqlUtilizado = "SELECT COUNT(*) FROM utilizado WHERE inventario_id_inventario = ?";
+            try (PreparedStatement stmt = con.prepareStatement(sqlUtilizado)) {
+                stmt.setInt(1, idMaterial);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                   
+                }
+            }
+            
+            return detalles.toString();
+        } catch (Exception e) {
+            return "Error al verificar registros asociados";
+        }
+    }
+
+    public boolean eliminarConVerificacion(int idMaterial) {
+        // Primero verificar si está en uso
+        if (materialEnUso(idMaterial)) {
+            String detalles = obtenerDetallesUso(idMaterial);
+            JOptionPane.showMessageDialog(null, 
+                "No se puede eliminar el material porque está siendo usado",
+                "Material en uso", 
+                JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
+        // Si no está en uso, proceder con la eliminación
+        String sql = "DELETE FROM inventario WHERE id_inventario = ? AND tipo = 'material'";
+        try (Connection con = Conexion.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, idMaterial);
+            boolean eliminado = stmt.executeUpdate() > 0;
+            
+            if (eliminado) {
+ 
+            } else {
+
+            }
+            return eliminado;
+        } catch (Exception e) {
+
             return false;
         }
     }
+
+    // Método original de eliminación (mantenido por compatibilidad)
+    public boolean eliminar(int idInventario) {
+        return eliminarConVerificacion(idInventario);
+    }
+
+    
+    
 
 }
