@@ -290,20 +290,6 @@ public class herramientaEditar extends javax.swing.JDialog {
         btnUM = new RSMaterialComponent.RSButtonShape();
         btnCategoria = new RSMaterialComponent.RSButtonShape();
         btnMarca = new RSMaterialComponent.RSButtonShape();
-        jLabel15 = new javax.swing.JLabel();
-        tipoidentificacion2 = new javax.swing.JLabel();
-        tipoidentificacion3 = new javax.swing.JLabel();
-        tipoidentificacion4 = new javax.swing.JLabel();
-        tipoidentificacion5 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        tipoidentificacion6 = new javax.swing.JLabel();
-        tipoidentificacion7 = new javax.swing.JLabel();
-        tipoidentificacion8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setUndecorated(true);
@@ -332,7 +318,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnCancelarActionPerformed(evt);
             }
         });
-        jPanel1.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 670, 140, -1));
+        jPanel1.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 600, 140, -1));
 
         btnGuardar.setBackground(new java.awt.Color(46, 49, 82));
         btnGuardar.setText("Actualizar");
@@ -343,11 +329,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnGuardarActionPerformed(evt);
             }
         });
-        jPanel1.add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 670, 140, -1));
+        jPanel1.add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 600, 140, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel3.setText("Nombre:");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, -1, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, -1));
 
         txtNombre.setForeground(new java.awt.Color(0, 0, 0));
         txtNombre.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -360,11 +346,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 txtNombreActionPerformed(evt);
             }
         });
-        jPanel1.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, 200, 30));
+        jPanel1.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, 200, 30));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel10.setText("Categoria:");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 110, -1, -1));
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 90, -1, -1));
 
         cmbCategoria.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione categoría:", "Categoría 1", "Categoría 2", "Categoría 3" }));
         cmbCategoria.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -374,11 +360,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 cmbCategoriaActionPerformed(evt);
             }
         });
-        jPanel1.add(cmbCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 140, 200, 30));
+        jPanel1.add(cmbCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 120, 200, 30));
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel11.setText("U.M:");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, -1, -1));
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, -1, -1));
 
         cmbUnidad.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione unidad-medida:", "RSItem 1", "RSItem 2", "RSItem 3", "RSItem 4" }));
         cmbUnidad.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -388,11 +374,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 cmbUnidadActionPerformed(evt);
             }
         });
-        jPanel1.add(cmbUnidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 230, -1, 30));
+        jPanel1.add(cmbUnidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, -1, 30));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel8.setText("Cantidad:");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, -1, -1));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 270, -1, -1));
 
         txtCantidad.setForeground(new java.awt.Color(0, 0, 0));
         txtCantidad.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -405,11 +391,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 txtCantidadActionPerformed(evt);
             }
         });
-        jPanel1.add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, 200, 30));
+        jPanel1.add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 300, 200, 30));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel6.setText("Precio unitario:");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 390, -1, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 360, -1, -1));
 
         txtPrecioUnitario.setForeground(new java.awt.Color(0, 0, 0));
         txtPrecioUnitario.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -422,15 +408,15 @@ public class herramientaEditar extends javax.swing.JDialog {
                 txtPrecioUnitarioActionPerformed(evt);
             }
         });
-        jPanel1.add(txtPrecioUnitario, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 420, 200, 30));
+        jPanel1.add(txtPrecioUnitario, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 390, 200, 30));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel5.setText("Descripcion: (opcinal)");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 500, -1, -1));
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 460, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel9.setText("Marca:");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 190, -1, -1));
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 170, -1, -1));
 
         cmbMarca.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione marca:" }));
         cmbMarca.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -440,11 +426,11 @@ public class herramientaEditar extends javax.swing.JDialog {
                 cmbMarcaActionPerformed(evt);
             }
         });
-        jPanel1.add(cmbMarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 220, -1, 30));
+        jPanel1.add(cmbMarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 200, -1, 30));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel7.setText("Estado:");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 270, -1, -1));
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 250, -1, -1));
 
         cmbEstado.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione estado:", "Disponible", "Reparación", "Dañado" }));
         cmbEstado.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -454,7 +440,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 cmbEstadoActionPerformed(evt);
             }
         });
-        jPanel1.add(cmbEstado, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 290, -1, 30));
+        jPanel1.add(cmbEstado, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 270, -1, 30));
 
         txtDescripcion.setColumns(10);
         txtDescripcion.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -464,15 +450,15 @@ public class herramientaEditar extends javax.swing.JDialog {
         txtDescripcion.setWrapStyleWord(true);
         jScrollPane1.setViewportView(txtDescripcion);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 530, 190, 60));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 490, 190, 60));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel12.setText("Imagen: (opcional)");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 360, -1, -1));
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 340, -1, -1));
 
         lblImagen.setBackground(new java.awt.Color(153, 204, 255));
         lblImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel1.add(lblImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 390, 180, 150));
+        jPanel1.add(lblImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 370, 180, 150));
 
         btnSubirImagen.setBackground(new java.awt.Color(28, 135, 212));
         btnSubirImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/importar.png"))); // NOI18N
@@ -485,7 +471,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnSubirImagenActionPerformed(evt);
             }
         });
-        jPanel1.add(btnSubirImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 550, 80, 26));
+        jPanel1.add(btnSubirImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 530, 80, 26));
 
         btnQuitar.setBackground(new java.awt.Color(163, 38, 0));
         btnQuitar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/boton-menos (1).png"))); // NOI18N
@@ -498,7 +484,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnQuitarActionPerformed(evt);
             }
         });
-        jPanel1.add(btnQuitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 550, 80, 26));
+        jPanel1.add(btnQuitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 530, 80, 26));
 
         btnUM.setBackground(new java.awt.Color(46, 49, 82));
         btnUM.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -512,7 +498,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnUMActionPerformed(evt);
             }
         });
-        jPanel1.add(btnUM, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, 25, 20));
+        jPanel1.add(btnUM, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 180, 25, 20));
 
         btnCategoria.setBackground(new java.awt.Color(46, 49, 82));
         btnCategoria.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -526,7 +512,7 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnCategoriaActionPerformed(evt);
             }
         });
-        jPanel1.add(btnCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 110, 25, 20));
+        jPanel1.add(btnCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 90, 25, 20));
 
         btnMarca.setBackground(new java.awt.Color(46, 49, 82));
         btnMarca.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -540,72 +526,9 @@ public class herramientaEditar extends javax.swing.JDialog {
                 btnMarcaActionPerformed(evt);
             }
         });
-        jPanel1.add(btnMarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, 25, 20));
+        jPanel1.add(btnMarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 170, 25, 20));
 
-        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel15.setText("*");
-        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 200, 20, -1));
-
-        tipoidentificacion2.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion2.setText("TIPO");
-        jPanel1.add(tipoidentificacion2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 170, 60, -1));
-
-        tipoidentificacion3.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion3.setText("TIPO");
-        jPanel1.add(tipoidentificacion3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 60, -1));
-
-        tipoidentificacion4.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion4.setText("TIPO");
-        jPanel1.add(tipoidentificacion4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 360, 60, -1));
-
-        tipoidentificacion5.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion5.setText("TIPO");
-        jPanel1.add(tipoidentificacion5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, 60, -1));
-
-        jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel16.setText("*");
-        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 280, 10, 10));
-
-        jLabel17.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel17.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel17.setText("*");
-        jPanel1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 110, 20, 20));
-
-        jLabel18.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel18.setText("*");
-        jPanel1.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 290, 20, 20));
-
-        jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel19.setText("*");
-        jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 390, 20, 20));
-
-        jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel20.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel20.setText("*");
-        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 110, 20, 20));
-
-        jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel21.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel21.setText("*");
-        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 200, 10, 10));
-
-        tipoidentificacion6.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion6.setText("TIPO");
-        jPanel1.add(tipoidentificacion6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 460, 60, -1));
-
-        tipoidentificacion7.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion7.setText("TIPO");
-        jPanel1.add(tipoidentificacion7, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 330, 60, -1));
-
-        tipoidentificacion8.setForeground(new java.awt.Color(255, 51, 51));
-        tipoidentificacion8.setText("TIPO");
-        jPanel1.add(tipoidentificacion8, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 250, 60, -1));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 580, 730));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 570, 660));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -948,13 +871,6 @@ public class herramientaEditar extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -965,13 +881,6 @@ public class herramientaEditar extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblImagen;
-    private javax.swing.JLabel tipoidentificacion2;
-    private javax.swing.JLabel tipoidentificacion3;
-    private javax.swing.JLabel tipoidentificacion4;
-    private javax.swing.JLabel tipoidentificacion5;
-    private javax.swing.JLabel tipoidentificacion6;
-    private javax.swing.JLabel tipoidentificacion7;
-    private javax.swing.JLabel tipoidentificacion8;
     private RSMaterialComponent.RSTextFieldMaterial txtCantidad;
     private javax.swing.JTextArea txtDescripcion;
     private RSMaterialComponent.RSTextFieldMaterial txtNombre;

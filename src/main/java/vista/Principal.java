@@ -86,6 +86,9 @@ public class Principal extends javax.swing.JFrame {
     private JPanel submenuVentas;
     private boolean submenuVentasVisible = false; // Para controlar si el submenú de Ventas está visible
 
+    private JPanel submenuAjustes;
+    private boolean submenuAjustesVisible = false;
+
     private JPanel centerPanel;
     private JPopupMenu notificacionPopupMenu; // Declarar como variable de clase
     private boolean popupVisible = false; // Estado del popup
@@ -97,6 +100,7 @@ public class Principal extends javax.swing.JFrame {
     private rojeru_san.RSButton item2;
     private rojeru_san.RSButton item4;
     private rojeru_san.RSButton item3;
+    private rojeru_san.RSButton ajusteButton;
     private boolean menuExpanded = true; // Inicialmente expandido
     private final int MENU_COLLAPSED_WIDTH = 1;
     private final int MENU_EXPANDED_WIDTH = 250;
@@ -111,6 +115,7 @@ public class Principal extends javax.swing.JFrame {
         this.item2 = new rojeru_san.RSButton(); // ✔️
         this.item3 = new rojeru_san.RSButton();
         this.item4 = new rojeru_san.RSButton();
+        this.ajusteButton = new rojeru_san.RSButton();
 
         boolean oscuro = TemaManager.getInstance().isOscuro();
 
@@ -223,71 +228,6 @@ public class Principal extends javax.swing.JFrame {
 //submenu inventario------------------
 
 
-
-//scrollpanel---------------------------
-        // Definir un JScrollPane y envolver el contenedor
-        JScrollPane scrollPane = new JScrollPane(contenedor);
-        scrollPane.setBounds(260, 80, 1020, 550); // Tamaño del área visible
-
-// Asegurar el desplazamiento horizontal y vertical
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); // Forzar barra horizontal
-
-        scrollPane.setBorder(null); // Quitar el borde del JScrollPane
-        contenedor.setBorder(null); // Quitar el borde del JPanel
-
-// Ajustar el tamaño preferido del contenedor para que sea más grande que el JScrollPane
-        contenedor.setPreferredSize(new Dimension(1290, 870)); // Asegura un tamaño mayor al viewport
-
-// Agregar el JScrollPane al panel principal
-        //jPanel1.add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 80, 1020, 730));
-        // Correcto (especificar posición):
-        //jPanel1.add(scrollPane, BorderLayout.WEST); // o NORTH, SOUTH, etc.
-        // Reemplázalas con esto:
-        scrollPane.setBounds(260, 80, 1020, 730); // Ajusta según necesidad
-        jPanel1.add(scrollPane); // Sin layout manager absoluto
-
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
-        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8));
-
-        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-            @Override
-            protected void configureScrollBarColors() {
-                this.thumbColor = new Color(153, 153, 153);
-            }
-
-            @Override
-            protected JButton createDecreaseButton(int orientation) {
-                return new JButton() {
-                    @Override
-                    public Dimension getPreferredSize() {
-                        return new Dimension(0, 0);
-                    }
-                };
-            }
-
-            @Override
-            protected JButton createIncreaseButton(int orientation) {
-                return new JButton() {
-                    @Override
-                    public Dimension getPreferredSize() {
-                        return new Dimension(0, 0);
-                    }
-                };
-            }
-
-            @Override
-            protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(thumbColor);
-                g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
-                g2.dispose();
-            }
-        });
-//scrollpanel ---------------------
-
-
 //submenu ventas------------------
 // Inicializar el submenú de Ventas
         submenuVentas = new JPanel();
@@ -369,6 +309,53 @@ public class Principal extends javax.swing.JFrame {
         submenuVentas.add(item4);
 //submenu ventas------------------
 
+//submenu ajustes------------------
+// Inicializar el submenú de Ajustes
+        submenuAjustes = new JPanel();
+        submenuAjustes.setBackground(new Color(255, 255, 255)); // Fondo igual que el menú
+        submenuAjustes.setLayout(new GridLayout(1, 1, 0, 0)); // 1 fila, 1 columna
+        submenuAjustes.setPreferredSize(new Dimension(250, 50)); // Alto suficiente para un botón
+
+// Botón "Configuración" dentro del submenú de Ajustes
+        ajusteButton = new rojeru_san.RSButton();
+        ajusteButton.setBackground(new Color(0, 0, 0));
+        ajusteButton.setForeground(Color.WHITE);
+        ajusteButton.setFont(new Font("Tahoma", Font.BOLD, 15));
+        ajusteButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 40, 1, 1));
+        ajusteButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        ajusteButton.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        ajusteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/copia-de-respaldo.png")));
+        ajusteButton.setIconTextGap(10);
+        ajusteButton.setText("Copia de seguridad");
+        ajusteButton.setColorHover(new Color(150, 150, 150));
+        ajusteButton.setColorTextHover(Color.WHITE);
+        aplicarTema();
+
+// Acción del botón "Configuración"
+        ajusteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deseleccionar();
+                diez.setSelected(true);
+
+                // Cargar la vista de Materiales
+                backup cliente = new backup(new javax.swing.JFrame(), true);
+                cliente.setSize(1290, 730);
+                cliente.setLocation(0, 0);
+
+                contenedor.removeAll();
+                contenedor.add(cliente);
+                contenedor.revalidate();
+                contenedor.repaint();
+
+                // Ejemplo: Cargar un panel de configuración aquí
+                animacion();
+            }
+        });
+
+        submenuAjustes.add(ajusteButton);
+//submenu ajustes------------------
+
         // Oculta el panel lateral derecho (jPanel5)
         jPanel5.setVisible(false);
 
@@ -442,15 +429,13 @@ public class Principal extends javax.swing.JFrame {
             jPanel4.setBackground(new Color(30, 30, 45));
             contenedor.setBackground(new Color(21, 21, 33));
             jPanel5.setBackground(new Color(30, 30, 45));
-            
-            Botona_ayuda.setBackground(fondoBoton );
-                    
 
             // Ajustar foreground de los botones del submenú
             item1.setForeground(textoBoton);
             item2.setForeground(textoBoton);
             item3.setForeground(textoBoton);
             item4.setForeground(textoBoton);
+            ajusteButton.setForeground(textoBoton);
 
             lblUsuarioLogueado.setForeground(Color.WHITE);
             rolusuario.setForeground(Color.WHITE);
@@ -466,15 +451,18 @@ public class Principal extends javax.swing.JFrame {
             siete1.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios_1.png")));
             ocho.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service_1.png")));
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
+            diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/mechanical (1).png")));
 
             item1.setIcon(new ImageIcon(getClass().getResource("/imagenes/tratar-con-cuidado.png")));
             item2.setIcon(new ImageIcon(getClass().getResource("/imagenes/llave-inglesa.png")));
             item3.setIcon(new ImageIcon(getClass().getResource("/imagenes/bolsa-de-la-compra.png")));
             item4.setIcon(new ImageIcon(getClass().getResource("/imagenes/solicitud-de-cotizacion.png")));
+            ajusteButton.setIcon(new ImageIcon(getClass().getResource("/imagenes/copia-de-respaldo (1).png")));
 
             rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/WhatsApp Image 2025-03-20 at 3.58.18 PM (1).png")));
             rSLabelImage3.setIcon(new ImageIcon(getClass().getResource("/imagenes/luna (6).png")));
             rSLabelImage1.setIcon(new ImageIcon(getClass().getResource("/imagenes/feliz-sol-negro.png")));
+            lblBotonAyuda.setIcon(new ImageIcon(getClass().getResource("/imagenes/boton-web-de-ayuda (1).png")));
 
             uno1.setIcon(new ImageIcon(getClass().getResource("/imagenes/casa.png")));
             dos1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-negra.png")));
@@ -496,7 +484,6 @@ public class Principal extends javax.swing.JFrame {
             textoLabel = Color.BLACK;
             contenedorc = new Color(242, 247, 255);
 
-            Botona_ayuda.setBackground(new Color(216, 217, 219));
             jPanel1.setBackground(new Color(242, 247, 255));
             jPanel2.setBackground(new Color(255, 255, 255));
             jPanel3.setBackground(new Color(255, 255, 255));
@@ -507,6 +494,7 @@ public class Principal extends javax.swing.JFrame {
             item2.setForeground(textoBoton);
             item3.setForeground(textoBoton);
             item4.setForeground(textoBoton);
+            ajusteButton.setForeground(textoBoton);
 
             contenedor.setBackground(new Color(242, 247, 255));
             jPanel5.setBackground(new Color(242, 247, 255));
@@ -525,11 +513,14 @@ public class Principal extends javax.swing.JFrame {
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
             rSLabelImage1.setIcon(new ImageIcon(getClass().getResource("/imagenes/feliz-sol (6).png")));
             rSLabelImage3.setIcon(new ImageIcon(getClass().getResource("/imagenes/luna (7).png")));
+            lblBotonAyuda.setIcon(new ImageIcon(getClass().getResource("/imagenes/boton-web-de-ayuda.png")));
+            diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/mechanical.png")));
 
             item1.setIcon(new ImageIcon(getClass().getResource("/imagenes/tratar-con-cuidadoNegro.png")));
             item2.setIcon(new ImageIcon(getClass().getResource("/imagenes/llave-inglesaNegro.png")));
             item3.setIcon(new ImageIcon(getClass().getResource("/imagenes/bolsa-de-la-compraNegro.png")));
             item4.setIcon(new ImageIcon(getClass().getResource("/imagenes/solicitud-de-cotizacionNegro.png")));
+            ajusteButton.setIcon(new ImageIcon(getClass().getResource("/imagenes/copia-de-respaldo.png")));
 
             uno1.setIcon(new ImageIcon(getClass().getResource("/imagenes/home.png")));
             dos1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-blanca.png")));
@@ -554,11 +545,13 @@ public class Principal extends javax.swing.JFrame {
         cambiarEstiloBotonRS(siete1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(ocho, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(nueve, fondoBoton, textoBoton);
+        cambiarEstiloBotonRS(diez, fondoBoton, textoBoton);
 
         cambiarEstiloBotonRS(item1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(item2, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(item3, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(item4, fondoBoton, textoBoton);
+        cambiarEstiloBotonRS(ajusteButton, fondoBoton, textoBoton);
 
         cambiarEstiloBotonRS(uno1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(dos1, fondoBoton, textoBoton);
@@ -759,6 +752,7 @@ public class Principal extends javax.swing.JFrame {
             jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 250, 50));
             jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 550, 250, 50));
             jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
+            jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50)); // Añadir diez
 
             dos.setText(" Inventario           ▼");
             submenuVisible = false;
@@ -781,10 +775,27 @@ public class Principal extends javax.swing.JFrame {
             jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 250, 50));
             jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 550, 250, 50));
             jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
-
+            jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50)); // Añadir diez
             cinco.setText(" Ventas                ▼");
             submenuVentasVisible = false;
 
+        }
+        if (submenuAjustesVisible) {
+            jPanel3.removeAll();
+            jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+            jPanel3.add(rSPanelImage3, new org.netbeans.lib.awtextra.AbsoluteConstraints(49, 63, 158, 130));
+            jPanel3.add(uno, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
+            jPanel3.add(dos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
+            jPanel3.add(tres, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
+            jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
+            jPanel3.add(cinco, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
+            jPanel3.add(seis, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 250, 50));
+            jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 250, 50));
+            jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 550, 250, 50));
+            jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
+            jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50));
+            diez.setText("Ajustes               ▼");
+            submenuAjustesVisible = false;
         }
 
         jPanel3.revalidate();
@@ -1058,7 +1069,7 @@ public class Principal extends javax.swing.JFrame {
         lblTituloPrincipal = new javax.swing.JLabel();
         btnNotificacion1 = new rojerusan.RSLabelIcon();
         rSLabelImage3 = new rojerusan.RSLabelImage();
-        Botona_ayuda = new newscomponents.RSButtonIcon_new();
+        lblBotonAyuda = new rojerusan.RSLabelImage();
         jPanel3 = new javax.swing.JPanel();
         dos = new rojeru_san.RSButton();
         tres = new rojeru_san.RSButton();
@@ -1070,6 +1081,7 @@ public class Principal extends javax.swing.JFrame {
         nueve = new rojeru_san.RSButton();
         uno = new rojeru_san.RSButton();
         rSPanelImage3 = new rojerusan.RSPanelImage();
+        diez = new rojeru_san.RSButton();
         jPanel4 = new javax.swing.JPanel();
         uno1 = new rojeru_san.RSButton();
         dos1 = new rojeru_san.RSButton();
@@ -1172,12 +1184,16 @@ public class Principal extends javax.swing.JFrame {
 
         rSLabelImage3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/luna (6).png"))); // NOI18N
 
-        Botona_ayuda.setBackground(new java.awt.Color(29, 30, 81));
-        Botona_ayuda.setBorder(null);
-        Botona_ayuda.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.HELP);
-        Botona_ayuda.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Botona_ayudaActionPerformed(evt);
+        lblBotonAyuda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/boton-web-de-ayuda (1).png"))); // NOI18N
+        lblBotonAyuda.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblBotonAyudaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                lblBotonAyudaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                lblBotonAyudaMouseExited(evt);
             }
         });
 
@@ -1188,15 +1204,15 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(310, 310, 310)
                 .addComponent(lblTituloPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 370, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(309, 309, 309)
-                .addComponent(Botona_ayuda, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(310, 310, 310)
                 .addComponent(rSLabelImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addGap(6, 6, 6)
                 .addComponent(rSSwitch1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
                 .addComponent(rSLabelImage3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19)
+                .addGap(26, 26, 26)
+                .addComponent(lblBotonAyuda, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17)
                 .addComponent(btnNotificacion1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(13, 13, 13)
                 .addComponent(rSLabelCircleImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1205,37 +1221,33 @@ public class Principal extends javax.swing.JFrame {
                     .addComponent(lblUsuarioLogueado)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(1, 1, 1)
-                        .addComponent(rolusuario)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(rolusuario))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(13, 13, 13)
-                        .addComponent(rSSwitch1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(rSLabelImage3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(11, 11, 11)
-                        .addComponent(btnNotificacion1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(rSLabelCircleImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(lblUsuarioLogueado)
-                        .addGap(7, 7, 7)
-                        .addComponent(rolusuario))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(lblTituloPrincipal))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(13, 13, 13)
-                        .addComponent(rSLabelImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(Botona_ayuda, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18))
+                .addGap(20, 20, 20)
+                .addComponent(lblTituloPrincipal))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(rSLabelImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(rSSwitch1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(rSLabelImage3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(lblBotonAyuda, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(11, 11, 11)
+                .addComponent(btnNotificacion1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(rSLabelCircleImage1, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(lblUsuarioLogueado)
+                .addGap(7, 7, 7)
+                .addComponent(rolusuario))
         );
 
         jPanel3.setBackground(new java.awt.Color(29, 30, 81));
@@ -1382,6 +1394,20 @@ public class Principal extends javax.swing.JFrame {
             .addGap(0, 130, Short.MAX_VALUE)
         );
 
+        diez.setBackground(new java.awt.Color(29, 30, 81));
+        diez.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 30, 1, 1));
+        diez.setIcon(new javax.swing.ImageIcon(getClass().getResource("/public-service_1.png"))); // NOI18N
+        diez.setText("Ajustes               ▼");
+        diez.setToolTipText("");
+        diez.setColorHover(new java.awt.Color(128, 128, 128));
+        diez.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        diez.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        diez.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                diezActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -1391,13 +1417,14 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(rSPanelImage3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(uno, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(dos, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(cinco, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(seis, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(siete1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(ocho, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(seis, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(siete1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(diez, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1410,28 +1437,30 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(dos, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(97, 97, 97)
                         .addComponent(cinco, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(147, 147, 147)
-                        .addComponent(seis, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(197, 197, 197)
-                        .addComponent(siete1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(247, 247, 247)
                         .addComponent(ocho, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(47, 47, 47)
-                        .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(4, 4, 4)
+                        .addComponent(cuatro, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(147, 147, 147)
+                        .addComponent(seis, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tres, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(197, 197, 197)
+                        .addComponent(siete1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(2, 2, 2)
                 .addComponent(nueve, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(253, 253, 253))
+                .addGap(2, 2, 2)
+                .addComponent(diez, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel4.setBackground(new java.awt.Color(29, 30, 81));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         uno1.setBackground(new java.awt.Color(29, 30, 81));
         uno1.setBorder(null);
@@ -1449,6 +1478,7 @@ public class Principal extends javax.swing.JFrame {
                 uno1ActionPerformed(evt);
             }
         });
+        jPanel4.add(uno1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 40, 50));
 
         dos1.setBackground(new java.awt.Color(29, 30, 81));
         dos1.setBorder(null);
@@ -1466,6 +1496,7 @@ public class Principal extends javax.swing.JFrame {
                 dos1ActionPerformed(evt);
             }
         });
+        jPanel4.add(dos1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 40, 50));
 
         tres1.setBackground(new java.awt.Color(29, 30, 81));
         tres1.setBorder(null);
@@ -1483,6 +1514,7 @@ public class Principal extends javax.swing.JFrame {
                 tres1ActionPerformed(evt);
             }
         });
+        jPanel4.add(tres1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 40, 51));
 
         cuatro1.setBackground(new java.awt.Color(29, 30, 81));
         cuatro1.setBorder(null);
@@ -1500,6 +1532,7 @@ public class Principal extends javax.swing.JFrame {
                 cuatro1ActionPerformed(evt);
             }
         });
+        jPanel4.add(cuatro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 40, 51));
 
         cinco1.setBackground(new java.awt.Color(29, 30, 81));
         cinco1.setBorder(null);
@@ -1516,6 +1549,7 @@ public class Principal extends javax.swing.JFrame {
                 cinco1ActionPerformed(evt);
             }
         });
+        jPanel4.add(cinco1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 40, 51));
 
         seis1.setBackground(new java.awt.Color(29, 30, 81));
         seis1.setBorder(null);
@@ -1532,6 +1566,7 @@ public class Principal extends javax.swing.JFrame {
                 seis1ActionPerformed(evt);
             }
         });
+        jPanel4.add(seis1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 40, 51));
 
         siete2.setBackground(new java.awt.Color(29, 30, 81));
         siete2.setBorder(null);
@@ -1548,6 +1583,7 @@ public class Principal extends javax.swing.JFrame {
                 siete2ActionPerformed(evt);
             }
         });
+        jPanel4.add(siete2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 40, 51));
 
         ocho1.setBackground(new java.awt.Color(29, 30, 81));
         ocho1.setBorder(null);
@@ -1564,6 +1600,7 @@ public class Principal extends javax.swing.JFrame {
                 ocho1ActionPerformed(evt);
             }
         });
+        jPanel4.add(ocho1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 550, 40, 52));
 
         nueve1.setBackground(new java.awt.Color(29, 30, 81));
         nueve1.setBorder(null);
@@ -1580,50 +1617,7 @@ public class Principal extends javax.swing.JFrame {
                 nueve1ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(uno1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(dos1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(ocho1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(nueve1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(siete2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(cinco1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(seis1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(tres1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(cuatro1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(200, 200, 200)
-                .addComponent(uno1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(dos1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(250, 250, 250)
-                        .addComponent(ocho1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(300, 300, 300)
-                        .addComponent(nueve1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(200, 200, 200)
-                        .addComponent(siete2, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(100, 100, 100)
-                        .addComponent(cinco1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(150, 150, 150)
-                        .addComponent(seis1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(tres1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(50, 50, 50)
-                        .addComponent(cuatro1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jPanel4.add(nueve1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 40, 52));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1679,7 +1673,7 @@ public class Principal extends javax.swing.JFrame {
             deseleccionar();
             this.ocho.setSelected(true);
 
-            backup cliente = new backup(new javax.swing.JFrame(), true);
+            VistaClientes cliente = new VistaClientes(new javax.swing.JFrame(), true);
             cliente.setSize(1290, 730);
             cliente.setLocation(0, 0);
 
@@ -1737,6 +1731,7 @@ public class Principal extends javax.swing.JFrame {
                 jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
                 jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50));
                 jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 700, 250, 50));
+                jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 750, 250, 50));
 
                 cinco.setText(" Ventas                ▲");
                 submenuVentasVisible = true;
@@ -1836,6 +1831,7 @@ public class Principal extends javax.swing.JFrame {
             jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
             jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50));
             jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 700, 250, 50));
+            jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 750, 250, 50));
 
             /* Mostrar submenú de Ventas
             submenuVentas.setBounds(0, cinco.getY() + cinco.getHeight(),
@@ -1949,6 +1945,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jPanel5MouseEntered
 
     private void nueveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nueveActionPerformed
+        ocultarSubmenus();
         if (!this.nueve.isSelected()) {
             deseleccionar();
             this.nueve.setSelected(true);
@@ -2003,27 +2000,71 @@ public class Principal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnNotificacion1MouseClicked
 
-    private void Botona_ayudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Botona_ayudaActionPerformed
+    private void lblBotonAyudaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBotonAyudaMouseClicked
         //boton descargar pdf ayuda
-      try {
-        // Ruta local directa (ajusta a la que prefieras)
-        File archivoPDF = new File("src/main/java/vista/manual_ayuda.pdf");
-        // También puedes probar con:
-        // File archivoPDF = new File("src/main/java/archivos/manual_ayuda.pdf");
+        try {
+            // Ruta local directa (ajusta a la que prefieras)
+            File archivoPDF = new File("src/main/java/vista/manual_ayuda.pdf");
+            // También puedes probar con:
+            // File archivoPDF = new File("src/main/java/archivos/manual_ayuda.pdf");
 
-        if (!archivoPDF.exists()) {
-            JOptionPane.showMessageDialog(this, "No se encontró el PDF en:\n" + archivoPDF.getAbsolutePath());
-            return;
+            if (!archivoPDF.exists()) {
+                JOptionPane.showMessageDialog(this, "No se encontró el PDF en:\n" + archivoPDF.getAbsolutePath());
+                return;
+            }
+
+            // Abre el PDF en el navegador predeterminado
+            Desktop.getDesktop().browse(archivoPDF.toURI());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al abrir el PDF.");
         }
+    }//GEN-LAST:event_lblBotonAyudaMouseClicked
 
-        // Abre el PDF en el navegador predeterminado
-        Desktop.getDesktop().browse(archivoPDF.toURI());
+    private void lblBotonAyudaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBotonAyudaMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_lblBotonAyudaMouseEntered
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al abrir el PDF.");
-    }
-    }//GEN-LAST:event_Botona_ayudaActionPerformed
+    private void lblBotonAyudaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBotonAyudaMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_lblBotonAyudaMouseExited
+
+    private void diezActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diezActionPerformed
+        if (!this.diez.isSelected()) {
+            deseleccionar();
+            this.diez.setSelected(true);
+
+            if (!submenuAjustesVisible) {
+                ocultarSubmenus(); // Cerrar otros submenús
+                jPanel3.removeAll();
+                jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+                // Reubicar los botones con el submenú de Ajustes visible
+                jPanel3.add(rSPanelImage3, new org.netbeans.lib.awtextra.AbsoluteConstraints(49, 63, 158, 130));
+                jPanel3.add(uno, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
+                jPanel3.add(dos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
+                jPanel3.add(tres, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
+                jPanel3.add(cuatro, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 50));
+                jPanel3.add(cinco, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 250, 50));
+                jPanel3.add(seis, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 250, 50));
+                jPanel3.add(siete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 250, 50));
+                jPanel3.add(ocho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 550, 250, 50));
+                jPanel3.add(nueve, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 250, 50));
+                jPanel3.add(diez, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 650, 250, 50));
+                jPanel3.add(submenuAjustes, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 700, 250, 50)); // Submenú de Ajustes
+
+                diez.setText("Ajustes               ▲");
+                submenuAjustesVisible = true;
+                jPanel3.revalidate();
+                jPanel3.repaint();
+            }
+        } else {
+            ocultarSubmenus();
+            this.diez.setSelected(false);
+        }
+        lblTituloPrincipal.setText("Ajustes");
+    }//GEN-LAST:event_diezActionPerformed
 
     /**
      * @param args the command line arguments
@@ -2064,16 +2105,13 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private newscomponents.RSButtonIcon_new Botona_ayuda;
     private rojerusan.RSLabelIcon btnNotificacion1;
-    private RSMaterialComponent.RSButtonShape btnNuevo;
-    private RSMaterialComponent.RSButtonShape btnNuevo1;
-    private RSMaterialComponent.RSButtonShape btnNuevo2;
     private rojeru_san.RSButton cinco;
     private rojeru_san.RSButton cinco1;
     private javax.swing.JPanel contenedor;
     private rojeru_san.RSButton cuatro;
     private rojeru_san.RSButton cuatro1;
+    private rojeru_san.RSButton diez;
     private rojeru_san.RSButton dos;
     private rojeru_san.RSButton dos1;
     private javax.swing.JPanel jPanel1;
@@ -2081,6 +2119,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private rojerusan.RSLabelImage lblBotonAyuda;
     private javax.swing.JLabel lblTituloPrincipal;
     private javax.swing.JLabel lblUsuarioLogueado;
     private rojeru_san.RSButton nueve;
@@ -2113,6 +2152,7 @@ public class Principal extends javax.swing.JFrame {
         this.ocho.setSelected(false);
         this.nueve.setSelected(false);
         this.siete1.setSelected(false);
+        this.diez.setSelected(false);
     }
 
     private void cargarUsuarioLogueado() {

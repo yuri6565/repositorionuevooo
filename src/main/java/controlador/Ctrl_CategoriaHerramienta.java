@@ -18,12 +18,21 @@ import modelo.Conexion;
  * @author ZenBook
  */
 public class Ctrl_CategoriaHerramienta {
+
     private final String tipo = "herramienta";  // ⚙️ Fijamos el tipo automáticamente
 
     public boolean insertar(Categoria categoria) {
+        // Primero verificar si ya existe
+        if (existeCategoria(categoria.getNombre())) {
+            JOptionPane.showMessageDialog(null,
+                    "Ya existe una categoría con este nombre",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
         String sql = "INSERT INTO categoria (nombre, tipo) VALUES (?, ?)";
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, categoria.getNombre());
             stmt.setString(2, tipo);  // 👈 Siempre 'material'
             return stmt.executeUpdate() > 0;
@@ -37,14 +46,12 @@ public class Ctrl_CategoriaHerramienta {
         List<Categoria> lista = new ArrayList<>();
         String sql = "SELECT * FROM categoria WHERE tipo = 'herramienta'"; // Filtrar por tipo en la base de datos
 
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Categoria categoria = new Categoria(
-                    rs.getInt("codigo"),
-                    rs.getString("nombre")
+                        rs.getInt("codigo"),
+                        rs.getString("nombre")
                 );
                 lista.add(categoria);
             }
@@ -58,8 +65,7 @@ public class Ctrl_CategoriaHerramienta {
 
     public boolean actualizar(Categoria categoria) {
         String sql = "UPDATE categoria SET nombre = ? WHERE codigo = ? AND tipo = ?";
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Conexion.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, categoria.getNombre());
             stmt.setInt(2, categoria.getCodigo());
             stmt.setString(3, tipo);  // 👈 Asegura que solo actualice de tipo material
@@ -72,8 +78,7 @@ public class Ctrl_CategoriaHerramienta {
 
     public boolean eliminar(int codigo) {
         String sql = "DELETE FROM categoria WHERE codigo = ? AND tipo = ?";
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, codigo);
             stmt.setString(2, tipo);  // 👈 Asegura que solo borre si es material
             return stmt.executeUpdate() > 0;
@@ -82,22 +87,74 @@ public class Ctrl_CategoriaHerramienta {
             return false;
         }
     }
-    
-        public List<Categoria> obtenerCategoriaHerramienta(String tipo) {
-    List<Categoria> lista = new ArrayList<>();
-    String sql = "SELECT * FROM categoria WHERE tipo = ?";
-    try (Connection con = Conexion.getConnection();
-         PreparedStatement stmt = con.prepareStatement(sql)) {
-        stmt.setString(1, tipo);
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            lista.add(new Categoria(rs.getInt("codigo"), rs.getString("nombre")));
+
+    public List<Categoria> obtenerCategoriaHerramienta(String tipo) {
+        List<Categoria> lista = new ArrayList<>();
+        String sql = "SELECT * FROM categoria WHERE tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, tipo);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                lista.add(new Categoria(rs.getInt("codigo"), rs.getString("nombre")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return lista;
     }
-    return lista;
+
+    public boolean categoriaEnUso(int codigoCategoria) {
+        String sql = "SELECT COUNT(*) FROM inventario WHERE categoria_codigo = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, codigoCategoria);
+            stmt.setString(2, this.tipo); // Usamos el tipo definido en el controlador (material)
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Si count > 0, la categoría está en uso
+            }
+            return false;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al verificar uso de categoría: " + e.getMessage());
+            e.printStackTrace();
+            return true; // Por seguridad, asumir que está en uso si hay error
+        }
     }
-        
-        
+
+    public int eliminarConVerificacion(int codigo) {
+        if (categoriaEnUso(codigo)) {
+            return -1; // Código para "categoría en uso"
+        }
+
+        String sql = "DELETE FROM categoria WHERE codigo = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, codigo);
+            stmt.setString(2, this.tipo);
+            return stmt.executeUpdate() > 0 ? 1 : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -2; // Código para error de conexión
+        }
+    }
+
+    public boolean existeCategoria(String nombre) {
+        String sql = "SELECT COUNT(*) FROM categoria WHERE nombre = ? AND tipo = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, nombre);
+            stmt.setString(2, this.tipo);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al verificar categoría existente: " + e.getMessage());
+            e.printStackTrace();
+            return true; // Por seguridad, asumir que existe si hay error
+        }
+    }
+
 }
