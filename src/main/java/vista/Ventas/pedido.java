@@ -4,23 +4,47 @@
  */
 package vista.Ventas;
 
+import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JDateChooser;
 import controlador.Ctrl_Pedido;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import static javax.swing.SwingConstants.CENTER;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
+import rojeru_san.RSButtonRiple;
 import vista.TemaManager;
 
 /**
@@ -32,6 +56,18 @@ public class pedido extends javax.swing.JPanel {
     private JPanel contenedor; // Referencia al contenedor de Principal
     private Ctrl_Pedido controlador;
     private int idPedido;
+    private TableRowSorter<DefaultTableModel> sorter;
+
+    // Variables de instancia para los filtros
+    private JPopupMenu popupFiltrosAvanzados;
+    private List<JCheckBox> chkEstados = new ArrayList<>();
+    private JDateChooser dateDesde;
+    private JDateChooser dateHasta;
+    private List<JCheckBox> chkClientes = new ArrayList<>();
+    private List<String> estadosSeleccionados = new ArrayList<>();
+    private List<String> clientesSeleccionados = new ArrayList<>();
+    private Date fechaDesdeSeleccionada;
+    private Date fechaHastaSeleccionada;
 
     /**
      * Creates new form pedido
@@ -80,6 +116,39 @@ public class pedido extends javax.swing.JPanel {
 
         // Cargar datos desde la base de datos
         cargarDatosIniciales();
+
+        // Configurar búsqueda en tiempo real
+        txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                buscarPedidos();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                buscarPedidos();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                buscarPedidos();
+            }
+        });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
     }
 
     // Método para agregar una nueva fila a la tabla
@@ -129,21 +198,6 @@ public class pedido extends javax.swing.JPanel {
         }
     }
 
-    private void filtrarTabla() {
-        String textoBusqueda = txtBuscar.getText().trim().toLowerCase();
-        DefaultTableModel modelo = (DefaultTableModel) tablaM.getModel();
-        TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(modelo);
-        tablaM.setRowSorter(tr);
-
-        if (textoBusqueda.isEmpty()) {
-            tr.setRowFilter(null);
-            return;
-        }
-
-        // Filtro para buscar en todas las columnas
-        tr.setRowFilter(RowFilter.regexFilter("(?i)" + textoBusqueda));
-
-    }
 // Renderizador para la columna "Ver"
     private class ButtonRenderer extends DefaultTableCellRenderer {
 
@@ -275,6 +329,9 @@ public class pedido extends javax.swing.JPanel {
             btnEliminar1.setBackgroundHover(new Color(118, 142, 240));
             btnEliminar1.setBackground(new Color(67, 71, 120));
             btnEliminar1.setBackgroundHover(new Color(118, 142, 240));
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
         } else {
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
@@ -307,12 +364,318 @@ public class pedido extends javax.swing.JPanel {
 
             btnNuevo.setBackground(new Color(46, 49, 82));
             btnEliminar1.setBackground(new Color(46, 49, 82));
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
+
         }
     }
 
-    
-    
-   
+    // Método para inicializar el popup de filtros
+    private void inicializarPopupFiltrosAvanzados() {
+        popupFiltrosAvanzados = new JPopupMenu();
+        chkEstados.clear();
+        chkClientes.clear();
+
+        Set<String> clientesUnicos = new HashSet<>();
+
+        DefaultTableModel model = (DefaultTableModel) tablaM.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            clientesUnicos.add(model.getValueAt(i, 3).toString());
+        }
+
+        // Panel principal
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Sección de Estados - Solo las 3 opciones fijas
+        JPanel estadosPanel = new JPanel(new GridLayout(0, 1));
+        estadosPanel.setBorder(BorderFactory.createTitledBorder("Estados"));
+
+        // Definir los 3 estados fijos
+        String[] estadosFijos = {"pendiente", "proceso", "finalizado"};
+
+        for (String estado : estadosFijos) {
+            JCheckBox chkEstado = new JCheckBox(estado);
+            if (estadosSeleccionados.contains(estado.toLowerCase())) {
+                chkEstado.setSelected(true); // Restaurar selección previa
+            }
+            chkEstados.add(chkEstado);
+            estadosPanel.add(chkEstado);
+        }
+
+        mainPanel.add(estadosPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Sección de Fechas
+        JPanel fechaPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        fechaPanel.setBorder(BorderFactory.createTitledBorder("Rango de Fechas"));
+
+        JButton btnDesde = new JButton(fechaDesdeSeleccionada != null
+                ? new SimpleDateFormat("dd/MM/yyyy").format(fechaDesdeSeleccionada) : "Seleccionar");
+        JButton btnHasta = new JButton(fechaHastaSeleccionada != null
+                ? new SimpleDateFormat("dd/MM/yyyy").format(fechaHastaSeleccionada) : "Seleccionar");
+
+        btnDesde.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false); // Cierra el popup primero
+            mostrarSelectorFecha(true, btnDesde, popupFiltrosAvanzados);
+        });
+
+        btnHasta.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false); // Cierra el popup primero
+            mostrarSelectorFecha(false, btnHasta, popupFiltrosAvanzados);
+        });
+
+        fechaPanel.add(new JLabel("Desde:"));
+        fechaPanel.add(btnDesde);
+        fechaPanel.add(new JLabel("Hasta:"));
+        fechaPanel.add(btnHasta);
+
+        mainPanel.add(fechaPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Sección de Clientes
+        if (!clientesUnicos.isEmpty()) {
+            JPanel clientesPanel = new JPanel(new GridLayout(0, 1));
+            clientesPanel.setBorder(BorderFactory.createTitledBorder("Clientes"));
+
+            for (String cliente : clientesUnicos) {
+                JCheckBox chkCliente = new JCheckBox(cliente);
+                // Restaurar selección de clientes
+                if (clientesSeleccionados.contains(cliente)) {
+                    chkCliente.setSelected(true);
+                }
+                chkClientes.add(chkCliente);
+                clientesPanel.add(chkCliente);
+            }
+
+            if (clientesUnicos.size() > 4) {
+                JScrollPane scroll = new JScrollPane(clientesPanel);
+                scroll.setPreferredSize(new Dimension(180, 120));
+                mainPanel.add(scroll);
+            } else {
+                mainPanel.add(clientesPanel);
+            }
+        }
+
+        // Panel de botones
+        JPanel botonesPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        botonesPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        // Botón Limpiar
+        RSButtonRiple btnLimpiar = new RSButtonRiple();
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBackground(new Color(180, 180, 180));
+        btnLimpiar.setColorHover(new Color(150, 150, 150));
+        btnLimpiar.setPreferredSize(new Dimension(100, 25));
+        btnLimpiar.addActionListener(e -> {
+            limpiarFiltros();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnLimpiar);
+
+        // Botón Aplicar
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(46, 49, 82));
+        btnAplicar.setColorHover(new Color(0, 153, 51));
+        btnAplicar.setPreferredSize(new Dimension(100, 25));
+        btnAplicar.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnAplicar);
+
+        mainPanel.add(botonesPanel);
+        popupFiltrosAvanzados.add(mainPanel);
+    }
+
+// Método para aplicar los filtros
+    private void aplicarFiltrosAvanzados() {
+        // Guardar selecciones de estados
+        estadosSeleccionados.clear();
+        for (JCheckBox chk : chkEstados) {
+            if (chk.isSelected()) {
+                estadosSeleccionados.add(chk.getText().toLowerCase()); // Guardar en minúsculas para consistencia
+            }
+        }
+
+        // Guardar selecciones de clientes
+        clientesSeleccionados.clear();
+        for (JCheckBox chk : chkClientes) {
+            if (chk.isSelected()) {
+                clientesSeleccionados.add(chk.getText());
+            }
+        }
+
+        // Aplicar filtros a la tabla
+        DefaultTableModel model = (DefaultTableModel) tablaM.getModel();
+        sorter = new TableRowSorter<>(model);
+        tablaM.setRowSorter(sorter);
+
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+        // Filtro por estados
+        if (!estadosSeleccionados.isEmpty()) {
+            filtros.add(new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+                    int idxEstado = -1;
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        if ("Estado".equals(model.getColumnName(i))) {
+                            idxEstado = i;
+                            break;
+                        }
+                    }
+                    if (idxEstado == -1) {
+                        return false;
+                    }
+                    String estado = entry.getStringValue(idxEstado);
+                    return estado != null && estadosSeleccionados.stream().anyMatch(e -> e.equalsIgnoreCase(estado));
+                }
+            });
+        }
+
+        // Filtro por clientes
+        if (!clientesSeleccionados.isEmpty()) {
+            filtros.add(new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+                    int idxCliente = -1;
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        if ("Cliente".equals(model.getColumnName(i))) {
+                            idxCliente = i;
+                            break;
+                        }
+                    }
+                    if (idxCliente == -1) {
+                        return false;
+                    }
+                    String cliente = entry.getStringValue(idxCliente);
+                    return cliente != null && clientesSeleccionados.stream().anyMatch(c -> c.equals(cliente));
+                }
+            });
+        }
+
+        // Filtro por fechas
+        if (fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null) {
+            filtros.add(new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+                    int idxFechaInicio = -1;
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        if ("Fecha inicio".equals(model.getColumnName(i))) {
+                            idxFechaInicio = i;
+                            break;
+                        }
+                    }
+                    if (idxFechaInicio == -1) {
+
+                        return false;
+                    }
+
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        String fechaStr = entry.getStringValue(idxFechaInicio);
+
+                        if (fechaStr == null || fechaStr.trim().isEmpty()) {
+
+                            return false;
+                        }
+
+                        Date fechaFila = normalizarFecha(sdf.parse(fechaStr));
+                        Date desde = (fechaDesdeSeleccionada != null) ? normalizarFecha(fechaDesdeSeleccionada) : null;
+                        Date hasta = (fechaHastaSeleccionada != null) ? normalizarFecha(fechaHastaSeleccionada) : null;
+
+                        boolean fechaValida = true;
+                        // Incluir fechas iguales a "Desde" o "Hasta"
+                        if (desde != null && fechaFila.before(desde)) {
+                            fechaValida = false;
+                        }
+                        if (hasta != null && fechaFila.after(hasta)) {
+                            fechaValida = false;
+                        }
+
+                        return fechaValida;
+                    } catch (Exception ex) {
+                        return false;
+                    }
+                }
+            });
+        }
+
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+            // Verificar si no hay filas después de aplicar el filtro
+            if (tablaM.getRowCount() == 0) {
+            }
+        } else {
+            sorter.setRowFilter(null);
+        }
+
+        tablaM.repaint();
+    }
+
+// Método para limpiar los filtros
+    private void limpiarFiltros() {
+        estadosSeleccionados.clear();
+        clientesSeleccionados.clear();
+        fechaDesdeSeleccionada = null;
+        fechaHastaSeleccionada = null;
+
+        if (sorter != null) {
+            sorter.setRowFilter(null);
+        }
+
+        // Actualizar la tabla
+        cargarDatosIniciales();
+    }
+
+    private void mostrarSelectorFecha(boolean esDesde, JButton botonActualizar, JPopupMenu popup) {
+        JDialog fechaDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Seleccionar Fecha", true);
+        fechaDialog.setSize(250, 250);
+        fechaDialog.setLayout(new BorderLayout());
+
+        fechaDialog.setLocationRelativeTo(filtar);
+
+        JCalendar calendar = new JCalendar();
+        calendar.setWeekOfYearVisible(false);
+
+        JButton btnAceptar = new JButton("Aceptar");
+        btnAceptar.addActionListener(e -> {
+            Date fechaSeleccionada = calendar.getDate();
+            if (esDesde) {
+                fechaDesdeSeleccionada = fechaSeleccionada;
+            } else {
+                fechaHastaSeleccionada = fechaSeleccionada;
+            }
+
+            // Actualizar el texto del botón
+            botonActualizar.setText(new SimpleDateFormat("dd/MM/yyyy").format(fechaSeleccionada));
+            fechaDialog.dispose();
+
+            // Volver a mostrar el popup de filtros
+            SwingUtilities.invokeLater(() -> {
+                popup.show(filtar, 0, filtar.getHeight());
+            });
+        });
+
+        fechaDialog.add(calendar, BorderLayout.CENTER);
+        fechaDialog.add(btnAceptar, BorderLayout.SOUTH);
+        fechaDialog.setVisible(true);
+    }
+
+    private Date normalizarFecha(Date fecha) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fecha);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -328,6 +691,7 @@ public class pedido extends javax.swing.JPanel {
         btnEliminar1 = new RSMaterialComponent.RSButtonShape();
         jScrollPane3 = new javax.swing.JScrollPane();
         tablaM = new RSMaterialComponent.RSTableMetroCustom();
+        filtar = new rojerusan.RSLabelImage();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -419,6 +783,7 @@ public class pedido extends javax.swing.JPanel {
         tablaM.setFontRowHover(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tablaM.setFontRowSelect(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         tablaM.setModelSelection(RSMaterialComponent.RSTableMetroCustom.SELECTION_ROWS.MULTIPLE_INTERVAL_SELECTION);
+        tablaM.setPreferredSize(new java.awt.Dimension(600, 463));
         tablaM.setRowHeight(23);
         tablaM.setSelectionBackground(new java.awt.Color(109, 160, 221));
         tablaM.setShowGrid(false);
@@ -432,11 +797,25 @@ public class pedido extends javax.swing.JPanel {
 
         jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 1200, 500));
 
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(477, 36, 35, 35));
+
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1304, 742));
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-filtrarTabla();
+
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
@@ -455,8 +834,8 @@ filtrarTabla();
         }
 
         int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Eliminar " + selectedRows.length + " pedido(s)?",
-            "Confirmar", JOptionPane.YES_NO_OPTION);
+                "¿Eliminar " + selectedRows.length + " pedido(s)?",
+                "Confirmar", JOptionPane.YES_NO_OPTION);
 
         if (confirm != JOptionPane.YES_OPTION) {
             return;
@@ -496,10 +875,24 @@ filtrarTabla();
         }
     }//GEN-LAST:event_tablaMMouseClicked
 
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        inicializarPopupFiltrosAvanzados();
+        popupFiltrosAvanzados.show(filtar, evt.getX(), evt.getY());
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSButtonShape btnEliminar1;
     private RSMaterialComponent.RSButtonShape btnNuevo;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private RSMaterialComponent.RSTableMetroCustom tablaM;

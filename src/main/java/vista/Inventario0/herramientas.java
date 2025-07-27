@@ -90,9 +90,9 @@ public class herramientas extends javax.swing.JPanel {
         aplicarTema();
         TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
 
-        // Panel contenedor para principalPanel (para agregar márgenes)
+                // Panel contenedor para principalPanel (para agregar márgenes)
         contenedorPrincipal = new JPanel(new BorderLayout());
-        contenedorPrincipal.setBackground(new java.awt.Color(245, 246, 250));
+        contenedorPrincipal.setBackground(TemaManager.getInstance().isOscuro() ? new Color(37, 37, 52) : new Color(242, 243, 245));
 
         principalPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

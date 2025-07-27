@@ -783,6 +783,7 @@ public class DetallesPedido extends javax.swing.JPanel {
         tablaDetalles.setFontRowHover(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         tablaDetalles.setFontRowSelect(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         tablaDetalles.setModelSelection(RSMaterialComponent.RSTableMetroCustom.SELECTION_ROWS.MULTIPLE_INTERVAL_SELECTION);
+        tablaDetalles.setPreferredSize(new java.awt.Dimension(525, 213));
         tablaDetalles.setSelectionBackground(new java.awt.Color(109, 160, 221));
         tablaDetalles.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
