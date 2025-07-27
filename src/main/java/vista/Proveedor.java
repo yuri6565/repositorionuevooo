@@ -13,6 +13,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -22,20 +23,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -66,7 +74,7 @@ public class Proveedor extends javax.swing.JPanel {
         rSCheckBox1.addActionListener(e -> seleccionarTodo());
         cargartablaproveedores();
         aplicarTema();
-      
+
         rSButtonMaterialRippleIcon1.setVisible(false); // Ocultar botón por defecto
         TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
         SwingUtilities.invokeLater(() -> {
@@ -75,6 +83,50 @@ public class Proveedor extends javax.swing.JPanel {
             inicializarPopupFiltrosAvanzados();
             System.out.println("tablaclientes initialized with " + tablaclientes.getColumnCount() + " columns");
         });
+
+        // Agregar DocumentListener para búsqueda en tiempo real
+        txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarEnTiempoReal();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarEnTiempoReal();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarEnTiempoReal();
+            }
+        });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
+    }
+
+    // Método para filtrar en tiempo real
+    private void filtrarEnTiempoReal() {
+        String textoBusqueda = txtBuscar.getText().trim();
+        if (textoBusqueda.isEmpty()) {
+            currentPage = 0; // Resetear a la primera página si el campo está vacío
+            mostrarPagina(currentPage);
+        } else {
+            cargartablaproveedoresFiltrado(textoBusqueda);
+        }
     }
 
     public void cargartablaproveedores() {
@@ -577,6 +629,8 @@ public class Proveedor extends javax.swing.JPanel {
             tablaclientes.setShowGrid(true);
             tablaclientes.setGridColor(Color.WHITE);
 
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
             btnNuevo1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackgroundHover(new Color(118, 142, 240));
             btnNuevo2.setBackground(new Color(67, 71, 120));
@@ -613,6 +667,8 @@ public class Proveedor extends javax.swing.JPanel {
             tablaclientes.setShowGrid(true);
             tablaclientes.setGridColor(Color.BLACK);
 
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
+
             btnNuevo1.setBackground(new Color(46, 49, 82));
             btnNuevo2.setBackground(new Color(46, 49, 82));
         }
@@ -632,13 +688,13 @@ public class Proveedor extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         tablaclientes = new RSMaterialComponent.RSTableMetroCustom();
         txtBuscar = new RSMaterialComponent.RSTextFieldMaterialIcon();
-        btnNotificacion1 = new rojerusan.RSLabelIcon();
         Añadir4 = new rojeru_san.RSButtonRiple();
         rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
         btnNuevo2 = new RSMaterialComponent.RSButtonShape();
         Añadir5 = new rojeru_san.RSButtonRiple();
         rSCheckBox1 = new rojerusan.RSCheckBox();
         paginacion = new javax.swing.JLabel();
+        filtar = new rojerusan.RSLabelImage();
 
         setPreferredSize(new java.awt.Dimension(1290, 730));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -725,16 +781,6 @@ public class Proveedor extends javax.swing.JPanel {
         });
         jPanel1.add(txtBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 60, 430, 40));
 
-        btnNotificacion1.setBackground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setForeground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.TUNE);
-        btnNotificacion1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnNotificacion1MouseClicked(evt);
-            }
-        });
-        jPanel1.add(btnNotificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, -1, -1));
-
         Añadir4.setBackground(new java.awt.Color(46, 49, 82));
         Añadir4.setText("Siguiente");
         Añadir4.setColorHover(new java.awt.Color(0, 153, 51));
@@ -808,6 +854,20 @@ public class Proveedor extends javax.swing.JPanel {
         });
         jPanel1.add(paginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 680, -1, -1));
 
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 68, 35, 35));
+
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 730));
     }// </editor-fold>//GEN-END:initComponents
 
@@ -830,12 +890,6 @@ public class Proveedor extends javax.swing.JPanel {
         }
 
     }//GEN-LAST:event_txtBuscarActionPerformed
-
-    private void btnNotificacion1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificacion1MouseClicked
-        System.out.println("Clic en btnNotificacion1");
-        inicializarPopupFiltrosAvanzados();
-        popupFiltrosAvanzados.show(btnNotificacion1, evt.getX(), evt.getY());
-    }//GEN-LAST:event_btnNotificacion1MouseClicked
 
     private void Añadir4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Añadir4ActionPerformed
         int totalPaginas = (int) Math.ceil((double) todosLosProveedores.size() / PROVEEDORES_POR_PAGINA);
@@ -938,13 +992,26 @@ public class Proveedor extends javax.swing.JPanel {
         seleccionarTodo();
     }//GEN-LAST:event_rSCheckBox1ActionPerformed
 
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        inicializarPopupFiltrosAvanzados();
+        popupFiltrosAvanzados.show(filtar, evt.getX(), evt.getY());
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private rojeru_san.RSButtonRiple Añadir4;
     private rojeru_san.RSButtonRiple Añadir5;
-    private rojerusan.RSLabelIcon btnNotificacion1;
     private RSMaterialComponent.RSButtonShape btnNuevo1;
     private RSMaterialComponent.RSButtonShape btnNuevo2;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel paginacion;
@@ -953,17 +1020,24 @@ public class Proveedor extends javax.swing.JPanel {
     private RSMaterialComponent.RSTableMetroCustom tablaclientes;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtBuscar;
     // End of variables declaration//GEN-END:variables
- private void cargartablaproveedoresFiltrado(String textoBusqueda) {
+// Actualizar cargartablaproveedoresFiltrado para reflejar solo la página actual
+    private void cargartablaproveedoresFiltrado(String textoBusqueda) {
         DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
         model.setRowCount(0);
 
         List<ProveedorDatos> proveedoresFiltrados = todosLosProveedores.stream()
                 .filter(p -> (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase()))
                 || (p.getApellido() != null && p.getApellido().toLowerCase().contains(textoBusqueda.toLowerCase())))
-                .toList();
+                .collect(Collectors.toList());
 
         int inicio = currentPage * PROVEEDORES_POR_PAGINA;
         int fin = Math.min(inicio + PROVEEDORES_POR_PAGINA, proveedoresFiltrados.size());
+
+        if (inicio >= proveedoresFiltrados.size()) {
+            currentPage = 0; // Volver a la primera página si se excede
+            inicio = 0;
+            fin = Math.min(PROVEEDORES_POR_PAGINA, proveedoresFiltrados.size());
+        }
 
         for (int i = inicio; i < fin; i++) {
             ProveedorDatos proveedor = proveedoresFiltrados.get(i);
@@ -1241,13 +1315,16 @@ public class Proveedor extends javax.swing.JPanel {
         productos.addAll(productosSet.stream().sorted().toList());
     }
 // Popup menu para filtros avanzados
-    // Popup menu para filtros avanzados
     private JPopupMenu popupFiltrosAvanzados;
     private List<JCheckBox> chkEstados = new ArrayList<>();
     private List<JCheckBox> chkDepartamentos = new ArrayList<>();
     private List<JCheckBox> chkProductos = new ArrayList<>();
     private rojeru_san.RSButtonRiple btnAplicarFiltros;
+    private rojeru_san.RSButtonRiple btnLimpiarFiltros;
     private TableRowSorter<DefaultTableModel> sorter;
+    private List<String> estadosSeleccionados = new ArrayList<>();
+    private List<String> departamentosSeleccionados = new ArrayList<>();
+    private List<String> productosSeleccionados = new ArrayList<>();
 
     private void inicializarPopupFiltrosAvanzados() {
         popupFiltrosAvanzados = new JPopupMenu();
@@ -1260,85 +1337,183 @@ public class Proveedor extends javax.swing.JPanel {
         List<String> productos = new ArrayList<>();
         obtenerValoresUnicos(estados, departamentos, productos);
 
-        System.out.println("Iniciando popup. Estados: " + estados + ", Departamentos: " + departamentos + ", Productos: " + productos);
+        // Panel principal con color gris uniforme
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBackground(new Color(240, 240, 240)); // Gris claro uniforme
 
         if (estados.isEmpty() && departamentos.isEmpty() && productos.isEmpty()) {
-            popupFiltrosAvanzados.add(new JLabel("No hay filtros disponibles"));
+            JLabel noFiltros = new JLabel("No hay filtros disponibles");
+            noFiltros.setBackground(new Color(240, 240, 240));
+            noFiltros.setForeground(Color.BLACK);
+            mainPanel.add(noFiltros);
         } else {
-            for (String estado : estados) {
-                JCheckBox chkEstado = new JCheckBox("Estado: " + estado);
-                chkEstados.add(chkEstado);
-                popupFiltrosAvanzados.add(chkEstado);
+            // Sección de Estados
+            if (!estados.isEmpty()) {
+
+                JPanel estadosPanel = new JPanel(new GridLayout(0, 1));
+                TitledBorder borde = BorderFactory.createTitledBorder("Estado");
+                estadosPanel.setBorder(borde);
+                estadosPanel.setBackground(new Color(240, 240, 240));
+
+                for (String estado : estados) {
+                    JCheckBox chkEstado = new JCheckBox(estado);
+                    chkEstado.setBackground(new Color(240, 240, 240));
+                    chkEstado.setForeground(Color.BLACK);
+                    // Restaurar selección previa
+                    if (estadosSeleccionados.contains(estado)) {
+                        chkEstado.setSelected(true);
+                    }
+                    chkEstados.add(chkEstado);
+                    estadosPanel.add(chkEstado);
+                }
+
+                if (estados.size() > 6) {
+                    JScrollPane scroll = new JScrollPane(estadosPanel);
+                    scroll.setPreferredSize(new Dimension(140, 150));
+                    scroll.getViewport().setBackground(new Color(240, 240, 240));
+                    mainPanel.add(scroll);
+                } else {
+                    mainPanel.add(estadosPanel);
+                }
+                mainPanel.add(Box.createVerticalStrut(10));
             }
-            popupFiltrosAvanzados.addSeparator();
-            for (String depto : departamentos) {
-                JCheckBox chkDepto = new JCheckBox("Departamento: " + depto);
-                chkDepartamentos.add(chkDepto);
-                popupFiltrosAvanzados.add(chkDepto);
+
+            // Sección de Departamentos
+            if (!departamentos.isEmpty()) {
+
+                JPanel deptosPanel = new JPanel(new GridLayout(0, 1));
+                deptosPanel.setBackground(new Color(240, 240, 240));
+                TitledBorder borde = BorderFactory.createTitledBorder("Departamentos");
+                deptosPanel.setBorder(borde);
+                for (String depto : departamentos) {
+                    JCheckBox chkDepto = new JCheckBox(depto);
+                    chkDepto.setBackground(new Color(240, 240, 240));
+                    chkDepto.setForeground(Color.BLACK);
+                    // Restaurar selección previa
+                    if (departamentosSeleccionados.contains(depto)) {
+                        chkDepto.setSelected(true);
+                    }
+                    chkDepartamentos.add(chkDepto);
+                    deptosPanel.add(chkDepto);
+                }
+
+                if (departamentos.size() > 6) {
+                    JScrollPane scroll = new JScrollPane(deptosPanel);
+                    scroll.setPreferredSize(new Dimension(140, 150));
+                    scroll.getViewport().setBackground(new Color(240, 240, 240));
+                    mainPanel.add(scroll);
+                } else {
+                    mainPanel.add(deptosPanel);
+                }
+                mainPanel.add(Box.createVerticalStrut(10));
             }
-            popupFiltrosAvanzados.addSeparator();
-            for (String producto : productos) {
-                JCheckBox chkProducto = new JCheckBox("Producto: " + producto);
-                chkProductos.add(chkProducto);
-                popupFiltrosAvanzados.add(chkProducto);
+
+            // Sección de Productos
+            if (!productos.isEmpty()) {
+
+                JPanel productosPanel = new JPanel(new GridLayout(0, 1));
+                productosPanel.setBackground(new Color(240, 240, 240));
+                TitledBorder borde = BorderFactory.createTitledBorder("Productos");
+                productosPanel.setBorder(borde);
+                for (String producto : productos) {
+                    JCheckBox chkProducto = new JCheckBox(producto);
+                    chkProducto.setBackground(new Color(240, 240, 240));
+                    chkProducto.setForeground(Color.BLACK);
+                    // Restaurar selección previa
+                    if (productosSeleccionados.contains(producto)) {
+                        chkProducto.setSelected(true);
+                    }
+                    chkProductos.add(chkProducto);
+                    productosPanel.add(chkProducto);
+                }
+
+                if (productos.size() > 6) {
+                    JScrollPane scroll = new JScrollPane(productosPanel);
+                    scroll.setPreferredSize(new Dimension(140, 150));
+                    scroll.getViewport().setBackground(new Color(240, 240, 240));
+                    mainPanel.add(scroll);
+                } else {
+                    mainPanel.add(productosPanel);
+                }
             }
+
+            // Panel de botones
+            JPanel botonesPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+            botonesPanel.setBackground(new Color(240, 240, 240));
+            botonesPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+            // Botón Limpiar
+            btnLimpiarFiltros = new rojeru_san.RSButtonRiple();
+            btnLimpiarFiltros.setText("Limpiar");
+            btnLimpiarFiltros.setBackground(new Color(180, 180, 180)); // Gris más oscuro
+            btnLimpiarFiltros.setColorHover(new Color(150, 150, 150));
+            btnLimpiarFiltros.setForeground(Color.BLACK);
+            btnLimpiarFiltros.setPreferredSize(new Dimension(90, 25)); // Tamaño más pequeño
+            btnLimpiarFiltros.addActionListener(e -> {
+                limpiarFiltros();
+                popupFiltrosAvanzados.setVisible(false);
+            });
+            botonesPanel.add(btnLimpiarFiltros);
+
+            // Botón Aplicar
+            btnAplicarFiltros = new rojeru_san.RSButtonRiple();
+            btnAplicarFiltros.setText("Aplicar");
+            btnAplicarFiltros.setBackground(new Color(46, 49, 82));
+            btnAplicarFiltros.setColorHover(new Color(0, 153, 51));
+            btnAplicarFiltros.setPreferredSize(new Dimension(90, 25)); // Tamaño más pequeño
+            btnAplicarFiltros.addActionListener(e -> {
+                aplicarFiltrosAvanzados();
+                popupFiltrosAvanzados.setVisible(false);
+            });
+            botonesPanel.add(btnAplicarFiltros);
+
+            mainPanel.add(botonesPanel);
         }
 
-        btnAplicarFiltros = new rojeru_san.RSButtonRiple();
-        btnAplicarFiltros.setText("Aplicar");
-        btnAplicarFiltros.setBackground(new Color(46, 49, 82));
-        btnAplicarFiltros.setColorHover(new Color(0, 153, 51));
-        popupFiltrosAvanzados.add(btnAplicarFiltros);
-
-        btnAplicarFiltros.addActionListener(e -> {
-            aplicarFiltrosAvanzados();
-            popupFiltrosAvanzados.setVisible(false);
-        });
-
-        popupFiltrosAvanzados.setBackground(Color.WHITE);
-        for (Component comp : popupFiltrosAvanzados.getComponents()) {
-            comp.setBackground(Color.WHITE);
-            comp.setForeground(Color.BLACK);
-        }
+        popupFiltrosAvanzados.add(mainPanel);
     }
 
     private void aplicarFiltrosAvanzados() {
-        List<String> filtrosEstado = new ArrayList<>();
+        // Guardar las selecciones actuales
+        estadosSeleccionados.clear();
         for (JCheckBox chk : chkEstados) {
             if (chk.isSelected()) {
-                filtrosEstado.add(chk.getText().replace("Estado: ", ""));
+                estadosSeleccionados.add(chk.getText());
             }
         }
 
-        List<String> filtrosDepartamento = new ArrayList<>();
+        departamentosSeleccionados.clear();
         for (JCheckBox chk : chkDepartamentos) {
             if (chk.isSelected()) {
-                filtrosDepartamento.add(chk.getText().replace("Departamento: ", ""));
+                departamentosSeleccionados.add(chk.getText());
             }
         }
 
-        List<String> filtrosProducto = new ArrayList<>();
+        productosSeleccionados.clear();
         for (JCheckBox chk : chkProductos) {
             if (chk.isSelected()) {
-                filtrosProducto.add(chk.getText().replace("Producto: ", ""));
+                productosSeleccionados.add(chk.getText());
             }
         }
 
+        // Aplicar los filtros
         DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
         sorter = new TableRowSorter<>(model);
         tablaclientes.setRowSorter(sorter);
 
         List<RowFilter<Object, Object>> filtros = new ArrayList<>();
 
-        if (!filtrosEstado.isEmpty()) {
-            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosEstado) + ")$", 6));
+        if (!estadosSeleccionados.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", estadosSeleccionados) + ")$", 6));
         }
 
-        if (!filtrosDepartamento.isEmpty()) {
-            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosDepartamento) + ").*", 7));
+        if (!departamentosSeleccionados.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", departamentosSeleccionados) + ").*", 7));
         }
 
-        if (!filtrosProducto.isEmpty()) {
+        if (!productosSeleccionados.isEmpty()) {
             filtros.add(new RowFilter<Object, Object>() {
                 @Override
                 public boolean include(Entry<? extends Object, ? extends Object> entry) {
@@ -1351,7 +1526,7 @@ public class Proveedor extends javax.swing.JPanel {
                     if (productos == null || productos.isEmpty()) {
                         return false;
                     }
-                    for (String producto : filtrosProducto) {
+                    for (String producto : productosSeleccionados) {
                         if (productos.contains(producto)) {
                             return true;
                         }
@@ -1367,6 +1542,21 @@ public class Proveedor extends javax.swing.JPanel {
             sorter.setRowFilter(null);
         }
 
+        mostrarPagina(currentPage);
+    }
+
+    private void limpiarFiltros() {
+        // Limpiar las selecciones guardadas
+        estadosSeleccionados.clear();
+        departamentosSeleccionados.clear();
+        productosSeleccionados.clear();
+
+        // Limpiar los filtros de la tabla
+        if (sorter != null) {
+            sorter.setRowFilter(null);
+        }
+
+        // Actualizar la tabla
         mostrarPagina(currentPage);
     }
 }

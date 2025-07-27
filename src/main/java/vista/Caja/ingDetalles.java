@@ -5,6 +5,8 @@
 package vista.Caja;
 
 import controlador.Ctrl_CajaIngresos;
+import java.awt.Color;
+import java.awt.Font;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -14,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import modelo.Ingresos;
+import vista.TemaManager;
 
 /**
  *
@@ -38,6 +41,122 @@ public class ingDetalles extends javax.swing.JPanel {
         this.controlador = new Ctrl_CajaIngresos(); // Asegúrate de que el controlador esté disponible
 
         initComponents();
+
+        // Register for theme changes
+        TemaManager.getInstance().addThemeChangeListener(() -> {
+            aplicarTema(); // Update theme when it changes
+        });
+
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+
+        if (oscuro) {
+            Color fondo = new Color(21, 21, 33);
+            Color primario = new Color(40, 60, 150);
+            Color texto = Color.WHITE;
+            jPanel2.setBackground(fondo);
+            jPanel2.setForeground(new Color(255, 255, 255));
+            lblCliente.setForeground(new Color(255, 255, 255));
+            lblnombre.setForeground(new Color(255, 255, 255));
+            jLabel18.setForeground(new Color(255, 255, 255));
+            jLabel18.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblMontoTotal.setForeground(new Color(255, 255, 255));
+            lblMontoTotal.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jPanel1.setBackground(new Color(46, 49, 82));
+            jLabel11.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel11.setForeground(new Color(255, 255, 255));
+            jLabel19.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel19.setForeground(new Color(255, 255, 255));
+            jLabel9.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel9.setForeground(new Color(255, 255, 255));
+            jLabel12.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel12.setForeground(new Color(255, 255, 255));
+            lblPagado.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblPagado.setForeground(new Color(255, 255, 255));
+            lblDebido.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblDebido.setForeground(new Color(255, 255, 255));
+            jLabel17.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel17.setForeground(new Color(255, 255, 255));
+            jLabel16.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel16.setForeground(new Color(255, 255, 255));
+            jLabel3.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel3.setForeground(new Color(255, 255, 255));
+            lblNPedido.setForeground(new Color(255, 255, 255));
+            tablaDetalles.setBackground(new Color(21, 21, 33));
+            tablaDetalles.setBackgoundHead(new Color(67, 71, 120));
+            tablaDetalles.setForegroundHead(new Color(255, 255, 255));
+            tablaDetalles.setBackgoundHover(new Color(109, 160, 221));
+            tablaDetalles.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            tablaDetalles.setColorPrimary(new Color(37, 37, 52));
+            tablaDetalles.setColorPrimaryText(texto);
+            tablaDetalles.setColorSecondary(new Color(30, 30, 45));
+            tablaDetalles.setColorSecundaryText(texto);
+            tablaDetalles.setColorBorderHead(primario);
+            tablaDetalles.setColorBorderRows(fondo.darker());
+            tablaDetalles.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setEffectHover(true);
+            tablaDetalles.setShowGrid(true);
+            btnVolver.setBackground(new Color(67, 71, 120));
+            btnVolver.setBackgroundHover(new Color(118, 142, 240));
+
+        } else {
+            Color fondo = new Color(242, 247, 255);
+            Color texto = Color.BLACK;
+            Color primario = new Color(72, 92, 188);
+
+            jPanel1.setBackground(fondo);
+            btnVolver.setBackground(fondo);
+
+            jPanel2.setBackground(fondo);
+            jPanel2.setForeground(fondo);
+            lblCliente.setForeground(new Color(0, 0, 0));
+            lblnombre.setForeground(new Color(0, 0, 0));
+            jLabel18.setForeground(new Color(0, 0, 0));
+            jLabel18.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblMontoTotal.setForeground(new Color(0, 0, 0));
+            lblMontoTotal.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jPanel1.setBackground(new Color(240, 240, 240));
+            jLabel11.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel11.setForeground(new Color(0, 0, 0));
+            jLabel19.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel19.setForeground(new Color(0, 0, 0));
+            jLabel9.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel9.setForeground(new Color(0, 0, 0));
+            lblPagado.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblPagado.setForeground(new Color(0, 0, 0));
+            jLabel12.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel12.setForeground(new Color(0, 0, 0));
+            lblDebido.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblDebido.setForeground(new Color(0, 0, 0));
+            jLabel17.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel17.setForeground(new Color(0, 0, 0));
+            jLabel16.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel16.setForeground(new Color(0, 0, 0));
+            jLabel3.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel3.setForeground(new Color(0, 0, 0));
+            lblNPedido.setForeground(new Color(0, 0, 0));
+
+            tablaDetalles.setBackground(new Color(255, 255, 255));
+            tablaDetalles.setBackgoundHead(new Color(46, 49, 82));
+            tablaDetalles.setForegroundHead(Color.WHITE);
+            tablaDetalles.setBackgoundHover(new Color(67, 150, 209));
+            tablaDetalles.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            tablaDetalles.setColorPrimary(new Color(242, 242, 242));
+            tablaDetalles.setColorPrimaryText(texto);
+            tablaDetalles.setColorSecondary(new Color(255, 255, 255));
+            tablaDetalles.setColorSecundaryText(texto);
+            tablaDetalles.setColorBorderHead(primario);
+            tablaDetalles.setColorBorderRows(new Color(0, 0, 0));
+            tablaDetalles.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setEffectHover(true);
+            tablaDetalles.setSelectionBackground(new Color(67, 150, 209));
+            tablaDetalles.setShowGrid(true);
+            tablaDetalles.setGridColor(Color.BLACK); // o el color que desees
+            btnVolver.setBackground(new Color(46, 49, 82));
+        }
 
         TableColumn editar = tablaDetalles.getColumnModel().getColumn(6);
         editar.setPreferredWidth(8); // Ajustar el ancho de la columna
@@ -87,6 +206,120 @@ public class ingDetalles extends javax.swing.JPanel {
                 "Eliminar"
             });
         }
+    }
+
+    public void aplicarTema() {
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+
+        if (oscuro) {
+            Color fondo = new Color(21, 21, 33);
+            Color primario = new Color(40, 60, 150);
+            Color texto = Color.WHITE;
+            jPanel2.setBackground(fondo);
+            jPanel2.setForeground(new Color(255, 255, 255));
+            lblCliente.setForeground(new Color(255, 255, 255));
+            lblnombre.setForeground(new Color(255, 255, 255));
+            jLabel18.setForeground(new Color(255, 255, 255));
+            jLabel18.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblMontoTotal.setForeground(new Color(255, 255, 255));
+            lblMontoTotal.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jPanel1.setBackground(new Color(46, 49, 82));
+            jLabel11.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel11.setForeground(new Color(255, 255, 255));
+            jLabel19.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel19.setForeground(new Color(255, 255, 255));
+            jLabel9.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel9.setForeground(new Color(255, 255, 255));
+            jLabel12.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel12.setForeground(new Color(255, 255, 255));
+            lblPagado.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblPagado.setForeground(new Color(255, 255, 255));
+            lblDebido.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblDebido.setForeground(new Color(255, 255, 255));
+            jLabel17.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel17.setForeground(new Color(255, 255, 255));
+            jLabel16.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel16.setForeground(new Color(255, 255, 255));
+            jLabel3.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel3.setForeground(new Color(255, 255, 255));
+            lblNPedido.setForeground(new Color(255, 255, 255));
+            tablaDetalles.setBackground(new Color(21, 21, 33));
+            tablaDetalles.setBackgoundHead(new Color(67, 71, 120));
+            tablaDetalles.setForegroundHead(new Color(255, 255, 255));
+            tablaDetalles.setBackgoundHover(new Color(109, 160, 221));
+            tablaDetalles.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            tablaDetalles.setColorPrimary(new Color(37, 37, 52));
+            tablaDetalles.setColorPrimaryText(texto);
+            tablaDetalles.setColorSecondary(new Color(30, 30, 45));
+            tablaDetalles.setColorSecundaryText(texto);
+            tablaDetalles.setColorBorderHead(primario);
+            tablaDetalles.setColorBorderRows(fondo.darker());
+            tablaDetalles.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setEffectHover(true);
+            tablaDetalles.setShowGrid(true);
+            btnVolver.setBackground(new Color(67, 71, 120));
+            btnVolver.setBackgroundHover(new Color(118, 142, 240));
+
+        } else {
+            Color fondo = new Color(242, 247, 255);
+            Color texto = Color.BLACK;
+            Color primario = new Color(72, 92, 188);
+
+            jPanel1.setBackground(fondo);
+            btnVolver.setBackground(fondo);
+
+            jPanel2.setBackground(fondo);
+            jPanel2.setForeground(fondo);
+            lblCliente.setForeground(new Color(0, 0, 0));
+            lblnombre.setForeground(new Color(0, 0, 0));
+            jLabel18.setForeground(new Color(0, 0, 0));
+            jLabel18.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblMontoTotal.setForeground(new Color(0, 0, 0));
+            lblMontoTotal.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jPanel1.setBackground(new Color(240, 240, 240));
+            jLabel11.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel11.setForeground(new Color(0, 0, 0));
+            jLabel19.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel19.setForeground(new Color(0, 0, 0));
+            jLabel9.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel9.setForeground(new Color(0, 0, 0));
+            lblPagado.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblPagado.setForeground(new Color(0, 0, 0));
+            jLabel12.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel12.setForeground(new Color(0, 0, 0));
+            lblDebido.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            lblDebido.setForeground(new Color(0, 0, 0));
+            jLabel17.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel17.setForeground(new Color(0, 0, 0));
+            jLabel16.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel16.setForeground(new Color(0, 0, 0));
+            jLabel3.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            jLabel3.setForeground(new Color(0, 0, 0));
+            lblNPedido.setForeground(new Color(0, 0, 0));
+
+            tablaDetalles.setBackground(new Color(255, 255, 255));
+            tablaDetalles.setBackgoundHead(new Color(46, 49, 82));
+            tablaDetalles.setForegroundHead(Color.WHITE);
+            tablaDetalles.setBackgoundHover(new Color(67, 150, 209));
+            tablaDetalles.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            tablaDetalles.setColorPrimary(new Color(242, 242, 242));
+            tablaDetalles.setColorPrimaryText(texto);
+            tablaDetalles.setColorSecondary(new Color(255, 255, 255));
+            tablaDetalles.setColorSecundaryText(texto);
+            tablaDetalles.setColorBorderHead(primario);
+            tablaDetalles.setColorBorderRows(new Color(0, 0, 0));
+            tablaDetalles.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+            tablaDetalles.setEffectHover(true);
+            tablaDetalles.setSelectionBackground(new Color(67, 150, 209));
+            tablaDetalles.setShowGrid(true);
+            tablaDetalles.setGridColor(Color.BLACK); // o el color que desees
+            btnVolver.setBackground(new Color(46, 49, 82));
+        }
+
     }
 
     /**
@@ -181,6 +414,7 @@ public class ingDetalles extends javax.swing.JPanel {
         tablaDetalles.setFontRowHover(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         tablaDetalles.setFontRowSelect(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         tablaDetalles.setModelSelection(RSMaterialComponent.RSTableMetroCustom.SELECTION_ROWS.MULTIPLE_INTERVAL_SELECTION);
+        tablaDetalles.setPreferredSize(new java.awt.Dimension(600, 193));
         tablaDetalles.setSelectionBackground(new java.awt.Color(109, 160, 221));
         tablaDetalles.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -239,11 +473,11 @@ public class ingDetalles extends javax.swing.JPanel {
 
         lblDebido.setFont(new java.awt.Font("Segoe UI", 1, 17)); // NOI18N
         lblDebido.setText("0.00");
-        jPanel2.add(lblDebido, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 557, -1, -1));
+        jPanel2.add(lblDebido, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 557, 150, -1));
 
         lblMontoTotal.setFont(new java.awt.Font("Segoe UI", 1, 17)); // NOI18N
         lblMontoTotal.setText("0.00");
-        jPanel2.add(lblMontoTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 492, 120, -1));
+        jPanel2.add(lblMontoTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 492, 130, -1));
 
         lblCliente.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblCliente.setText("jlabel");
@@ -255,7 +489,7 @@ public class ingDetalles extends javax.swing.JPanel {
 
         lblPagado.setFont(new java.awt.Font("Segoe UI", 1, 17)); // NOI18N
         lblPagado.setText("0.00");
-        jPanel2.add(lblPagado, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 523, -1, -1));
+        jPanel2.add(lblPagado, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 523, 130, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel12.setText("Nom. Pedido:");
@@ -277,7 +511,7 @@ public class ingDetalles extends javax.swing.JPanel {
         ingresos h = new ingresos(contenedor);
         h.setSize(1230, 640);
         h.setLocation(0, 0);
-        
+
         contenedor.removeAll();
         contenedor.add(h);
         contenedor.revalidate();

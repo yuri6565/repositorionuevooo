@@ -9,29 +9,64 @@ import controlador.Ctrl_Pedido;
 import controlador.GeneradorIngresosPDF;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import modelo.Caja;
 import modelo.Ingresos;
 import modelo.PedidoDetalle;
 import vista.TemaManager;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+import rojeru_san.RSButtonRiple;
 
 /**
  *
@@ -43,6 +78,36 @@ public final class ingresos extends javax.swing.JPanel {
     private Ctrl_CajaIngresos controlador;
     private GeneradorIngresosPDF generadorPDF;
     private Ctrl_Pedido ctrlPedido;
+    private final Font fontNormal = new Font("Tahoma", Font.PLAIN, 14);
+    private final Font fontBold = new Font("Tahoma", Font.BOLD, 14);
+    private final Color textColor = new Color(46, 49, 82);
+    private final Color BG_GRAY = new Color(230, 230, 230);
+    private final Color FG_GRAY = new Color(138, 138, 138);
+    private final Color BG_NORMAL = Color.WHITE;
+    private final Color FG_NORMAL = Color.BLACK;
+
+    // Agrega estas variables en la sección de variables de clase
+    private final Color HEADER_BG = new Color(46, 49, 82);  // Color de fondo del encabezado
+    private final Color HEADER_FG = Color.WHITE;            // Color de texto del encabezado
+
+    private final Color ROW_FG = Color.BLACK;               // Color texto filas
+    private final Color ROW_SELECTED_BG = new Color(67, 150, 209); // Fondo selección
+    private final Color ROW_SELECTED_FG = Color.WHITE;      // Texto selección
+    private final Color ROW_PAID_BG = new Color(230, 230, 230); // Fondo filas pagadas
+    private final Color ROW_PAID_FG = new Color(138, 138, 138); // Texto filas pagadas
+
+    private JPopupMenu filtrosMenu;
+    private JCheckBoxMenuItem chkPendientes;
+    private JCheckBoxMenuItem chkAbonosParciales;
+    private JCheckBoxMenuItem chkPagadosCompletos;
+    private JCheckBoxMenuItem chkTodos;
+    private List<String> clientesDisponibles = new ArrayList<>();
+    private List<JCheckBox> chkClientesItems = new ArrayList<>();
+    private JRadioButton radioTodos, radioPendientes, radioAbonos, radioPagados;
+    
+    final int COL_MONTO_TOTAL = 3;
+final int COL_PAGADO = 4;
+final int COL_DEBIDO = 5;
 
     /**
      * Creates new form Ingresos
@@ -56,6 +121,50 @@ public final class ingresos extends javax.swing.JPanel {
         ctrlPedido = new Ctrl_Pedido();
 
         initComponents();
+
+        aplicarTema();
+        TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
+
+        jPanel1.setBackground(TemaManager.getInstance().isOscuro() ? new Color(21, 21, 33) : new Color(242, 247, 255));
+        txtbuscar.setBackground(TemaManager.getInstance().isOscuro() ? new Color(37, 37, 52) : new Color(242, 247, 255));
+        txtbuscar.setForeground(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
+        txtbuscar.setColorIcon(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
+        txtbuscar.setPhColor(TemaManager.getInstance().isOscuro() ? Color.LIGHT_GRAY : Color.GRAY);
+
+        // Configuración COMPLETA de la tabla
+        Tabla1.setBackground(TemaManager.getInstance().isOscuro() ? new Color(30, 30, 45) : new Color(255, 255, 255));
+        Tabla1.setForeground(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
+        // Configuración de filas
+        Tabla1.setColorPrimary(TemaManager.getInstance().isOscuro() ? new Color(37, 37, 52) : new Color(242, 242, 242));  // Filas impares
+        Tabla1.setColorSecondary(TemaManager.getInstance().isOscuro() ? new Color(37, 37, 52) : new Color(242, 242, 242)); // Filas pares
+        Tabla1.setColorPrimaryText(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
+        Tabla1.setColorSecundaryText(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
+        // Encabezados
+        Tabla1.setBackgoundHead(TemaManager.getInstance().isOscuro() ? new Color(67, 71, 120) : new Color(46, 49, 82));
+        Tabla1.setForegroundHead(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.WHITE);
+        Tabla1.setColorBorderHead(TemaManager.getInstance().isOscuro() ? new Color(67, 71, 120) : new Color(72, 92, 188));
+        // Selección y hover
+        Tabla1.setSelectionBackground(TemaManager.getInstance().isOscuro() ? new Color(40, 50, 90) : new Color(67, 150, 209));
+        Tabla1.setBackgoundHover(TemaManager.getInstance().isOscuro() ? new Color(40, 50, 90) : new Color(67, 150, 209));
+        // Bordes y grid
+        Tabla1.setColorBorderRows(TemaManager.getInstance().isOscuro() ? new Color(60, 60, 60) : new Color(0, 0, 0));
+        Tabla1.setGridColor(TemaManager.getInstance().isOscuro() ? new Color(80, 80, 80) : Color.WHITE);
+        Tabla1.setShowGrid(true);
+        // Fuentes
+        Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+        Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+        Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+        filtar.setIcon(
+                TemaManager.getInstance().isOscuro()
+                ? new ImageIcon(getClass().getResource("/filtrar (2).png"))
+                : new ImageIcon(getClass().getResource("/filtrar (1).png"))
+        );
+        // Efectos
+        Tabla1.setEffectHover(true);
+
+        Tabla1.setBorderHead(null);
 
         Tabla1.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
@@ -92,8 +201,107 @@ public final class ingresos extends javax.swing.JPanel {
         Tabla1.getColumnModel().getColumn(9).setMaxWidth(0);
         Tabla1.getColumnModel().getColumn(9).setWidth(0);
 
+        Tabla1.setShowHorizontalLines(true);
+        Tabla1.setShowVerticalLines(true);
+
+        // Configurar RowSorter
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>((DefaultTableModel) Tabla1.getModel());
+        Tabla1.setRowSorter(sorter);
+
         // Cargar datos iniciales
         cargarDatosIniciales();
+        configurarMenuFiltros();
+
+        // Cargar datos iniciales
+        cargarDatosIniciales();
+
+// En el constructor, después de cargar datos iniciales:
+        Tabla1.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+
+                boolean oscuro = TemaManager.getInstance().isOscuro();
+
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Convertir fila de la vista a fila del modelo
+                int modelRow = table.convertRowIndexToModel(row);
+                TableModel m = table.getModel();
+
+                // Verificar si está pagado
+                String debidoStr = m.getValueAt(modelRow, 5).toString();
+                boolean esPagado = debidoStr.equals("$0.00") || debidoStr.equals("$0,00");
+
+                if (oscuro) {
+                    if (isSelected) {
+                        c.setBackground(new Color(67, 71, 120));
+                        c.setForeground(Color.WHITE);
+                        c.setFont(fontBold);
+                    } else if (esPagado) {
+                        c.setBackground(new Color(85, 85, 85));
+                        c.setForeground(Color.WHITE);
+                        c.setFont(fontNormal);
+                    } else {
+                        c.setBackground(new Color(37, 37, 52));
+                        c.setForeground(Color.WHITE);
+                    }
+
+                } else {
+
+                    if (isSelected) {
+                        c.setBackground(ROW_SELECTED_BG);
+                        c.setForeground(ROW_SELECTED_FG);
+                        c.setFont(fontBold);
+                    } else if (esPagado) {
+                        c.setBackground(ROW_PAID_BG);
+                        c.setForeground(ROW_PAID_FG);
+                        c.setFont(fontNormal);
+                    } else {
+                        c.setBackground(BG_NORMAL);
+                        c.setForeground(FG_NORMAL);
+                    }
+
+                }
+
+                setHorizontalAlignment(CENTER);
+                setBorder(BorderFactory.createLineBorder(oscuro ? new Color(153, 153, 153) : new Color(153, 153, 153), 1));
+
+                return c;
+            }
+        });
+
+        txtbuscar.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filtrarTabla();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filtrarTabla();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filtrarTabla();
+            }
+        });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
     }
 
     // Método para cargar datos iniciales en la tabla
@@ -129,27 +337,55 @@ public final class ingresos extends javax.swing.JPanel {
         }
     }
 
-    // Renderizador personalizado para la columna "Ver"
     private class ButtonRenderer extends DefaultTableCellRenderer {
 
-        private final Color textColor = new Color(46, 49, 82);
-        private final Font fontNormal = new Font("Tahoma", Font.PLAIN, 14);
-        private final Font fontBold = new Font("Tahoma", Font.BOLD, 14);
-
         @Override
-        public Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+        public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
+
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            c.setForeground(isSelected ? Color.WHITE : textColor);
-            c.setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
-            c.setFont(isSelected ? fontBold : fontNormal);
+            int modelRow = table.convertRowIndexToModel(row);
+            TableModel m = table.getModel();
+            String debidoStr = m.getValueAt(modelRow, 5).toString();
+            boolean esPagado = debidoStr.equals("$0.00") || debidoStr.equals("$0,00");
+
+            if (oscuro) {
+                if (isSelected) {
+                    c.setBackground(new Color(67, 71, 120));
+                    c.setForeground(Color.WHITE);
+                    c.setFont(fontBold);
+                } else if (esPagado) {
+                    c.setBackground(new Color(85, 85, 85));
+                    c.setForeground(Color.WHITE);
+                    c.setFont(fontNormal);
+                } else {
+                    c.setBackground(new Color(37, 37, 52));
+                    c.setForeground(Color.WHITE);
+                }
+
+            } else {
+
+                if (isSelected) {
+                    c.setBackground(ROW_SELECTED_BG);
+                    c.setForeground(ROW_SELECTED_FG);
+                    c.setFont(fontBold);
+                } else if (esPagado) {
+                    c.setBackground(ROW_PAID_BG);
+                    c.setForeground(ROW_PAID_FG);
+                    c.setFont(fontNormal);
+                } else {
+                    c.setBackground(BG_NORMAL);
+                    c.setForeground(FG_NORMAL);
+                }
+
+            }
 
             setHorizontalAlignment(CENTER);
             setText("Ver");
-
-            // Bordes para que se vea como un botón
-            setBorder(BorderFactory.createLineBorder(new Color(219, 219, 219), 1));
+            setBorder(BorderFactory.createLineBorder(oscuro ? new Color(153, 153, 153) : new Color(153, 153, 153), 1));
             return c;
         }
     }
@@ -180,38 +416,24 @@ public final class ingresos extends javax.swing.JPanel {
             Color encabezado = new Color(67, 71, 120);
             Color texto = Color.WHITE;
 
-            // Panel principal
             jPanel1.setBackground(fondo);
-
-            // Campo de búsqueda
             txtbuscar.setBackground(new Color(37, 37, 52));
             txtbuscar.setForeground(texto);
             txtbuscar.setColorIcon(texto);
             txtbuscar.setPhColor(Color.LIGHT_GRAY);
 
-            // Configuración COMPLETA de la tabla
+            // Configuración de la tabla
             Tabla1.setBackground(fondoTabla);
             Tabla1.setForeground(texto);
-
-            // Configuración de filas
             Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
-            Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
-            Tabla1.setColorPrimaryText(texto);
-            Tabla1.setColorSecundaryText(texto);
-
-            // Encabezados
+            Tabla1.setColorSecondary(new Color(37, 37, 52)); // Filas pares
             Tabla1.setBackgoundHead(encabezado);
             Tabla1.setForegroundHead(texto);
             Tabla1.setColorBorderHead(encabezado);
-
-            // Selección y hover
-            Tabla1.setSelectionBackground(new Color(67, 71, 120));
+            Tabla1.setSelectionBackground(new Color(40, 50, 90));
             Tabla1.setBackgoundHover(new Color(40, 50, 90));
-
-            // Bordes y grid
             Tabla1.setColorBorderRows(new Color(60, 60, 60));
             Tabla1.setGridColor(new Color(80, 80, 80));
-            Tabla1.setShowGrid(true);
 
             // Fuentes
             Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -219,16 +441,15 @@ public final class ingresos extends javax.swing.JPanel {
             Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
             Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
 
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
             // Efectos
             Tabla1.setEffectHover(true);
 
-            // Botones
-            btnEliminar1.setBackground(encabezado);
-            btnEliminar1.setBackgroundHover(new Color(118, 142, 240));
         } else {
+            // Configuración para modo claro
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
-            Color primario = new Color(72, 92, 188);
 
             jPanel1.setBackground(fondo);
             txtbuscar.setBackground(fondo);
@@ -236,34 +457,209 @@ public final class ingresos extends javax.swing.JPanel {
             txtbuscar.setColorIcon(texto);
             txtbuscar.setPhColor(Color.GRAY);
 
-            Tabla1.setBackground(new Color(255, 255, 255));
-            Tabla1.setBackgoundHead(new Color(46, 49, 82));
-            Tabla1.setForegroundHead(Color.WHITE);
-            Tabla1.setBackgoundHover(new Color(67, 150, 209));
+            // Configuración de la tabla
+            Tabla1.setBackground(Color.WHITE);
+            Tabla1.setForeground(texto);
+            Tabla1.setBackgoundHead(HEADER_BG);
+            Tabla1.setForegroundHead(HEADER_FG);
+            Tabla1.setColorBorderHead(HEADER_BG);
+            Tabla1.setSelectionBackground(ROW_SELECTED_BG);
+            Tabla1.setBackgoundHover(ROW_SELECTED_BG);
+
+            // Fuentes
             Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
-            Tabla1.setColorPrimary(new Color(242, 242, 242));
-            Tabla1.setColorPrimaryText(texto);
-            Tabla1.setColorSecondary(new Color(255, 255, 255));
-            Tabla1.setColorSecundaryText(texto);
-            Tabla1.setColorBorderHead(primario);
-            Tabla1.setColorBorderRows(new Color(0, 0, 0));
             Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
             Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
             Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
+
+            // Efectos
             Tabla1.setEffectHover(true);
-            Tabla1.setSelectionBackground(new Color(67, 150, 209));
-            Tabla1.setShowGrid(true);
-            Tabla1.setGridColor(Color.WHITE); // o el color que desees
-            Tabla1.setBackground(Color.WHITE);
-            Tabla1.setColorPrimary(new Color(242, 242, 242)); // Fondo filas impares
-            Tabla1.setColorSecondary(Color.WHITE); // Fondo filas pares
-            Tabla1.setForeground(Color.BLACK);
-            btnEliminar1.setBackground(new Color(46, 49, 82));
 
         }
-        Tabla1.repaint();
-        Tabla1.getTableHeader().repaint();
     }
+
+private void configurarMenuFiltros() {
+    chkClientesItems.clear();
+    filtrosMenu = new JPopupMenu();
+    JPanel panelFiltros = new JPanel();
+    panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
+    panelFiltros.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Reducir márgenes a 5px
+
+    Font fuenteTexto = new Font("Segoe UI", Font.PLAIN, 12);
+    Font fuenteTitulo = new Font("Segoe UI", Font.BOLD, 13);
+    Font fuenteBoton = new Font("Segoe UI", Font.BOLD, 14);
+
+    // 1. Sección de estado de pago
+    JPanel estadoPanel = new JPanel();
+    estadoPanel.setLayout(new BoxLayout(estadoPanel, BoxLayout.Y_AXIS)); // Columna vertical
+    estadoPanel.setBorder(BorderFactory.createTitledBorder("Estado de pago"));
+    ((TitledBorder) estadoPanel.getBorder()).setTitleFont(fuenteTitulo);
+    estadoPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+
+    ButtonGroup estadoGroup = new ButtonGroup();
+    radioTodos = new JRadioButton("Todos", true);
+    radioPendientes = new JRadioButton("Pendientes (sin pagos)");
+    radioAbonos = new JRadioButton("Con abonos parciales");
+    radioPagados = new JRadioButton("Pagados completamente");
+
+    radioTodos.setFont(fuenteTexto);
+    radioPendientes.setFont(fuenteTexto);
+    radioAbonos.setFont(fuenteTexto);
+    radioPagados.setFont(fuenteTexto);
+
+    estadoGroup.add(radioTodos);
+    estadoGroup.add(radioPendientes);
+    estadoGroup.add(radioAbonos);
+    estadoGroup.add(radioPagados);
+
+    // Agregar todos los radio buttons en una columna con alineación a la izquierda
+    estadoPanel.add(radioTodos);
+    estadoPanel.add(Box.createVerticalStrut(2)); // Espaciado mínimo entre opciones
+    estadoPanel.add(radioPendientes);
+    estadoPanel.add(Box.createVerticalStrut(2));
+    estadoPanel.add(radioAbonos);
+    estadoPanel.add(Box.createVerticalStrut(2));
+    estadoPanel.add(radioPagados);
+
+    panelFiltros.add(estadoPanel);
+    panelFiltros.add(Box.createVerticalStrut(15));
+
+    // 2. Sección de clientes
+    obtenerClientesDisponibles();
+    JPanel clientesPanel = new JPanel(new GridLayout(0, 1));
+    clientesPanel.setBorder(BorderFactory.createTitledBorder("Clientes"));
+    ((TitledBorder) clientesPanel.getBorder()).setTitleFont(fuenteTitulo);
+    clientesPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+
+    for (String cliente : clientesDisponibles) {
+        JCheckBox chkCliente = new JCheckBox(cliente, true);
+        chkCliente.setFont(fuenteTexto);
+        chkClientesItems.add(chkCliente);
+        clientesPanel.add(chkCliente);
+    }
+
+    if (clientesDisponibles.size() > 4) {
+        JScrollPane scroll = new JScrollPane(clientesPanel);
+        scroll.setPreferredSize(new Dimension(180, 120));
+        panelFiltros.add(scroll);
+    } else {
+        panelFiltros.add(clientesPanel);
+    }
+
+    // 3. Botón de aplicar
+    RSButtonRiple btnAplicar = new RSButtonRiple();
+    btnAplicar.setText("Aplicar");
+    btnAplicar.setBackground(new Color(180, 180, 180));
+    btnAplicar.setColorHover(new Color(150, 150, 150));
+    btnAplicar.setPreferredSize(new Dimension(100, 25));
+    btnAplicar.setFont(fuenteBoton);
+    btnAplicar.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+    btnAplicar.addActionListener(e -> {
+        aplicarFiltrosAvanzados();
+        filtrosMenu.setVisible(false);
+    });
+
+    panelFiltros.add(btnAplicar);
+    filtrosMenu.add(panelFiltros);
+
+    filtar.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            filtrosMenu.show(filtar, 0, filtar.getHeight());
+        }
+    });
+}
+
+    // 3. Método para obtener clientes únicos
+    private void obtenerClientesDisponibles() {
+        clientesDisponibles.clear();
+        DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+
+        Set<String> clientesUnicos = new HashSet<>();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String cliente = model.getValueAt(i, 2).toString(); // Columna 2 = Cliente
+            clientesUnicos.add(cliente);
+        }
+
+        clientesDisponibles.addAll(clientesUnicos);
+        Collections.sort(clientesDisponibles);
+    }
+
+private void aplicarFiltrosAvanzados() {
+    // Guardar selecciones de clientes
+    clientesDisponibles.clear();
+    for (JCheckBox chk : chkClientesItems) {
+        if (chk.isSelected()) {
+            clientesDisponibles.add(chk.getText());
+        }
+    }
+
+    DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+    TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
+
+    Map<String, Integer> columnIndices = new HashMap<>();
+    for (int i = 0; i < model.getColumnCount(); i++) {
+        columnIndices.put(model.getColumnName(i), i);
+    }
+
+    List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+    // Filtro por estado de pago con radio buttons
+    if (radioPendientes.isSelected()) {
+        // Pendientes: Pagado = 0 y Debido > 0
+        filtros.add(RowFilter.andFilter(Arrays.asList(
+            RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado"))
+        )));
+    } else if (radioAbonos.isSelected()) {
+        // Con abonos: Pagado > 0 y Debido > 0
+        filtros.add(RowFilter.andFilter(Arrays.asList(
+            RowFilter.notFilter(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado")))
+        )));
+    } else if (radioPagados.isSelected()) {
+        // Pagados completamente: Debido = 0 (o Pagado = MontoTotal)
+        filtros.add(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Debido")));
+        
+        // Alternativa más precisa si tienes columna MontoTotal:
+        // filtros.add(RowFilter.andFilter(Arrays.asList(
+        //    RowFilter.regexFilter("^\\$0\\.00$", columnIndices.get("Debido")),
+        //    RowFilter.notFilter(RowFilter.regexFilter("^\\$0\\.00$", columnIndices.get("MontoTotal")))
+        // ));
+    }
+
+    // Filtro por clientes seleccionados
+    List<String> clientesSeleccionados = chkClientesItems.stream()
+            .filter(JCheckBox::isSelected)
+            .map(JCheckBox::getText)
+            .collect(Collectors.toList());
+
+    if (!clientesSeleccionados.isEmpty()) {
+        filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", clientesSeleccionados) + ")$",
+                columnIndices.get("Cliente")));
+    }
+
+    // Combinar todos los filtros
+    if (!filtros.isEmpty()) {
+        RowFilter<Object, Object> combinedFilter = RowFilter.andFilter(filtros);
+        sorter.setRowFilter(combinedFilter);
+    } else {
+        sorter.setRowFilter(null);
+    }
+}
+
+
+
+/** ✅ Método auxiliar para convertir valores como "$1,200.50" a double */
+private double parseCurrency(String value) {
+    if (value == null || value.isEmpty()) return 0.0;
+    try {
+        return Double.parseDouble(value.replace("$", "").replace(",", "").trim());
+    } catch (NumberFormatException e) {
+        return 0.0;
+    }
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -276,9 +672,9 @@ public final class ingresos extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         txtbuscar = new RSMaterialComponent.RSTextFieldMaterialIcon();
-        btnEliminar1 = new RSMaterialComponent.RSButtonShape();
         jScrollPane3 = new javax.swing.JScrollPane();
         Tabla1 = new RSMaterialComponent.RSTableMetroCustom();
+        filtar = new rojerusan.RSLabelImage();
 
         jPanel1.setBackground(new java.awt.Color(242, 247, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(1250, 630));
@@ -296,22 +692,6 @@ public final class ingresos extends javax.swing.JPanel {
             }
         });
         jPanel1.add(txtbuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 410, 30));
-
-        btnEliminar1.setBackground(new java.awt.Color(46, 49, 82));
-        btnEliminar1.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        btnEliminar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete (1).png"))); // NOI18N
-        btnEliminar1.setText(" Eliminar");
-        btnEliminar1.setToolTipText("");
-        btnEliminar1.setBackgroundHover(new java.awt.Color(67, 150, 209));
-        btnEliminar1.setFont(new java.awt.Font("Roboto Bold", 1, 16)); // NOI18N
-        btnEliminar1.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        btnEliminar1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        btnEliminar1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEliminar1ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(btnEliminar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1120, 40, 110, 30));
 
         Tabla1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -352,6 +732,7 @@ public final class ingresos extends javax.swing.JPanel {
         Tabla1.setFontHead(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         Tabla1.setFontRowHover(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         Tabla1.setFontRowSelect(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Tabla1.setPreferredSize(new java.awt.Dimension(675, 463));
         Tabla1.setRowHeight(23);
         Tabla1.setSelectionBackground(new java.awt.Color(67, 150, 209));
         Tabla1.setShowGrid(false);
@@ -364,6 +745,20 @@ public final class ingresos extends javax.swing.JPanel {
         Tabla1.getColumnModel().getColumn(0).setPreferredWidth(10);
 
         jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 1190, 500));
+
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(482, 35, 34, 34));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -385,58 +780,6 @@ public final class ingresos extends javax.swing.JPanel {
         // TODO add your handling code here:
         filtrarTabla();
     }//GEN-LAST:event_txtbuscarActionPerformed
-
-    private void btnEliminar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminar1ActionPerformed
-        int selectedRow = Tabla1.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Por favor seleccione un registro para eliminar", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Obtener el ID del pedido desde la columna oculta (índice 9)
-        int idPedido = (int) Tabla1.getValueAt(selectedRow, 9);
-
-        // Obtener los datos completos del ingreso
-        Ctrl_CajaIngresos.IngresoConDetalles ingreso = controlador.obtenerIngresos().stream()
-                .filter(i -> i.getIdPedido() == idPedido)
-                .findFirst()
-                .orElse(null);
-
-        if (ingreso == null) {
-            JOptionPane.showMessageDialog(this, "No se encontró el registro seleccionado", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Verificar si el pago está completo (Debido <= 0)
-        if (ingreso.getDebido() > 0) {
-            JOptionPane.showMessageDialog(this,
-                    "No se puede eliminar este registro porque el pago no está completo.\n"
-                    + "Monto pendiente: " + formatCurrency(ingreso.getDebido()) + "\n"
-                    + "Complete el pago antes de eliminar.",
-                    "Pago Incompleto",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Confirmar eliminación
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro que desea eliminar este registro?\n"
-                + "ID Pedido: " + ingreso.getNumPedido() + "\n"
-                + "Cliente: " + ingreso.getNombreCliente(),
-                "Confirmar Eliminación",
-                JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean eliminado = controlador.eliminarIngreso(idPedido);
-            if (eliminado) {
-                JOptionPane.showMessageDialog(this, "Registro eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                cargarDatosIniciales(); // Actualizar la tabla
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al eliminar el registro", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }//GEN-LAST:event_btnEliminar1ActionPerformed
 
     private void Tabla1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla1MouseClicked
         int column = Tabla1.columnAtPoint(evt.getPoint());
@@ -598,39 +941,50 @@ public final class ingresos extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_Tabla1MouseClicked
 
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
     private void filtrarTabla() {
-        String textoBusqueda = txtbuscar.getText().trim();
+        String textoBusqueda = txtbuscar.getText().trim().toLowerCase(); // Convertir a minúsculas
         DefaultTableModel modelo = (DefaultTableModel) Tabla1.getModel();
         TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(modelo);
         Tabla1.setRowSorter(tr);
-        List<RowFilter<Object, Object>> filters = new ArrayList<>();
 
         if (textoBusqueda.isEmpty()) {
             tr.setRowFilter(null);
             return;
         }
-        // Expresión regular para detectar si son solo números (1-2 dígitos)
-        if (textoBusqueda.matches("\\d+")) {
-            // Buscar en ID (columna 0) y fechas (columnas 1 y 2)
-            filters.add(RowFilter.regexFilter(textoBusqueda, 0));// ID (coincidencia exacta)
-            filters.add(RowFilter.regexFilter(textoBusqueda, 1));
-            filters.add(RowFilter.regexFilter(textoBusqueda, 4));
 
-        } // Si contiene letras (aunque sea parcial)
-        else {
-            // Buscar en Detalle (columna 2) y Categoría (columna 3)
-            String regex = "(?i)" + textoBusqueda; // (?i) = ignore case
-            filters.add(RowFilter.regexFilter(regex, 2)); // Detalle
-            filters.add(RowFilter.regexFilter(regex, 3)); // Categoría
-        }
+        // Crear un filtro que ignore mayúsculas/minúsculas
+        RowFilter<DefaultTableModel, Object> filter = new RowFilter<DefaultTableModel, Object>() {
+            @Override
+            public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+                // Buscar en todas las columnas visibles (excepto las últimas 3 que son botones)
+                for (int i = 0; i < entry.getValueCount() - 3; i++) {
+                    String value = entry.getStringValue(i).toLowerCase();
+                    if (value.contains(textoBusqueda)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
 
-        // Aplicar todos los filtros combinados con OR
-        tr.setRowFilter(RowFilter.orFilter(filters));
-
+        tr.setRowFilter(filter);
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
-    private RSMaterialComponent.RSButtonShape btnEliminar1;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtbuscar;

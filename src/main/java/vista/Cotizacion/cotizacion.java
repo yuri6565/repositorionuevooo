@@ -52,6 +52,232 @@ public class cotizacion extends javax.swing.JPanel {
             aplicarTema(); // Update theme when it changes
         });
 
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+
+        if (oscuro) {
+            // Configuración para modo oscuro
+            Color fondo = new Color(21, 21, 33);
+            Color fondoTabla = new Color(30, 30, 45);
+            Color encabezado = new Color(67, 71, 120);
+            Color texto = Color.WHITE;
+            Color hover = new Color(118, 142, 240); // Hover de botones
+            Color fondoCampo = new Color(37, 37, 52); // Fondo de campos de texto
+
+            // Paneles
+            setBackground(fondo);
+            jPanel1.setBackground(fondo);
+            jPanel2.setBackground(fondo);
+
+            // JScrollPane y su viewport
+            jScrollPane3.setBackground(fondo);
+            jScrollPane3.getViewport().setBackground(fondoTabla);
+            jScrollPane3.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+
+            // Labels
+            jLabel2.setForeground(texto);
+            jLabel7.setForeground(texto);
+            jLabel9.setForeground(texto);
+            jLabel10.setForeground(texto);
+            jLabel11.setForeground(texto);
+            jLabel12.setForeground(texto);
+            jLabel13.setForeground(texto);
+
+            // Campos de texto
+            txt_NombreCliente.setBackground(fondoCampo);
+            txt_NombreCliente.setForeground(texto);
+            txt_NombreCliente.setColorMaterial(encabezado);
+            txt_NombreCliente.setPhColor(Color.LIGHT_GRAY);
+
+            txt_ApellidoCliente.setBackground(fondoCampo);
+            txt_ApellidoCliente.setForeground(texto);
+            txt_ApellidoCliente.setColorMaterial(encabezado);
+            txt_ApellidoCliente.setPhColor(Color.LIGHT_GRAY);
+
+            numeroidtxt.setBackground(fondoCampo);
+            numeroidtxt.setForeground(texto);
+            numeroidtxt.setColorMaterial(encabezado);
+            numeroidtxt.setPhColor(Color.LIGHT_GRAY);
+
+            telefonotxt.setBackground(fondoCampo);
+            telefonotxt.setForeground(texto);
+            telefonotxt.setColorMaterial(encabezado);
+            telefonotxt.setPhColor(Color.LIGHT_GRAY);
+
+            direcciontxt.setBackground(fondoCampo);
+            direcciontxt.setForeground(texto);
+            direcciontxt.setColorMaterial(encabezado);
+            direcciontxt.setPhColor(Color.LIGHT_GRAY);
+
+            txt_total.setBackground(fondoCampo);
+            txt_total.setForeground(texto);
+            txt_total.setColorMaterial(encabezado);
+            txt_total.setPhColor(Color.LIGHT_GRAY);
+
+            // Combo boxes
+            identificaciontxt.setBackground(fondoCampo);
+            identificaciontxt.setForeground(texto);
+            identificaciontxt.setColorMaterial(encabezado);
+
+            btnCrearpdf.setBackground(encabezado);
+            btnCrearpdf.setBackgroundHover(hover);
+            btnCrearpdf.setForeground(texto);
+            btnCrearpdf.setForegroundHover(Color.WHITE);
+
+            jButton_anadir_producto.setBackground(encabezado);
+            jButton_anadir_producto.setBackgroundHover(hover);
+            jButton_anadir_producto.setForeground(texto);
+            jButton_anadir_producto.setForegroundHover(Color.WHITE);
+
+            HistorialCoti.setBackground(encabezado);
+            HistorialCoti.setBackgroundHover(hover);
+            HistorialCoti.setForeground(texto);
+            HistorialCoti.setForegroundHover(Color.WHITE);
+
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
+
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
+            Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(texto);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 71, 120));
+            Tabla1.setBackgoundHover(new Color(40, 50, 90));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(60, 60, 60));
+            Tabla1.setGridColor(new Color(80, 80, 80));
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+
+        } else {
+            // Configuración para modo claro
+            Color fondo = new Color(242, 247, 255);
+            Color fondoTabla = Color.WHITE;
+            Color encabezado = new Color(46, 49, 82);
+            Color texto = Color.BLACK;
+            Color hover = new Color(0, 153, 51); // Hover de botones, tomado de catalogo.java
+
+            // Paneles
+            setBackground(fondo);
+            jPanel1.setBackground(fondo);
+            jPanel2.setBackground(fondo);
+
+            // JScrollPane y su viewport
+            jScrollPane3.setBackground(fondo);
+            jScrollPane3.getViewport().setBackground(fondoTabla);
+            jScrollPane3.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+            // Labels
+            jLabel2.setForeground(texto);
+            jLabel7.setForeground(texto);
+            jLabel9.setForeground(texto);
+            jLabel10.setForeground(texto);
+            jLabel11.setForeground(texto);
+            jLabel12.setForeground(texto);
+            jLabel13.setForeground(texto);
+
+            // Campos de texto
+            txt_NombreCliente.setBackground(fondo);
+            txt_NombreCliente.setForeground(texto);
+            txt_NombreCliente.setColorMaterial(encabezado);
+            txt_NombreCliente.setPhColor(Color.GRAY);
+
+            txt_ApellidoCliente.setBackground(fondo);
+            txt_ApellidoCliente.setForeground(texto);
+            txt_ApellidoCliente.setColorMaterial(encabezado);
+            txt_ApellidoCliente.setPhColor(Color.GRAY);
+
+            numeroidtxt.setBackground(fondo);
+            numeroidtxt.setForeground(texto);
+            numeroidtxt.setColorMaterial(encabezado);
+            numeroidtxt.setPhColor(Color.GRAY);
+
+            telefonotxt.setBackground(fondo);
+            telefonotxt.setForeground(texto);
+            telefonotxt.setColorMaterial(encabezado);
+            telefonotxt.setPhColor(Color.GRAY);
+
+            direcciontxt.setBackground(fondo);
+            direcciontxt.setForeground(texto);
+            direcciontxt.setColorMaterial(encabezado);
+            direcciontxt.setPhColor(Color.GRAY);
+
+            txt_total.setBackground(fondo);
+            txt_total.setForeground(texto);
+            txt_total.setColorMaterial(encabezado);
+            txt_total.setPhColor(Color.GRAY);
+
+            // Combo boxes
+            identificaciontxt.setBackground(fondo);
+            identificaciontxt.setForeground(texto);
+            identificaciontxt.setColorMaterial(encabezado);
+
+            btnCrearpdf.setBackground(encabezado);
+            btnCrearpdf.setBackgroundHover(hover);
+            btnCrearpdf.setForeground(texto);
+            btnCrearpdf.setForegroundHover(Color.BLACK);
+
+            jButton_anadir_producto.setBackground(encabezado);
+            jButton_anadir_producto.setBackgroundHover(hover);
+            jButton_anadir_producto.setForeground(texto);
+            jButton_anadir_producto.setForegroundHover(Color.BLACK);
+
+            HistorialCoti.setBackground(encabezado);
+            HistorialCoti.setBackgroundHover(hover);
+            HistorialCoti.setForeground(texto);
+            HistorialCoti.setForegroundHover(Color.BLACK);
+
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
+
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(242, 242, 242)); // Filas impares
+            Tabla1.setColorSecondary(Color.WHITE); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(Color.WHITE);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 150, 209));
+            Tabla1.setBackgoundHover(new Color(67, 150, 209));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(0, 0, 0));
+            Tabla1.setGridColor(Color.WHITE);
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+        }
+
     }
 
     private void configurarFiltroTexto() {
@@ -365,11 +591,6 @@ public class cotizacion extends javax.swing.JPanel {
             Tabla1.setEffectHover(true);
         }
 
-        // Forzar actualización visual
-        Tabla1.repaint();
-        Tabla1.getTableHeader().repaint();
-        revalidate();
-        repaint();
     }
 
     public java.sql.Date getFecha() {
