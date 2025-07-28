@@ -23,8 +23,6 @@ import javax.swing.JOptionPane;
 import modelo.Conexion;
 import vista.Inventario0.nuevoMateriales;
 
-import vista.proveedor.proveedornuevo;
-
 /**
  *
  * @author ADSO
