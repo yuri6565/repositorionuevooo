@@ -29,7 +29,6 @@ import modelo.UsuarioModelo;
 import rojeru_san.RSButton;
 
 import vista.Cotizacion.cotizacion;
-import vista.ProveedoresTrap.proveedores;
 import vista.InventarioTrap.herramientas;
 import vista.InventarioTrap.materiales;
 import vista.ProduccionTrap.Produccion;

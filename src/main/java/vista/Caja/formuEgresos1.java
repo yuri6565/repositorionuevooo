@@ -57,8 +57,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import vista.Inventario0.herramientasNuevo;
+import vista.Inventario0.nuevoMateriales;
 import vista.Produccion.Datos_guardados;
-import vista.proveedor.proveedornuevo;
+import vista.proveedornuevo;
 
 /**
  *
@@ -81,11 +82,11 @@ public class formuEgresos1 extends javax.swing.JDialog {
 
         cmbMateriales = new CheckedComboBox<>(makeProductModel("material"));
         cmbMateriales.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        jPanel1.add(cmbMateriales, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 360, 170, 30));
+        jPanel1.add(cmbMateriales, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 240, 240, 30));
 
         cmbHerramientas = new CheckedComboBox<>(makeProductModel("herramienta"));
         cmbHerramientas.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        jPanel1.add(cmbHerramientas, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 415, 170, 30));
+        jPanel1.add(cmbHerramientas, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 310, 240, 30));
         cmbHerramientas.setVisible(false);
         cmbMateriales.setVisible(false);
         getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
@@ -250,11 +251,11 @@ public class formuEgresos1 extends javax.swing.JDialog {
     private void ohtaniahea() {
         jLabel8.setVisible(false);
         comboProveedor.setVisible(false);
-        btnClienteN1.setVisible(false);
-        jLabel3.setVisible(false);
-        btnClienteN.setVisible(false);
-        jLabel11CC.setVisible(false);
-        btnClienteN2.setVisible(false);
+        btnProveedorN.setVisible(false);
+        lblMATERIAL.setVisible(false);
+        btnHerramientaN.setVisible(false);
+        lblHERRAMIENTA.setVisible(false);
+        btnMaterialN.setVisible(false);
 
         jPanel1.revalidate();
         jPanel1.repaint();
@@ -297,20 +298,23 @@ public class formuEgresos1 extends javax.swing.JDialog {
         txtPago = new com.toedter.calendar.JDateChooser();
         txtCantidadnuevo = new RSMaterialComponent.RSTextFieldMaterial();
         jLabel2 = new javax.swing.JLabel();
-        txtDetallenuevo = new RSMaterialComponent.RSTextFieldMaterial();
         comboCategoria = new RSMaterialComponent.RSComboBoxMaterial();
         jLabel7 = new javax.swing.JLabel();
         comboProveedor = new RSMaterialComponent.RSComboBoxMaterial();
         jLabel8 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        btnClienteN1 = new RSMaterialComponent.RSButtonShape();
-        btnClienteN = new RSMaterialComponent.RSButtonShape();
-        jLabel11CC = new javax.swing.JLabel();
-        btnClienteN2 = new RSMaterialComponent.RSButtonShape();
+        lblMATERIAL = new javax.swing.JLabel();
+        btnProveedorN = new RSMaterialComponent.RSButtonShape();
+        btnHerramientaN = new RSMaterialComponent.RSButtonShape();
+        lblHERRAMIENTA = new javax.swing.JLabel();
+        btnMaterialN = new RSMaterialComponent.RSButtonShape();
         btnGuardar1 = new rojeru_san.RSButtonRiple();
         btnCancelar2 = new rojeru_san.RSButtonRiple();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtDetallenuevo = new javax.swing.JTextArea();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(504, 526));
@@ -324,44 +328,32 @@ public class formuEgresos1 extends javax.swing.JDialog {
         jLabel1.setText("Egreso");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 520, 50));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 50));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel9.setText("Detalle de Ingreso:");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 190, 130, -1));
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 130, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel10.setText("Fecha Pago:");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, -1, -1));
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
 
         txtPago.setBackground(new java.awt.Color(255, 255, 255));
         txtPago.setForeground(new java.awt.Color(255, 255, 255));
         txtPago.setDateFormatString("y-MM-d");
         txtPago.setMaxSelectableDate(new java.util.Date(253370786472000L));
-        jPanel1.add(txtPago, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 190, 30));
+        jPanel1.add(txtPago, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 230, 30));
 
         txtCantidadnuevo.setForeground(new java.awt.Color(46, 49, 82));
         txtCantidadnuevo.setColorMaterial(new java.awt.Color(46, 49, 82));
         txtCantidadnuevo.setPhColor(new java.awt.Color(46, 49, 82));
         txtCantidadnuevo.setPlaceholder("");
         txtCantidadnuevo.setSelectionColor(new java.awt.Color(46, 49, 82));
-        jPanel1.add(txtCantidadnuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 420, 30));
+        jPanel1.add(txtCantidadnuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, 230, 30));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel2.setText("Valor monetario:");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, -1, 30));
-
-        txtDetallenuevo.setForeground(new java.awt.Color(0, 0, 0));
-        txtDetallenuevo.setColorMaterial(new java.awt.Color(46, 49, 82));
-        txtDetallenuevo.setPhColor(new java.awt.Color(46, 49, 82));
-        txtDetallenuevo.setPlaceholder("");
-        txtDetallenuevo.setSelectionColor(new java.awt.Color(46, 49, 82));
-        txtDetallenuevo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDetallenuevoActionPerformed(evt);
-            }
-        });
-        jPanel1.add(txtDetallenuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 420, 30));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, 30));
 
         comboCategoria.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione categoria:", "Servicios Publicos", "Compra de Productos e Insumos", "Arriendo", "Nómina", "Gastos Administrativos", "Mercadeo y Publicidad", "Transporte", "Domicilios y Logistica", "mantenimineto y Reparaciones", "Muebles", "Equipos o Maquinaria", "Otros" }));
         comboCategoria.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -371,11 +363,11 @@ public class formuEgresos1 extends javax.swing.JDialog {
                 comboCategoriaActionPerformed(evt);
             }
         });
-        jPanel1.add(comboCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, 420, 30));
+        jPanel1.add(comboCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 100, 240, 30));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel7.setText("Categoria");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, -1, -1));
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 70, -1, -1));
 
         comboProveedor.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione proveedor:" }));
         comboProveedor.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -385,61 +377,61 @@ public class formuEgresos1 extends javax.swing.JDialog {
                 comboProveedorActionPerformed(evt);
             }
         });
-        jPanel1.add(comboProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 170, 30));
+        jPanel1.add(comboProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 170, 240, 30));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel8.setText("Proveedor:");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, -1, -1));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 140, -1, -1));
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel3.setText("Insumos:");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 330, -1, -1));
+        lblMATERIAL.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblMATERIAL.setText("Materiales:");
+        jPanel1.add(lblMATERIAL, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 210, -1, -1));
 
-        btnClienteN1.setBackground(new java.awt.Color(46, 49, 82));
-        btnClienteN1.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        btnClienteN1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
-        btnClienteN1.setBackgroundHover(new java.awt.Color(67, 150, 209));
-        btnClienteN1.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
-        btnClienteN1.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        btnClienteN1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        btnClienteN1.addActionListener(new java.awt.event.ActionListener() {
+        btnProveedorN.setBackground(new java.awt.Color(46, 49, 82));
+        btnProveedorN.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        btnProveedorN.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
+        btnProveedorN.setBackgroundHover(new java.awt.Color(67, 150, 209));
+        btnProveedorN.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
+        btnProveedorN.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
+        btnProveedorN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btnProveedorN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClienteN1ActionPerformed(evt);
+                btnProveedorNActionPerformed(evt);
             }
         });
-        jPanel1.add(btnClienteN1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 320, 20, 20));
+        jPanel1.add(btnProveedorN, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 140, 20, 20));
 
-        btnClienteN.setBackground(new java.awt.Color(46, 49, 82));
-        btnClienteN.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        btnClienteN.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
-        btnClienteN.setBackgroundHover(new java.awt.Color(67, 150, 209));
-        btnClienteN.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
-        btnClienteN.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        btnClienteN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        btnClienteN.addActionListener(new java.awt.event.ActionListener() {
+        btnHerramientaN.setBackground(new java.awt.Color(46, 49, 82));
+        btnHerramientaN.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        btnHerramientaN.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
+        btnHerramientaN.setBackgroundHover(new java.awt.Color(67, 150, 209));
+        btnHerramientaN.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
+        btnHerramientaN.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
+        btnHerramientaN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btnHerramientaN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClienteNActionPerformed(evt);
+                btnHerramientaNActionPerformed(evt);
             }
         });
-        jPanel1.add(btnClienteN, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 390, 20, 20));
+        jPanel1.add(btnHerramientaN, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 280, 20, 20));
 
-        jLabel11CC.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
-        jLabel11CC.setText("Herramientas:");
-        jPanel1.add(jLabel11CC, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 390, -1, -1));
+        lblHERRAMIENTA.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
+        lblHERRAMIENTA.setText("Herramientas:");
+        jPanel1.add(lblHERRAMIENTA, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 280, -1, -1));
 
-        btnClienteN2.setBackground(new java.awt.Color(46, 49, 82));
-        btnClienteN2.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        btnClienteN2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
-        btnClienteN2.setBackgroundHover(new java.awt.Color(67, 150, 209));
-        btnClienteN2.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
-        btnClienteN2.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        btnClienteN2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        btnClienteN2.addActionListener(new java.awt.event.ActionListener() {
+        btnMaterialN.setBackground(new java.awt.Color(46, 49, 82));
+        btnMaterialN.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        btnMaterialN.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
+        btnMaterialN.setBackgroundHover(new java.awt.Color(67, 150, 209));
+        btnMaterialN.setFont(new java.awt.Font("Roboto Bold", 1, 15)); // NOI18N
+        btnMaterialN.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
+        btnMaterialN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btnMaterialN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClienteN2ActionPerformed(evt);
+                btnMaterialNActionPerformed(evt);
             }
         });
-        jPanel1.add(btnClienteN2, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 330, 20, 20));
+        jPanel1.add(btnMaterialN, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, 20, 20));
 
         btnGuardar1.setBackground(new java.awt.Color(46, 49, 82));
         btnGuardar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/plus (2).png"))); // NOI18N
@@ -451,7 +443,7 @@ public class formuEgresos1 extends javax.swing.JDialog {
                 btnGuardar1ActionPerformed(evt);
             }
         });
-        jPanel1.add(btnGuardar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 470, 140, -1));
+        jPanel1.add(btnGuardar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 380, 140, -1));
 
         btnCancelar2.setBackground(new java.awt.Color(46, 49, 82));
         btnCancelar2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/salida (1).png"))); // NOI18N
@@ -463,17 +455,30 @@ public class formuEgresos1 extends javax.swing.JDialog {
                 btnCancelar2ActionPerformed(evt);
             }
         });
-        jPanel1.add(btnCancelar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 470, 140, -1));
+        jPanel1.add(btnCancelar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 380, 140, -1));
+
+        txtDetallenuevo.setColumns(10);
+        txtDetallenuevo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtDetallenuevo.setLineWrap(true);
+        txtDetallenuevo.setRows(1);
+        txtDetallenuevo.setTabSize(1);
+        txtDetallenuevo.setWrapStyleWord(true);
+        jScrollPane1.setViewportView(txtDetallenuevo);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 230, 50));
+
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 70, 10, 280));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 437, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -486,12 +491,12 @@ public class formuEgresos1 extends javax.swing.JDialog {
 
         jLabel8.setVisible(esCompraProductos);
         comboProveedor.setVisible(esCompraProductos);
-        btnClienteN1.setVisible(esCompraProductos);
-        btnClienteN2.setVisible(esCompraProductos);
+        btnProveedorN.setVisible(esCompraProductos);
+        btnMaterialN.setVisible(esCompraProductos);
         // Mostrar solo materiales o herramientas según necesidad
-        jLabel3.setVisible(esCompraProductos);
-        btnClienteN.setVisible(esCompraProductos);
-        jLabel11CC.setVisible(esCompraProductos);
+        lblMATERIAL.setVisible(esCompraProductos);
+        btnHerramientaN.setVisible(esCompraProductos);
+        lblHERRAMIENTA.setVisible(esCompraProductos);
 
         // Mostrar combobox según tipo de producto
         cmbMateriales.setVisible(esCompraProductos);
@@ -501,30 +506,28 @@ public class formuEgresos1 extends javax.swing.JDialog {
         jPanel1.repaint();
     }//GEN-LAST:event_comboCategoriaActionPerformed
 
-    private void txtDetallenuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDetallenuevoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDetallenuevoActionPerformed
-
-    private void btnClienteN1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClienteN1ActionPerformed
+    private void btnProveedorNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProveedorNActionPerformed
         proveedornuevo dialog = new proveedornuevo(new javax.swing.JFrame(), true);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
 
-    }//GEN-LAST:event_btnClienteN1ActionPerformed
+    }//GEN-LAST:event_btnProveedorNActionPerformed
 
-    private void btnClienteNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClienteNActionPerformed
+    private void btnHerramientaNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHerramientaNActionPerformed
         herramientasNuevo dialog = new herramientasNuevo(new javax.swing.JFrame(), true);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
-    }//GEN-LAST:event_btnClienteNActionPerformed
+    }//GEN-LAST:event_btnHerramientaNActionPerformed
 
     private void comboProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProveedorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_comboProveedorActionPerformed
 
-    private void btnClienteN2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClienteN2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnClienteN2ActionPerformed
+    private void btnMaterialNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMaterialNActionPerformed
+        nuevoMateriales dialog = new nuevoMateriales(new javax.swing.JFrame(), true);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_btnMaterialNActionPerformed
 
     private void btnGuardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar1ActionPerformed
         Connection con = null;
@@ -735,11 +738,11 @@ public class formuEgresos1 extends javax.swing.JDialog {
 
     private void mostrarMensaje(String mensaje) {
         new Datos_guardados(
-                (Frame) SwingUtilities.getWindowAncestor(this), 
-                true, 
-                "Éxito", 
-                mensaje 
-        ).setVisible(true); 
+                (Frame) SwingUtilities.getWindowAncestor(this),
+                true,
+                "Éxito",
+                mensaje
+        ).setVisible(true);
     }
 
 
@@ -784,24 +787,26 @@ public class formuEgresos1 extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private rojeru_san.RSButtonRiple btnCancelar2;
-    private RSMaterialComponent.RSButtonShape btnClienteN;
-    private RSMaterialComponent.RSButtonShape btnClienteN1;
-    private RSMaterialComponent.RSButtonShape btnClienteN2;
     private rojeru_san.RSButtonRiple btnGuardar1;
+    private RSMaterialComponent.RSButtonShape btnHerramientaN;
+    private RSMaterialComponent.RSButtonShape btnMaterialN;
+    private RSMaterialComponent.RSButtonShape btnProveedorN;
     private RSMaterialComponent.RSComboBoxMaterial comboCategoria;
     private RSMaterialComponent.RSComboBoxMaterial comboProveedor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11CC;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblHERRAMIENTA;
+    private javax.swing.JLabel lblMATERIAL;
     private RSMaterialComponent.RSTextFieldMaterial txtCantidadnuevo;
-    private RSMaterialComponent.RSTextFieldMaterial txtDetallenuevo;
+    private javax.swing.JTextArea txtDetallenuevo;
     private com.toedter.calendar.JDateChooser txtPago;
     // End of variables declaration//GEN-END:variables
 

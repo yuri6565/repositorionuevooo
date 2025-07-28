@@ -128,10 +128,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.WHITE);
 
-            HistorialCoti.setBackground(encabezado);
-            HistorialCoti.setBackgroundHover(hover);
-            HistorialCoti.setForeground(texto);
-            HistorialCoti.setForegroundHover(Color.WHITE);
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -239,10 +235,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.BLACK);
 
-            HistorialCoti.setBackground(encabezado);
-            HistorialCoti.setBackgroundHover(hover);
-            HistorialCoti.setForeground(texto);
-            HistorialCoti.setForegroundHover(Color.BLACK);
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -441,10 +433,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.WHITE);
 
-            HistorialCoti.setBackground(encabezado);
-            HistorialCoti.setBackgroundHover(hover);
-            HistorialCoti.setForeground(texto);
-            HistorialCoti.setForegroundHover(Color.WHITE);
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -551,11 +539,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setBackgroundHover(hover);
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.BLACK);
-
-            HistorialCoti.setBackground(encabezado);
-            HistorialCoti.setBackgroundHover(hover);
-            HistorialCoti.setForeground(texto);
-            HistorialCoti.setForegroundHover(Color.BLACK);
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -688,7 +671,6 @@ public class cotizacion extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         Tabla1 = new RSMaterialComponent.RSTableMetroCustom();
         jButton_anadir_producto = new RSMaterialComponent.RSButtonShape();
-        HistorialCoti = new RSMaterialComponent.RSButtonShape();
         txt_total = new RSMaterialComponent.RSTextFieldMaterial();
         btnCrearpdf = new RSMaterialComponent.RSButtonShape();
         txt_NombreCliente = new RSMaterialComponent.RSTextFieldMaterial();
@@ -787,19 +769,6 @@ public class cotizacion extends javax.swing.JPanel {
             }
         });
         jPanel1.add(jButton_anadir_producto, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 10, 170, 40));
-
-        HistorialCoti.setBackground(new java.awt.Color(46, 49, 82));
-        HistorialCoti.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        HistorialCoti.setText("  Historial de Cotizaciones");
-        HistorialCoti.setBackgroundHover(new java.awt.Color(0, 153, 0));
-        HistorialCoti.setFont(new java.awt.Font("Roboto Bold", 1, 12)); // NOI18N
-        HistorialCoti.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
-        HistorialCoti.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                HistorialCotiActionPerformed(evt);
-            }
-        });
-        jPanel1.add(HistorialCoti, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 10, 160, 40));
 
         jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 180, 1220, 350));
 
@@ -1137,16 +1106,6 @@ public class cotizacion extends javax.swing.JPanel {
     }//GEN-LAST:event_Tabla1MouseClicked
 
 
-    private void HistorialCotiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HistorialCotiActionPerformed
-        HistorialCot h = new HistorialCot(jPanel2, true); // Añadir el segundo parámetro
-        h.setSize(1290, 730);
-        h.setLocation(0, 0);
-        jPanel2.removeAll();
-        jPanel2.add(h);
-        jPanel2.revalidate();
-        jPanel2.repaint();
-    }//GEN-LAST:event_HistorialCotiActionPerformed
-
     private void jButton_anadir_productoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_anadir_productoActionPerformed
 
         Integer filaEditando = (Integer) Tabla1.getClientProperty("filaEditando");
@@ -1268,7 +1227,6 @@ public class cotizacion extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private RSMaterialComponent.RSButtonShape HistorialCoti;
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
     private RSMaterialComponent.RSButtonShape btnCrearpdf;
     private RSMaterialComponent.RSTextFieldMaterial direcciontxt;

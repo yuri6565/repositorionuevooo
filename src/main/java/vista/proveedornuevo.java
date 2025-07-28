@@ -250,17 +250,17 @@ tipoidentificacion5.setVisible(false);
                 btnGuardar2ActionPerformed(evt);
             }
         });
-        jPanel4.add(btnGuardar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 0, 40, 30));
+        jPanel4.add(btnGuardar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(456, 0, 40, 30));
 
-        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 70));
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 50));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel6.setText("Correo:");
-        jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 280, -1, -1));
+        jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, -1, -1));
 
         lblProducto1.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         lblProducto1.setText("Producto: ");
-        jPanel3.add(lblProducto1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 450, -1, -1));
+        jPanel3.add(lblProducto1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 400, -1, -1));
 
         btnguardarr.setBackground(new java.awt.Color(46, 49, 82));
         btnguardarr.setText("Cancelar");
@@ -271,11 +271,11 @@ tipoidentificacion5.setVisible(false);
                 btnguardarrActionPerformed(evt);
             }
         });
-        jPanel3.add(btnguardarr, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 580, 140, -1));
+        jPanel3.add(btnguardarr, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 530, 140, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel12.setText("Telefono:");
-        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 290, -1, -1));
+        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 240, -1, -1));
 
         txttelefono.setForeground(new java.awt.Color(0, 0, 0));
         txttelefono.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -283,7 +283,7 @@ tipoidentificacion5.setVisible(false);
         txttelefono.setPhColor(new java.awt.Color(0, 0, 0));
         txttelefono.setPlaceholder("Ingrese telefono");
         txttelefono.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txttelefono, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 310, 200, 30));
+        jPanel3.add(txttelefono, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 260, 200, 30));
 
         txtcorreo.setForeground(new java.awt.Color(0, 0, 0));
         txtcorreo.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -291,11 +291,11 @@ tipoidentificacion5.setVisible(false);
         txtcorreo.setPhColor(new java.awt.Color(0, 0, 0));
         txtcorreo.setPlaceholder("Ingrese su correo..");
         txtcorreo.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txtcorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 310, 200, 30));
+        jPanel3.add(txtcorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, 200, 30));
 
         jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel13.setText("Número:");
-        jPanel3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 120, -1, 20));
+        jPanel3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 70, -1, 20));
 
         txtNombre.setForeground(new java.awt.Color(0, 0, 0));
         txtNombre.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -303,7 +303,7 @@ tipoidentificacion5.setVisible(false);
         txtNombre.setPhColor(new java.awt.Color(0, 0, 0));
         txtNombre.setPlaceholder("ingrese su número");
         txtNombre.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 150, 200, 30));
+        jPanel3.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 100, 200, 30));
 
         txtdireccion.setForeground(new java.awt.Color(0, 0, 0));
         txtdireccion.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -311,54 +311,54 @@ tipoidentificacion5.setVisible(false);
         txtdireccion.setPhColor(new java.awt.Color(0, 0, 0));
         txtdireccion.setPlaceholder("Ingrese la dirección...");
         txtdireccion.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 390, 200, 30));
+        jPanel3.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 340, 200, 30));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel14.setText("Direccion");
-        jPanel3.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 360, -1, -1));
+        jPanel3.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 310, -1, -1));
 
         tipoidentificacion4.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion4.setText("TIPO");
-        jPanel3.add(tipoidentificacion4, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 530, 180, -1));
+        jPanel3.add(tipoidentificacion4, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 480, 180, -1));
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(255, 51, 51));
         jLabel19.setText("*");
-        jPanel3.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 120, 20, -1));
+        jPanel3.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 70, 20, -1));
 
         tipoidentificacion5.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion5.setText("TIPO");
-        jPanel3.add(tipoidentificacion5, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 180, 200, -1));
+        jPanel3.add(tipoidentificacion5, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 130, 200, -1));
 
         jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel20.setForeground(new java.awt.Color(255, 51, 51));
         jLabel20.setText("*");
-        jPanel3.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 460, 10, 10));
+        jPanel3.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 410, 10, 10));
 
         jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel21.setText("Tipo de identificación:");
-        jPanel3.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, 20));
+        jPanel3.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, -1, 20));
 
         jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel22.setForeground(new java.awt.Color(255, 51, 51));
         jLabel22.setText("*");
-        jPanel3.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 120, 20, -1));
+        jPanel3.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 70, 20, -1));
 
         tipoidentificacion6.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion6.setText("TIPO");
-        jPanel3.add(tipoidentificacion6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 200, -1));
+        jPanel3.add(tipoidentificacion6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 200, -1));
 
         tipoidentificacion1.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion1.setText("TIPO");
-        jPanel3.add(tipoidentificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 200, -1));
+        jPanel3.add(tipoidentificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 290, 200, -1));
 
         tipoidentificacion7.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion7.setText("TIPO");
-        jPanel3.add(tipoidentificacion7, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 340, 200, -1));
+        jPanel3.add(tipoidentificacion7, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, 200, -1));
 
         tipoidentificacion8.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion8.setText("TIPO");
-        jPanel3.add(tipoidentificacion8, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 420, 200, -1));
+        jPanel3.add(tipoidentificacion8, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 370, 200, -1));
 
         jLabel24.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel24.setForeground(new java.awt.Color(255, 51, 51));
@@ -368,7 +368,7 @@ tipoidentificacion5.setVisible(false);
         jLabel25.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel25.setForeground(new java.awt.Color(255, 51, 51));
         jLabel25.setText("*");
-        jPanel3.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 370, 10, 10));
+        jPanel3.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 320, 10, 10));
 
         txtNombre12.setForeground(new java.awt.Color(0, 0, 0));
         txtNombre12.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -376,20 +376,20 @@ tipoidentificacion5.setVisible(false);
         txtNombre12.setPhColor(new java.awt.Color(0, 0, 0));
         txtNombre12.setPlaceholder("Ingrese el nombre...");
         txtNombre12.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txtNombre12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 200, 30));
+        jPanel3.add(txtNombre12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 200, 30));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel15.setText("Nombre:");
-        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, -1, 20));
+        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, -1, 20));
 
         jLabel26.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(255, 51, 51));
         jLabel26.setText("*");
-        jPanel3.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 210, 20, -1));
+        jPanel3.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 160, 20, -1));
 
         tipoidentificacion9.setForeground(new java.awt.Color(255, 51, 51));
         tipoidentificacion9.setText("TIPO");
-        jPanel3.add(tipoidentificacion9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 260, 200, -1));
+        jPanel3.add(tipoidentificacion9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 200, -1));
 
         gh.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccionar", " ", " " }));
         gh.setColorMaterial(new java.awt.Color(29, 30, 51));
@@ -399,7 +399,7 @@ tipoidentificacion5.setVisible(false);
                 ghActionPerformed(evt);
             }
         });
-        jPanel3.add(gh, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 470, 200, 30));
+        jPanel3.add(gh, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 420, 200, 30));
 
         gh1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccionar", "Bogotá DC", "Boyacá", " " }));
         gh1.setColorMaterial(new java.awt.Color(29, 30, 51));
@@ -409,11 +409,11 @@ tipoidentificacion5.setVisible(false);
                 gh1ActionPerformed(evt);
             }
         });
-        jPanel3.add(gh1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 390, 200, 30));
+        jPanel3.add(gh1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 200, 30));
 
         jLabel27.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel27.setText("Departamento:");
-        jPanel3.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 360, -1, -1));
+        jPanel3.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 310, -1, -1));
 
         jLabel28.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel28.setForeground(new java.awt.Color(255, 51, 51));
@@ -422,7 +422,7 @@ tipoidentificacion5.setVisible(false);
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel7.setText("Municipio y/o localidad:");
-        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, -1, -1));
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 400, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 51, 51));
@@ -431,16 +431,16 @@ tipoidentificacion5.setVisible(false);
 
         dirección1.setForeground(new java.awt.Color(255, 51, 51));
         dirección1.setText("jLabel2");
-        jPanel3.add(dirección1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 500, 200, -1));
+        jPanel3.add(dirección1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, 200, -1));
 
         dirección3.setForeground(new java.awt.Color(255, 51, 51));
         dirección3.setText("jLabel2");
-        jPanel3.add(dirección3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 420, 200, -1));
+        jPanel3.add(dirección3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 370, 200, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel10.setForeground(new java.awt.Color(255, 51, 51));
         jLabel10.setText("*");
-        jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 360, 20, -1));
+        jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 310, 20, -1));
 
         identificaciontxt.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccionar", "CC", "TI", "CE", "NIT" }));
         identificaciontxt.setColorMaterial(new java.awt.Color(29, 30, 51));
@@ -450,11 +450,11 @@ tipoidentificacion5.setVisible(false);
                 identificaciontxtActionPerformed(evt);
             }
         });
-        jPanel3.add(identificaciontxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 200, 30));
+        jPanel3.add(identificaciontxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 200, 30));
 
         jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         jLabel16.setText("Apellido:");
-        jPanel3.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 210, -1, 20));
+        jPanel3.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 160, -1, 20));
 
         txtNombre13.setForeground(new java.awt.Color(0, 0, 0));
         txtNombre13.setColorMaterial(new java.awt.Color(0, 0, 0));
@@ -462,12 +462,12 @@ tipoidentificacion5.setVisible(false);
         txtNombre13.setPhColor(new java.awt.Color(0, 0, 0));
         txtNombre13.setPlaceholder("Ingrese el apellido...");
         txtNombre13.setSelectionColor(new java.awt.Color(0, 0, 0));
-        jPanel3.add(txtNombre13, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 200, 30));
+        jPanel3.add(txtNombre13, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 180, 200, 30));
 
         jLabel29.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel29.setForeground(new java.awt.Color(204, 204, 204));
         jLabel29.setText("(opcional)");
-        jPanel3.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 210, 70, -1));
+        jPanel3.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 160, 70, -1));
 
         btnguardarr1.setBackground(new java.awt.Color(46, 49, 82));
         btnguardarr1.setText("Guardar");
@@ -478,9 +478,9 @@ tipoidentificacion5.setVisible(false);
                 btnguardarr1ActionPerformed(evt);
             }
         });
-        jPanel3.add(btnguardarr1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 580, 140, -1));
+        jPanel3.add(btnguardarr1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 530, 140, -1));
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 680));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 590));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
