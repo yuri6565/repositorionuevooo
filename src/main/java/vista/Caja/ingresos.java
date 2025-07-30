@@ -104,10 +104,10 @@ public final class ingresos extends javax.swing.JPanel {
     private List<String> clientesDisponibles = new ArrayList<>();
     private List<JCheckBox> chkClientesItems = new ArrayList<>();
     private JRadioButton radioTodos, radioPendientes, radioAbonos, radioPagados;
-    
+
     final int COL_MONTO_TOTAL = 3;
-final int COL_PAGADO = 4;
-final int COL_DEBIDO = 5;
+    final int COL_PAGADO = 4;
+    final int COL_DEBIDO = 5;
 
     /**
      * Creates new form Ingresos
@@ -211,10 +211,7 @@ final int COL_DEBIDO = 5;
         // Cargar datos iniciales
         cargarDatosIniciales();
         configurarMenuFiltros();
-
-        // Cargar datos iniciales
-        cargarDatosIniciales();
-
+        filtrarFilasPagadas();
 // En el constructor, después de cargar datos iniciales:
         Tabla1.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
@@ -480,97 +477,97 @@ final int COL_DEBIDO = 5;
         }
     }
 
-private void configurarMenuFiltros() {
-    chkClientesItems.clear();
-    filtrosMenu = new JPopupMenu();
-    JPanel panelFiltros = new JPanel();
-    panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
-    panelFiltros.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Reducir márgenes a 5px
+    private void configurarMenuFiltros() {
+        chkClientesItems.clear();
+        filtrosMenu = new JPopupMenu();
+        JPanel panelFiltros = new JPanel();
+        panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
+        panelFiltros.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Reducir márgenes a 5px
 
-    Font fuenteTexto = new Font("Segoe UI", Font.PLAIN, 12);
-    Font fuenteTitulo = new Font("Segoe UI", Font.BOLD, 13);
-    Font fuenteBoton = new Font("Segoe UI", Font.BOLD, 14);
+        Font fuenteTexto = new Font("Segoe UI", Font.PLAIN, 12);
+        Font fuenteTitulo = new Font("Segoe UI", Font.BOLD, 13);
+        Font fuenteBoton = new Font("Segoe UI", Font.BOLD, 14);
 
-    // 1. Sección de estado de pago
-    JPanel estadoPanel = new JPanel();
-    estadoPanel.setLayout(new BoxLayout(estadoPanel, BoxLayout.Y_AXIS)); // Columna vertical
-    estadoPanel.setBorder(BorderFactory.createTitledBorder("Estado de pago"));
-    ((TitledBorder) estadoPanel.getBorder()).setTitleFont(fuenteTitulo);
-    estadoPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+        // 1. Sección de estado de pago
+        JPanel estadoPanel = new JPanel();
+        estadoPanel.setLayout(new BoxLayout(estadoPanel, BoxLayout.Y_AXIS)); // Columna vertical
+        estadoPanel.setBorder(BorderFactory.createTitledBorder("Estado de pago"));
+        ((TitledBorder) estadoPanel.getBorder()).setTitleFont(fuenteTitulo);
+        estadoPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
 
-    ButtonGroup estadoGroup = new ButtonGroup();
-    radioTodos = new JRadioButton("Todos", true);
-    radioPendientes = new JRadioButton("Pendientes (sin pagos)");
-    radioAbonos = new JRadioButton("Con abonos parciales");
-    radioPagados = new JRadioButton("Pagados completamente");
+        ButtonGroup estadoGroup = new ButtonGroup();
+        radioTodos = new JRadioButton("Todos", true);
+        radioPendientes = new JRadioButton("Pendientes (sin pagos)");
+        radioAbonos = new JRadioButton("Con abonos parciales");
+        radioPagados = new JRadioButton("Pagados completamente");
 
-    radioTodos.setFont(fuenteTexto);
-    radioPendientes.setFont(fuenteTexto);
-    radioAbonos.setFont(fuenteTexto);
-    radioPagados.setFont(fuenteTexto);
+        radioTodos.setFont(fuenteTexto);
+        radioPendientes.setFont(fuenteTexto);
+        radioAbonos.setFont(fuenteTexto);
+        radioPagados.setFont(fuenteTexto);
 
-    estadoGroup.add(radioTodos);
-    estadoGroup.add(radioPendientes);
-    estadoGroup.add(radioAbonos);
-    estadoGroup.add(radioPagados);
+        estadoGroup.add(radioTodos);
+        estadoGroup.add(radioPendientes);
+        estadoGroup.add(radioAbonos);
+        estadoGroup.add(radioPagados);
 
-    // Agregar todos los radio buttons en una columna con alineación a la izquierda
-    estadoPanel.add(radioTodos);
-    estadoPanel.add(Box.createVerticalStrut(2)); // Espaciado mínimo entre opciones
-    estadoPanel.add(radioPendientes);
-    estadoPanel.add(Box.createVerticalStrut(2));
-    estadoPanel.add(radioAbonos);
-    estadoPanel.add(Box.createVerticalStrut(2));
-    estadoPanel.add(radioPagados);
+        // Agregar todos los radio buttons en una columna con alineación a la izquierda
+        estadoPanel.add(radioTodos);
+        estadoPanel.add(Box.createVerticalStrut(2)); // Espaciado mínimo entre opciones
+        estadoPanel.add(radioPendientes);
+        estadoPanel.add(Box.createVerticalStrut(2));
+        estadoPanel.add(radioAbonos);
+        estadoPanel.add(Box.createVerticalStrut(2));
+        estadoPanel.add(radioPagados);
 
-    panelFiltros.add(estadoPanel);
-    panelFiltros.add(Box.createVerticalStrut(15));
+        panelFiltros.add(estadoPanel);
+        panelFiltros.add(Box.createVerticalStrut(15));
 
-    // 2. Sección de clientes
-    obtenerClientesDisponibles();
-    JPanel clientesPanel = new JPanel(new GridLayout(0, 1));
-    clientesPanel.setBorder(BorderFactory.createTitledBorder("Clientes"));
-    ((TitledBorder) clientesPanel.getBorder()).setTitleFont(fuenteTitulo);
-    clientesPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+        // 2. Sección de clientes
+        obtenerClientesDisponibles();
+        JPanel clientesPanel = new JPanel(new GridLayout(0, 1));
+        clientesPanel.setBorder(BorderFactory.createTitledBorder("Clientes"));
+        ((TitledBorder) clientesPanel.getBorder()).setTitleFont(fuenteTitulo);
+        clientesPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
 
-    for (String cliente : clientesDisponibles) {
-        JCheckBox chkCliente = new JCheckBox(cliente, true);
-        chkCliente.setFont(fuenteTexto);
-        chkClientesItems.add(chkCliente);
-        clientesPanel.add(chkCliente);
-    }
-
-    if (clientesDisponibles.size() > 4) {
-        JScrollPane scroll = new JScrollPane(clientesPanel);
-        scroll.setPreferredSize(new Dimension(180, 120));
-        panelFiltros.add(scroll);
-    } else {
-        panelFiltros.add(clientesPanel);
-    }
-
-    // 3. Botón de aplicar
-    RSButtonRiple btnAplicar = new RSButtonRiple();
-    btnAplicar.setText("Aplicar");
-    btnAplicar.setBackground(new Color(180, 180, 180));
-    btnAplicar.setColorHover(new Color(150, 150, 150));
-    btnAplicar.setPreferredSize(new Dimension(100, 25));
-    btnAplicar.setFont(fuenteBoton);
-    btnAplicar.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
-    btnAplicar.addActionListener(e -> {
-        aplicarFiltrosAvanzados();
-        filtrosMenu.setVisible(false);
-    });
-
-    panelFiltros.add(btnAplicar);
-    filtrosMenu.add(panelFiltros);
-
-    filtar.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            filtrosMenu.show(filtar, 0, filtar.getHeight());
+        for (String cliente : clientesDisponibles) {
+            JCheckBox chkCliente = new JCheckBox(cliente, true);
+            chkCliente.setFont(fuenteTexto);
+            chkClientesItems.add(chkCliente);
+            clientesPanel.add(chkCliente);
         }
-    });
-}
+
+        if (clientesDisponibles.size() > 4) {
+            JScrollPane scroll = new JScrollPane(clientesPanel);
+            scroll.setPreferredSize(new Dimension(180, 120));
+            panelFiltros.add(scroll);
+        } else {
+            panelFiltros.add(clientesPanel);
+        }
+
+        // 3. Botón de aplicar
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(180, 180, 180));
+        btnAplicar.setColorHover(new Color(150, 150, 150));
+        btnAplicar.setPreferredSize(new Dimension(100, 25));
+        btnAplicar.setFont(fuenteBoton);
+        btnAplicar.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
+        btnAplicar.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            filtrosMenu.setVisible(false);
+        });
+
+        panelFiltros.add(btnAplicar);
+        filtrosMenu.add(panelFiltros);
+
+        filtar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                filtrosMenu.show(filtar, 0, filtar.getHeight());
+            }
+        });
+    }
 
     // 3. Método para obtener clientes únicos
     private void obtenerClientesDisponibles() {
@@ -587,79 +584,75 @@ private void configurarMenuFiltros() {
         Collections.sort(clientesDisponibles);
     }
 
-private void aplicarFiltrosAvanzados() {
-    // Guardar selecciones de clientes
-    clientesDisponibles.clear();
-    for (JCheckBox chk : chkClientesItems) {
-        if (chk.isSelected()) {
-            clientesDisponibles.add(chk.getText());
+    private void aplicarFiltrosAvanzados() {
+        // Guardar selecciones de clientes
+        clientesDisponibles.clear();
+        for (JCheckBox chk : chkClientesItems) {
+            if (chk.isSelected()) {
+                clientesDisponibles.add(chk.getText());
+            }
+        }
+
+        DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
+
+        Map<String, Integer> columnIndices = new HashMap<>();
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            columnIndices.put(model.getColumnName(i), i);
+        }
+
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+        // Filtro por estado de pago con radio buttons
+        if (radioPendientes.isSelected()) {
+            // Pendientes: Pagado = 0 y Debido > 0
+            filtros.add(RowFilter.andFilter(Arrays.asList(
+                    RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado"))
+            )));
+        } else if (radioAbonos.isSelected()) {
+            // Con abonos: Pagado > 0 y Debido > 0
+            filtros.add(RowFilter.andFilter(Arrays.asList(
+                    RowFilter.notFilter(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado")))
+            )));
+        } else if (radioPagados.isSelected()) {
+            // Pagados completamente: Debido = 0 (o Pagado = MontoTotal)
+            filtros.add(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Debido")));
+
+        }
+
+        // Filtro por clientes seleccionados
+        List<String> clientesSeleccionados = chkClientesItems.stream()
+                .filter(JCheckBox::isSelected)
+                .map(JCheckBox::getText)
+                .collect(Collectors.toList());
+
+        if (!clientesSeleccionados.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", clientesSeleccionados) + ")$",
+                    columnIndices.get("Cliente")));
+        }
+
+        // Combinar todos los filtros
+        if (!filtros.isEmpty()) {
+            RowFilter<Object, Object> combinedFilter = RowFilter.andFilter(filtros);
+            sorter.setRowFilter(combinedFilter);
+        } else {
+            sorter.setRowFilter(null);
         }
     }
 
-    DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-    TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
-
-    Map<String, Integer> columnIndices = new HashMap<>();
-    for (int i = 0; i < model.getColumnCount(); i++) {
-        columnIndices.put(model.getColumnName(i), i);
+    /**
+     * ✅ Método auxiliar para convertir valores como "$1,200.50" a double
+     */
+    private double parseCurrency(String value) {
+        if (value == null || value.isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(value.replace("$", "").replace(",", "").trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
-
-    List<RowFilter<Object, Object>> filtros = new ArrayList<>();
-
-    // Filtro por estado de pago con radio buttons
-    if (radioPendientes.isSelected()) {
-        // Pendientes: Pagado = 0 y Debido > 0
-        filtros.add(RowFilter.andFilter(Arrays.asList(
-            RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado"))
-        )));
-    } else if (radioAbonos.isSelected()) {
-        // Con abonos: Pagado > 0 y Debido > 0
-        filtros.add(RowFilter.andFilter(Arrays.asList(
-            RowFilter.notFilter(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Pagado")))
-        )));
-    } else if (radioPagados.isSelected()) {
-        // Pagados completamente: Debido = 0 (o Pagado = MontoTotal)
-        filtros.add(RowFilter.regexFilter("^\\$0,00", columnIndices.get("Debido")));
-        
-        // Alternativa más precisa si tienes columna MontoTotal:
-        // filtros.add(RowFilter.andFilter(Arrays.asList(
-        //    RowFilter.regexFilter("^\\$0\\.00$", columnIndices.get("Debido")),
-        //    RowFilter.notFilter(RowFilter.regexFilter("^\\$0\\.00$", columnIndices.get("MontoTotal")))
-        // ));
-    }
-
-    // Filtro por clientes seleccionados
-    List<String> clientesSeleccionados = chkClientesItems.stream()
-            .filter(JCheckBox::isSelected)
-            .map(JCheckBox::getText)
-            .collect(Collectors.toList());
-
-    if (!clientesSeleccionados.isEmpty()) {
-        filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", clientesSeleccionados) + ")$",
-                columnIndices.get("Cliente")));
-    }
-
-    // Combinar todos los filtros
-    if (!filtros.isEmpty()) {
-        RowFilter<Object, Object> combinedFilter = RowFilter.andFilter(filtros);
-        sorter.setRowFilter(combinedFilter);
-    } else {
-        sorter.setRowFilter(null);
-    }
-}
-
-
-
-/** ✅ Método auxiliar para convertir valores como "$1,200.50" a double */
-private double parseCurrency(String value) {
-    if (value == null || value.isEmpty()) return 0.0;
-    try {
-        return Double.parseDouble(value.replace("$", "").replace(",", "").trim());
-    } catch (NumberFormatException e) {
-        return 0.0;
-    }
-}
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -782,165 +775,182 @@ private double parseCurrency(String value) {
     }//GEN-LAST:event_txtbuscarActionPerformed
 
     private void Tabla1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla1MouseClicked
-        int column = Tabla1.columnAtPoint(evt.getPoint());
-        int row = Tabla1.rowAtPoint(evt.getPoint());
+        // 1. Obtener posición del clic en la vista
+        int viewRow = Tabla1.rowAtPoint(evt.getPoint());
+        int viewColumn = Tabla1.columnAtPoint(evt.getPoint());
 
-        if (row >= 0) {
-            int idPedido = (int) Tabla1.getValueAt(row, 9);
+        if (viewRow >= 0 && viewColumn >= 0) {
+            // 2. Convertir índices de vista a modelo (para manejar filtros/ordenamiento)
+            int modelRow = Tabla1.convertRowIndexToModel(viewRow);
+            int modelColumn = Tabla1.convertColumnIndexToModel(viewColumn);
+
+            // 3. Obtener datos clave del modelo
+            int idPedido = (int) Tabla1.getModel().getValueAt(modelRow, 9); // Columna oculta
+            String numPedido = Tabla1.getModel().getValueAt(modelRow, 0).toString();
+
+            // 4. Obtener el objeto ingreso completo
             Ctrl_CajaIngresos.IngresoConDetalles ingreso = controlador.obtenerIngresos().stream()
-                    .filter(i -> i.getIdPedido() == idPedido).findFirst().orElse(null);
+                    .filter(i -> i.getIdPedido() == idPedido)
+                    .findFirst()
+                    .orElse(null);
 
             if (ingreso == null) {
-                JOptionPane.showMessageDialog(this, "No se encontraron datos para el pedido ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No se encontró el pedido seleccionado", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (column == 6) { // Columna "Abonar"
-                try {
-                    // Validar si el pedido ya está pagado completamente
-                    if (ingreso.getDebido() <= 0) {
-                        JOptionPane.showMessageDialog(this,
-                                "Este pedido ya ha sido pagado completamente.\n"
-                                + "Total pagado: " + formatCurrency(ingreso.getPagado()) + "\n"
-                                + "Monto total: " + formatCurrency(ingreso.getMontoTotal()),
-                                "Pago Completo",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
+            // 5. Manejar acciones según la columna clickeada
+            switch (modelColumn) {
+                case 6: // Columna "Abonar"
+                    manejarAbono(ingreso, numPedido);
+                    break;
 
-                    // Obtiene el JFrame padre del JPanel actual
-                    java.awt.Frame parentFrame = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
-                    if (parentFrame == null) {
-                        JOptionPane.showMessageDialog(this, "No se pudo obtener el JFrame padre.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                case 7: // Columna "Detalle"
+                    mostrarDetallesPedido(String.valueOf(idPedido));
+                    break;
 
-                    // Obtén el numPedido de la tabla
-                    Object numPedidoObj = Tabla1.getValueAt(row, 0);
-                    if (numPedidoObj == null) {
-                        JOptionPane.showMessageDialog(this, "Número de pedido inválido en la fila seleccionada.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    String numPedido = numPedidoObj.toString();
-
-                    // Crea el diálogo con los parámetros necesarios
-                    iAbonoNuevo dialog = new iAbonoNuevo(
-                            parentFrame, // Frame padre
-                            true, // Modal
-                            idPedido, // ID del pedido
-                            numPedido,
-                            controlador
-                    );
-                    dialog.setLocationRelativeTo(null);
-                    dialog.setVisible(true);
-
-                    // Actualizar la tabla después de cerrar el diálogo
-                    if (dialog.isGuardado()) {
-                        cargarDatosIniciales(); // Actualizar tabla si se guardó
-                    }
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Error al abrir el diálogo de abono: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-
-            } else if (column == 7) { // Columna "Detalle" (Ver)
-                // Obtener el ID de la columna oculta (índice 7 en el modelo)
-                String id = Tabla1.getModel().getValueAt(row, 9).toString();
-                mostrarDetallesPedido(id);
-
-            } else if (column == 8) { // Columna "Acciones" (Imprimir)
-                try {
-                    // Obtener datos completos del pedido
-                    Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
-                    if (material == null) {
-                        JOptionPane.showMessageDialog(this, "No se encontró el pedido para el ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    // Obtener detalles del pedido
-                    List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
-                    if (detalles == null || detalles.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "No se encontraron detalles para el pedido ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    // Formateador de números para moneda
-                    DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
-
-                    // Crear modelo de datos para el PDF
-                    DefaultTableModel pdfModel = new DefaultTableModel(
-                            new Object[detalles.size() + 3][6], // +3 para filas de totales y abonos
-                            new String[]{"Descripción", "Cantidad", "Dimensiones", "Precio Unitario", "Subtotal", "Total"}
-                    );
-
-                    // Llenar datos de los detalles
-                    double totalGeneral = 0;
-                    for (int i = 0; i < detalles.size(); i++) {
-                        PedidoDetalle detalle = detalles.get(i);
-                        pdfModel.setValueAt(detalle.getDescripcion(), i, 0);
-                        pdfModel.setValueAt(detalle.getCantidad(), i, 1);
-                        pdfModel.setValueAt(detalle.getDimensiones(), i, 2);
-                        pdfModel.setValueAt(df.format(detalle.getPrecioUnitario()), i, 3);
-                        pdfModel.setValueAt(df.format(detalle.getSubtotal()), i, 4);
-                        pdfModel.setValueAt(df.format(detalle.getTotal()), i, 5);
-                        totalGeneral += detalle.getTotal();
-                    }
-
-                    // Agregar fila de abonos si existen
-                    if (!ingreso.getAbonos().isEmpty()) {
-                        int rowAbonos = detalles.size() + 2;
-                        pdfModel.setValueAt("ABONOS REGISTRADOS", rowAbonos, 0);
-
-                        // Construir cadena con información de abonos
-                        StringBuilder abonosInfo = new StringBuilder();
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        for (Ingresos abono : ingreso.getAbonos()) {
-                            abonosInfo.append("Abono #").append(abono.getNumAbono())
-                                    .append(" - ").append(sdf.format(abono.getFechaPago()))
-                                    .append(": ").append(df.format(abono.getMonto()))
-                                    .append(" (").append(abono.getMetodoPago()).append(")\n");
-                        }
-                        pdfModel.setValueAt(abonosInfo.toString(), rowAbonos, 1);
-                    }
-
-                    // Generar nombre del archivo
-                    String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
-                            + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
-
-                    // Generar encabezado con información del cliente y pedido
-                    String encabezado = "Cliente: " + ingreso.getNombreCliente()
-                            + "\nPedido: " + material.getPedido().getNombre()
-                            + " (" + material.getPedido().getNum_pedido() + ")"
-                            + "\nFecha: " + (material.getPedido().getFecha_inicio() != null
-                            ? new SimpleDateFormat("dd/MM/yyyy").format(material.getPedido().getFecha_inicio()) : "Sin fecha");
-
-                    // Generar el PDF
-                    generadorPDF.generarPDF(
-                            ingreso.getNombreCliente(), // Nombre del cliente
-                            ingreso.getCodigoCliente(), // Código del cliente
-                            ingreso.getTelefonoCliente(), // Teléfono del cliente
-                            ingreso.getDireccionCliente(), // Dirección del cliente
-                            ingreso.getDepartamentoCliente(), // Nuevo: Departamento
-                            ingreso.getMunicipioCliente(), // Nuevo: Municipio
-                            pdfModel, // Tu DefaultTableModel con los datos
-                            df.format(ingreso.getMontoTotal()), // Monto total formateado
-                            archivoSalida, // Ruta de salida del PDF
-                            material.getPedido().getFecha_inicio() != null
-                            ? new SimpleDateFormat("dd/MM/yyyy").format(material.getPedido().getFecha_inicio()) : "Sin fecha",
-                            material.getPedido().getNum_pedido(),
-                            df.format(ingreso.getPagado()),
-                            df.format(ingreso.getDebido())
-                    // Fecha del pedido
-                    );
-
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Error al generar el PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
+                case 8: // Columna "Acciones"
+                    manejarImpresion(ingreso, idPedido);
+                    break;
             }
         }
-    }//GEN-LAST:event_Tabla1MouseClicked
+    }
 
+// Métodos auxiliares separados para mejor organización
+    private void manejarAbono(Ctrl_CajaIngresos.IngresoConDetalles ingreso, String numPedido) {
+        try {
+            if (ingreso.getDebido() <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Este pedido ya ha sido pagado completamente.\n"
+                        + "Total pagado: " + formatCurrency(ingreso.getPagado()) + "\n"
+                        + "Monto total: " + formatCurrency(ingreso.getMontoTotal()),
+                        "Pago Completo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            java.awt.Frame parentFrame = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+            iAbonoNuevo dialog = new iAbonoNuevo(
+                    parentFrame,
+                    true,
+                    ingreso.getIdPedido(),
+                    numPedido,
+                    controlador
+            );
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+
+            if (dialog.isGuardado()) {
+                cargarDatosIniciales();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al abrir el diálogo de abono: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void manejarImpresion(Ctrl_CajaIngresos.IngresoConDetalles ingreso, int idPedido) {
+        try {
+            Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
+            if (material == null) {
+                JOptionPane.showMessageDialog(this,
+                        "No se encontró el pedido para el ID: " + idPedido,
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
+            if (detalles == null || detalles.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "No se encontraron detalles para el pedido",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Configuración de formato
+            DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            // Generar PDF
+            String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
+                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
+
+            generadorPDF.generarPDF(
+                    ingreso.getNombreCliente(),
+                    ingreso.getCodigoCliente(),
+                    ingreso.getTelefonoCliente(),
+                    ingreso.getDireccionCliente(),
+                    ingreso.getDepartamentoCliente(),
+                    ingreso.getMunicipioCliente(),
+                    crearModeloParaPDF(detalles, ingreso, df, sdf),
+                    df.format(ingreso.getMontoTotal()),
+                    archivoSalida,
+                    material.getPedido().getFecha_inicio() != null
+                    ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha",
+                    material.getPedido().getNum_pedido(),
+                    df.format(ingreso.getPagado()),
+                    df.format(ingreso.getDebido())
+            );
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al generar PDF: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private DefaultTableModel crearModeloParaPDF(List<PedidoDetalle> detalles,
+            Ctrl_CajaIngresos.IngresoConDetalles ingreso,
+            DecimalFormat df,
+            SimpleDateFormat sdf) {
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[detalles.size() + (ingreso.getAbonos().isEmpty() ? 1 : 2)][6],
+                new String[]{"Descripción", "Cantidad", "Dimensiones", "Precio Unitario", "Subtotal", "Total"}
+        );
+
+        // Llenar detalles
+        for (int i = 0; i < detalles.size(); i++) {
+            PedidoDetalle detalle = detalles.get(i);
+            model.setValueAt(detalle.getDescripcion(), i, 0);
+            model.setValueAt(detalle.getCantidad(), i, 1);
+            model.setValueAt(detalle.getDimensiones(), i, 2);
+            model.setValueAt(df.format(detalle.getPrecioUnitario()), i, 3);
+            model.setValueAt(df.format(detalle.getSubtotal()), i, 4);
+            model.setValueAt(df.format(detalle.getTotal()), i, 5);
+        }
+
+        // Agregar abonos si existen
+        if (!ingreso.getAbonos().isEmpty()) {
+            int row = detalles.size();
+            model.setValueAt("ABONOS REGISTRADOS", row, 0);
+
+            StringBuilder abonosInfo = new StringBuilder();
+            for (Ingresos abono : ingreso.getAbonos()) {
+                abonosInfo.append("Abono #").append(abono.getNumAbono())
+                        .append(" - ").append(sdf.format(abono.getFechaPago()))
+                        .append(": ").append(df.format(abono.getMonto()))
+                        .append(" (").append(abono.getMetodoPago()).append(")\n");
+            }
+            model.setValueAt(abonosInfo.toString(), row, 1);
+        }
+
+        return model;
+
+    }//GEN-LAST:event_Tabla1MouseClicked
+    private void filtrarFilasPagadas() {
+        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
+
+        // Filtro para excluir filas donde la columna "Debido" sea "$0.00"
+        RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter("^(?!\\$0\\.00|\\$0,00).*", 5); // Columna 5 = "Debido"
+
+        sorter.setRowFilter(filter);
+    }
     private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
 
     }//GEN-LAST:event_filtarMouseClicked
