@@ -410,18 +410,14 @@ public final class Produccion extends javax.swing.JPanel {
         JPanel estadosPanel = new JPanel(new GridLayout(0, 1));
         estadosPanel.setBorder(BorderFactory.createTitledBorder("Estados"));
 
-        // Definir los 3 estados fijos
         String[] estadosFijos = {"pendiente", "proceso", "finalizado"};
-
         for (String estado : estadosFijos) {
             JCheckBox chkEstado = new JCheckBox(estado);
-            if (estadosSeleccionados.contains(estado)) {
-                chkEstado.setSelected(true);
-            }
+            // Marcar solo pendiente y proceso como seleccionados por defecto
+            chkEstado.setSelected(estado.equals("pendiente") || estado.equals("proceso"));
             chkEstados.add(chkEstado);
             estadosPanel.add(chkEstado);
         }
-
         mainPanel.add(estadosPanel);
         mainPanel.add(Box.createVerticalStrut(10));
 
@@ -509,142 +505,107 @@ public final class Produccion extends javax.swing.JPanel {
     }
 
 // Método para aplicar los filtros
-private void aplicarFiltrosAvanzados() {
-    // Guardar selecciones de estados
-    estadosSeleccionados.clear();
-    for (JCheckBox chk : chkEstados) {
-        if (chk.isSelected()) {
-            estadosSeleccionados.add(chk.getText().toLowerCase()); // Guardar en minúsculas para consistencia
-        }
-    }
-
-    // Guardar selecciones de clientes
-    clientesSeleccionados.clear();
-    for (JCheckBox chk : chkClientes) {
-        if (chk.isSelected()) {
-            clientesSeleccionados.add(chk.getText());
-        }
-    }
-
-    // Aplicar filtros a la tabla
-    DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-    sorter = new TableRowSorter<>(model);
-    Tabla1.setRowSorter(sorter);
-
-    List<RowFilter<Object, Object>> filtros = new ArrayList<>();
-
-    // Filtro por estados
-    if (!estadosSeleccionados.isEmpty()) {
-        filtros.add(new RowFilter<Object, Object>() {
-            @Override
-            public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
-                int idxEstado = -1;
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if ("Estado".equals(model.getColumnName(i))) {
-                        idxEstado = i;
-                        break;
-                    }
-                }
-                if (idxEstado == -1) return false;
-                String estado = entry.getStringValue(idxEstado);
-                return estado != null && estadosSeleccionados.stream().anyMatch(e -> e.equalsIgnoreCase(estado));
+    private void aplicarFiltrosAvanzados() {
+        // 1. Obtener las selecciones actuales de los checkboxes
+        estadosSeleccionados.clear();
+        for (JCheckBox chk : chkEstados) {
+            if (chk.isSelected()) {
+                estadosSeleccionados.add(chk.getText().toLowerCase());
             }
-        });
-    }
+        }
 
-    // Filtro por clientes
-    if (!clientesSeleccionados.isEmpty()) {
-        filtros.add(new RowFilter<Object, Object>() {
-            @Override
-            public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
-                int idxCliente = -1;
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if ("Cliente".equals(model.getColumnName(i))) {
-                        idxCliente = i;
-                        break;
-                    }
-                }
-                if (idxCliente == -1) return false;
-                String cliente = entry.getStringValue(idxCliente);
-                return cliente != null && clientesSeleccionados.stream().anyMatch(c -> c.equals(cliente));
+        // 2. Obtener las selecciones de clientes
+        clientesSeleccionados.clear();
+        for (JCheckBox chk : chkClientes) {
+            if (chk.isSelected()) {
+                clientesSeleccionados.add(chk.getText());
             }
-        });
-    }
+        }
 
-    // Filtro por fechas
-    if (fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null) {
-        filtros.add(new RowFilter<Object, Object>() {
-            @Override
-            public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
-                int idxFechaInicio = -1;
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if ("Fecha inicio".equals(model.getColumnName(i))) {
-                        idxFechaInicio = i;
-                        break;
-                    }
-                }
-                if (idxFechaInicio == -1) {
-                    
-                    return false;
-                }
+        // 3. Crear lista de filtros combinados
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
 
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                    String fechaStr = entry.getStringValue(idxFechaInicio);
-                    
-                    if (fechaStr == null || fechaStr.trim().isEmpty()) {
-                        
+        // 4. Filtro por estados (solo si hay estados seleccionados)
+        if (!estadosSeleccionados.isEmpty()) {
+            RowFilter<Object, Object> estadoFilter = RowFilter.regexFilter(
+                    "^(?i)(" + String.join("|", estadosSeleccionados) + ")$",
+                    7 // Columna 7 = Estado (ajusta según tu modelo)
+            );
+            filtros.add(estadoFilter);
+        }
+
+        // 5. Filtro por clientes (solo si hay clientes seleccionados)
+        if (!clientesSeleccionados.isEmpty()) {
+            RowFilter<Object, Object> clienteFilter = RowFilter.regexFilter(
+                    "^(?i)(" + String.join("|", clientesSeleccionados) + ")$",
+                    3 // Columna 3 = Cliente (ajusta según tu modelo)
+            );
+            filtros.add(clienteFilter);
+        }
+
+        // 6. Filtro por fechas (si hay fechas seleccionadas)
+        if (fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null) {
+            RowFilter<Object, Object> fechaFilter = new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        String fechaStr = entry.getStringValue(4); // Columna 4 = Fecha inicio
+                        Date fechaFila = sdf.parse(fechaStr);
+
+                        // Verificar fecha desde
+                        if (fechaDesdeSeleccionada != null && fechaFila.before(fechaDesdeSeleccionada)) {
+                            return false;
+                        }
+
+                        // Verificar fecha hasta
+                        if (fechaHastaSeleccionada != null && fechaFila.after(fechaHastaSeleccionada)) {
+                            return false;
+                        }
+
+                        return true;
+                    } catch (Exception e) {
                         return false;
                     }
-
-                    Date fechaFila = normalizarFecha(sdf.parse(fechaStr));
-                    Date desde = (fechaDesdeSeleccionada != null) ? normalizarFecha(fechaDesdeSeleccionada) : null;
-                    Date hasta = (fechaHastaSeleccionada != null) ? normalizarFecha(fechaHastaSeleccionada) : null;
-
-
-                    boolean fechaValida = true;
-                    // Incluir fechas iguales a "Desde" o "Hasta"
-                    if (desde != null && fechaFila.before(desde)) {
-                        fechaValida = false;
-                    }
-                    if (hasta != null && fechaFila.after(hasta)) {
-                        fechaValida = false;
-                    }
-
-                    return fechaValida;
-                } catch (Exception ex) {
-                    return false;
                 }
-            }
-        });
-    }
-
-    if (!filtros.isEmpty()) {
-        sorter.setRowFilter(RowFilter.andFilter(filtros));
-        // Verificar si no hay filas después de aplicar el filtro
-        if (Tabla1.getRowCount() == 0) {
-            
+            };
+            filtros.add(fechaFilter);
         }
-    } else {
-        sorter.setRowFilter(null);
-    }
 
-    Tabla1.repaint();
-}
+        // 7. Aplicar los filtros combinados
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+        } else {
+            // Si no hay filtros seleccionados, mostrar todos excepto "finalizado"
+            RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                    RowFilter.regexFilter("(?i)^finalizado$", 7)
+            );
+            sorter.setRowFilter(filtroInicial);
+        }
+
+        // 8. Actualizar la tabla
+        Tabla1.repaint();
+    }
 
 // Método para limpiar los filtros
     private void limpiarFiltros() {
+        // Restablecer checkboxes (solo pendiente y proceso seleccionados)
+        for (JCheckBox chk : chkEstados) {
+            chk.setSelected(chk.getText().equals("pendiente")
+                    || chk.getText().equals("proceso"));
+        }
+
+        // Limpiar otros filtros
         estadosSeleccionados.clear();
         clientesSeleccionados.clear();
         fechaDesdeSeleccionada = null;
         fechaHastaSeleccionada = null;
 
-        if (sorter != null) {
-            sorter.setRowFilter(null);
-        }
-
-        // Actualizar la tabla
-        cargarTablaProduccion();
+        // Aplicar filtro inicial (ocultar finalizados)
+        RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                RowFilter.regexFilter("(?i)^finalizado$", 7)
+        );
+        sorter.setRowFilter(filtroInicial);
     }
 
     private void mostrarSelectorFecha(boolean esDesde, JButton botonActualizar, JPopupMenu popup) {
@@ -681,8 +642,8 @@ private void aplicarFiltrosAvanzados() {
         fechaDialog.add(btnAceptar, BorderLayout.SOUTH);
         fechaDialog.setVisible(true);
     }
-    
-        private Date normalizarFecha(Date fecha) {
+
+    private Date normalizarFecha(Date fecha) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(fecha);
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -691,7 +652,6 @@ private void aplicarFiltrosAvanzados() {
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1114,6 +1074,7 @@ private void aplicarFiltrosAvanzados() {
         model.setRowCount(0);
 
         try (Connection con = new Conexion().getConnection()) {
+            // Consulta que trae TODOS los registros (incluyendo finalizados)
             String sql = "SELECT p.id_produccion, dp.descripcion, "
                     + "CONCAT(c.nombre, ' ', c.apellido) AS cliente, "
                     + "p.fecha_inicio, p.fecha_fin, p.estado, "
@@ -1125,6 +1086,7 @@ private void aplicarFiltrosAvanzados() {
                     + "ORDER BY p.estado ASC";
 
             try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
                 while (rs.next()) {
@@ -1143,11 +1105,16 @@ private void aplicarFiltrosAvanzados() {
                 }
             }
 
-            // Reaplicar filtros si existen
-            if (sorter != null && (estadosSeleccionados.size() > 0 || clientesSeleccionados.size() > 0
-                    || fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null)) {
-                aplicarFiltrosAvanzados();
-            }
+            // Configurar el filtro inicial para ocultar "finalizado"
+            sorter = new TableRowSorter<>(model);
+            Tabla1.setRowSorter(sorter);
+
+            // Filtro inicial que excluye "finalizado" pero no afecta los checkboxes
+            RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                    RowFilter.regexFilter("(?i)^finalizado$", 7) // Columna 7 = Estado
+            );
+            sorter.setRowFilter(filtroInicial);
+
         } catch (SQLException e) {
             new Error_guardar(
                     (Frame) SwingUtilities.getWindowAncestor(this),
