@@ -49,35 +49,39 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jPanel2" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
-                  <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
-                  <Component id="contenedor" min="-2" pref="1491" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="6" max="32767" attributes="0"/>
+                  <EmptySpace min="262" pref="262" max="-2" attributes="0"/>
+                  <Component id="jPanel5" pref="1506" max="32767" attributes="0"/>
               </Group>
               <Group type="102" attributes="0">
-                  <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="jPanel5" pref="1316" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                      <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="81" pref="81" max="-2" attributes="0"/>
+                          <Component id="contenedor" min="-2" pref="1491" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="jPanel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
-              <Component id="jPanel3" alignment="1" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <EmptySpace min="68" pref="68" max="-2" attributes="0"/>
+                  <Component id="jPanel5" pref="838" max="32767" attributes="0"/>
+              </Group>
+              <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="5" pref="5" max="-2" attributes="0"/>
+                          <EmptySpace min="66" pref="66" max="-2" attributes="0"/>
                           <Component id="contenedor" min="-2" pref="840" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="68" pref="68" max="-2" attributes="0"/>
-                          <Component id="jPanel5" min="-2" pref="810" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jPanel3" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
@@ -110,7 +114,7 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="810" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -177,7 +181,11 @@
                               <Component id="rolusuario" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
+
                       <EmptySpace pref="207" max="32767" attributes="0"/>
+
+                     
+
                   </Group>
               </Group>
             </DimensionLayout>
@@ -343,11 +351,11 @@
                   <Component id="uno" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="dos" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="cinco" min="-2" pref="250" max="-2" attributes="0"/>
+                  <Component id="siete1" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="ocho" min="-2" pref="250" max="-2" attributes="0"/>
+                  <Component id="tres" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="cuatro" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="seis" min="-2" pref="250" max="-2" attributes="0"/>
-                  <Component id="tres" min="-2" pref="250" max="-2" attributes="0"/>
-                  <Component id="siete1" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="nueve" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="diez" min="-2" pref="250" max="-2" attributes="0"/>
               </Group>
@@ -368,9 +376,14 @@
                               <Component id="cinco" min="-2" pref="52" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
+                              <EmptySpace min="197" pref="197" max="-2" attributes="0"/>
+                              <Component id="siete1" min="-2" pref="52" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
                               <EmptySpace min="247" pref="247" max="-2" attributes="0"/>
                               <Component id="ocho" min="-2" pref="53" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="tres" min="-2" pref="52" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
                               <EmptySpace min="47" pref="47" max="-2" attributes="0"/>
                               <Component id="cuatro" min="-2" pref="52" max="-2" attributes="0"/>
@@ -379,16 +392,12 @@
                               <EmptySpace min="147" pref="147" max="-2" attributes="0"/>
                               <Component id="seis" min="-2" pref="52" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="tres" min="-2" pref="52" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="197" pref="197" max="-2" attributes="0"/>
-                              <Component id="siete1" min="-2" pref="52" max="-2" attributes="0"/>
-                          </Group>
                       </Group>
                       <EmptySpace min="2" pref="2" max="-2" attributes="0"/>
                       <Component id="nueve" min="-2" pref="53" max="-2" attributes="0"/>
                       <EmptySpace min="2" pref="2" max="-2" attributes="0"/>
                       <Component id="diez" min="-2" pref="53" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -671,7 +680,7 @@
                   </Border>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/public-service_1.png"/>
+                  <Image iconType="3" name="/gears-set.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Ajustes               &#x25bc;"/>
                 <Property name="toolTipText" type="java.lang.String" value=""/>
@@ -696,8 +705,63 @@
             </Property>
           </Properties>
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
-            <Property name="useNullLayout" type="boolean" value="false"/>
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="uno1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="dos1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="cinco1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="ocho1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="cuatro1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="tres1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="siete2" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="diez1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="seis1" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="nueve1" min="-2" pref="40" max="-2" attributes="0"/>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="200" pref="200" max="-2" attributes="0"/>
+                      <Component id="uno1" min="-2" pref="50" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                      <Component id="dos1" min="-2" pref="50" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="100" pref="100" max="-2" attributes="0"/>
+                              <Component id="cinco1" min="-2" pref="51" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="250" pref="250" max="-2" attributes="0"/>
+                              <Component id="ocho1" min="-2" pref="52" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="50" pref="50" max="-2" attributes="0"/>
+                              <Component id="cuatro1" min="-2" pref="51" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="tres1" min="-2" pref="51" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="200" pref="200" max="-2" attributes="0"/>
+                              <Component id="siete2" min="-2" pref="51" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="350" pref="350" max="-2" attributes="0"/>
+                              <Component id="diez1" min="-2" pref="52" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="150" pref="150" max="-2" attributes="0"/>
+                              <Component id="seis1" min="-2" pref="51" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="300" pref="300" max="-2" attributes="0"/>
+                              <Component id="nueve1" min="-2" pref="52" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
           </Layout>
           <SubComponents>
             <Component class="rojeru_san.RSButton" name="uno1">
@@ -725,11 +789,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="uno1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="uno1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="200" width="40" height="50"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="dos1">
               <Properties>
@@ -756,11 +815,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="dos1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dos1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="250" width="40" height="50"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="tres1">
               <Properties>
@@ -787,11 +841,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tres1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tres1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="300" width="40" height="51"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="cuatro1">
               <Properties>
@@ -818,11 +867,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="cuatro1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cuatro1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="350" width="40" height="51"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="cinco1">
               <Properties>
@@ -846,11 +890,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="cinco1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cinco1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="400" width="40" height="51"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="seis1">
               <Properties>
@@ -874,11 +913,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="seis1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="seis1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="450" width="40" height="51"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="siete2">
               <Properties>
@@ -902,11 +936,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="siete2MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="siete2ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="500" width="40" height="51"/>
-                </Constraint>
-              </Constraints>
             </Component>
             <Component class="rojeru_san.RSButton" name="ocho1">
               <Properties>
@@ -930,11 +959,29 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ocho1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ocho1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="550" width="40" height="52"/>
-                </Constraint>
-              </Constraints>
+            </Component>
+            <Component class="rojeru_san.RSButton" name="diez1">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="51" green="1e" red="1d" type="rgb"/>
+                </Property>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="null"/>
+                </Property>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/gears-set.png"/>
+                </Property>
+                <Property name="colorHover" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="80" green="80" red="80" type="rgb"/>
+                </Property>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Tahoma" size="18" style="1"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="diez1MouseEntered"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="diez1ActionPerformed"/>
+              </Events>
             </Component>
             <Component class="rojeru_san.RSButton" name="nueve1">
               <Properties>
@@ -958,11 +1005,6 @@
                 <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="nueve1MouseEntered"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nueve1ActionPerformed"/>
               </Events>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="600" width="40" height="52"/>
-                </Constraint>
-              </Constraints>
             </Component>
           </SubComponents>
         </Container>
