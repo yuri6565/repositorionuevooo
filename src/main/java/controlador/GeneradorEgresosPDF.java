@@ -116,8 +116,8 @@ public class GeneradorEgresosPDF {
 
     private float addTable(PDPageContentStream contentStream, PDDocument document,
                           PDPage page, DefaultTableModel tablaModel, float yPosition) throws IOException {
-        String[] headers = {"Código", "Fecha Pago", "Monto", "Descripción", "Categoría", "Proveedor", "Productos", "Cantidad"};
-        float[] columnWidths = {50, 80, 80, 120, 100, 100, 120, 50};
+        String[] headers = {"Fecha Pago", "Monto", "Descripción", "Categoría"};
+        float[] columnWidths = {85,100,120,150};
 
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
         yPosition = dibujarEncabezadosTabla(contentStream, headers, columnWidths, yPosition);
@@ -162,7 +162,7 @@ public class GeneradorEgresosPDF {
         float x = MARGIN_LEFT;
         for (int col = 0; col < widths.length; col++) {
             Object value = model.getValueAt(row, col);
-            String text = formatearValor(value, col == 2); // Formatear como moneda solo la columna "Monto"
+            String text = formatearValor(value, col == 1); // Formatear como moneda solo la columna "Monto" (índice 1)
             escribirTextoTabla(contentStream, text, x, y);
             x += widths[col];
         }

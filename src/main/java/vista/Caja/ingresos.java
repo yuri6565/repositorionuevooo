@@ -668,6 +668,7 @@ public final class ingresos extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         Tabla1 = new RSMaterialComponent.RSTableMetroCustom();
         filtar = new rojerusan.RSLabelImage();
+        btnImprimirReg = new RSMaterialComponent.RSButtonShape();
 
         jPanel1.setBackground(new java.awt.Color(242, 247, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(1250, 630));
@@ -752,6 +753,21 @@ public final class ingresos extends javax.swing.JPanel {
             }
         });
         jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(482, 35, 34, 34));
+
+        btnImprimirReg.setBackground(new java.awt.Color(46, 49, 82));
+        btnImprimirReg.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        btnImprimirReg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/archivo-pdf.png"))); // NOI18N
+        btnImprimirReg.setText("Imprimir");
+        btnImprimirReg.setBackgroundHover(new java.awt.Color(67, 150, 209));
+        btnImprimirReg.setFont(new java.awt.Font("Roboto Bold", 1, 16)); // NOI18N
+        btnImprimirReg.setForma(RSMaterialComponent.RSButtonShape.FORMA.ROUND);
+        btnImprimirReg.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btnImprimirReg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImprimirRegActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnImprimirReg, new org.netbeans.lib.awtextra.AbsoluteConstraints(1120, 40, 110, 40));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -943,6 +959,24 @@ public final class ingresos extends javax.swing.JPanel {
         return model;
 
     }//GEN-LAST:event_Tabla1MouseClicked
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
+       
+    }//GEN-LAST:event_btnImprimirRegActionPerformed
+    
+    
     private void filtrarFilasPagadas() {
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
 
@@ -951,18 +985,6 @@ public final class ingresos extends javax.swing.JPanel {
 
         sorter.setRowFilter(filter);
     }
-    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
-
-    }//GEN-LAST:event_filtarMouseClicked
-
-    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
-    }//GEN-LAST:event_filtarMouseEntered
-
-    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
-        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
-    }//GEN-LAST:event_filtarMouseExited
-
     private void filtrarTabla() {
         String textoBusqueda = txtbuscar.getText().trim().toLowerCase(); // Convertir a minúsculas
         DefaultTableModel modelo = (DefaultTableModel) Tabla1.getModel();
@@ -994,6 +1016,7 @@ public final class ingresos extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
+    private RSMaterialComponent.RSButtonShape btnImprimirReg;
     private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;

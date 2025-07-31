@@ -320,7 +320,7 @@ public final class Egresos extends javax.swing.JPanel {
         jScrollPane3.setViewportView(Tabla1);
         Tabla1.getColumnModel().getColumn(0).setPreferredWidth(10);
 
-        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 1140, 520));
+        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 1150, 520));
 
         btnEliminar1.setBackground(new java.awt.Color(46, 49, 82));
         btnEliminar1.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -368,7 +368,7 @@ public final class Egresos extends javax.swing.JPanel {
 
         btnImprimirReg.setBackground(new java.awt.Color(46, 49, 82));
         btnImprimirReg.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        btnImprimirReg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/file-pdf-solid-60 (2).png"))); // NOI18N
+        btnImprimirReg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/archivo-pdf.png"))); // NOI18N
         btnImprimirReg.setText("Imprimir");
         btnImprimirReg.setBackgroundHover(new java.awt.Color(67, 150, 209));
         btnImprimirReg.setFont(new java.awt.Font("Roboto Bold", 1, 16)); // NOI18N
@@ -379,7 +379,7 @@ public final class Egresos extends javax.swing.JPanel {
                 btnImprimirRegActionPerformed(evt);
             }
         });
-        jPanel2.add(btnImprimirReg, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 30, 140, 60));
+        jPanel2.add(btnImprimirReg, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 110, 40));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -389,7 +389,7 @@ public final class Egresos extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 713, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -563,7 +563,7 @@ public final class Egresos extends javax.swing.JPanel {
     private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
 // Crear diálogo para seleccionar fechas
        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
-        String[] periodos = {"Semana", "Mes", "6 Meses", "Año", "Personalizado", "Por Categoría"};
+        String[] periodos = {"Ultima Semana", "Ultimos Mes", "Ultimos 6 Meses", "Ultimo Año", "Personalizado", "Por Categoría"};
         JComboBox<String> comboPeriodo = new JComboBox<>(periodos);
         List<Integer> años = obtenerAñosEgresos();
         JComboBox<Integer> comboAños = new JComboBox<>(años.toArray(new Integer[0]));
@@ -759,7 +759,6 @@ public final class Egresos extends javax.swing.JPanel {
                 double totalMonto = 0.0;
                 for (Caja caja : egresosFiltrados) {
                     model.addRow(new Object[]{
-                        caja.getId_codigo(),
                         caja.getFecha(),
                         caja.getMonto(),
                         caja.getDescripcion(),
