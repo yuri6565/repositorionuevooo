@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Frame;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,11 +18,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
@@ -29,6 +33,7 @@ import static javax.swing.SwingConstants.CENTER;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import modelo.Conexion;
 import vista.TemaManager;
@@ -39,7 +44,7 @@ import vista.TemaManager;
  */
 public final class ProduccionContEtapa extends javax.swing.JPanel {
 
-    private final int idProduccion;
+    private int idProduccion;
 
     /**
      * Creates new form ProduccionContDetalle
@@ -47,93 +52,90 @@ public final class ProduccionContEtapa extends javax.swing.JPanel {
      * @param idProduccion
      */
     public ProduccionContEtapa(int idProduccion) {
-        System.out.println("ID recibido en constructor: " + idProduccion);
         this.idProduccion = idProduccion;
+        System.out.println("ID de producción recibido: " + idProduccion);
+
         initComponents();
+
+        // Configuración básica de la tabla
+        Tabla1.setAutoCreateRowSorter(true);
+        Tabla1.setRowHeight(25);
+        Tabla1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Verificar conexión
+        testConexion();
+
+        // Cargar datos
+        cargarTablaEtapa();
+
         aplicarTema();
-
-        Tabla1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        Tabla1.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][]{},
-                new String[]{"Id", "Nombre", "Cantidad", "Fecha inicio", "Fecha final", "Estado", "Asignado", "Detalles", "Editar", "materiales", "herramientas"}
-        ));
-        // Oculta las columnas adicionales después de establecer el modelo
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(0)); // Oculta id
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(8)); // Oculta materiales
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(8)); // Oculta herramienta
-
-        Tabla1.getColumnModel().getColumn(4).setCellRenderer(new EstadoTableCellRenderer());
-
-        Tabla1.getColumnModel().getColumn(6).setCellRenderer(new VerTableCellRenderer());
-
-        Tabla1.getColumnModel().getColumn(7).setCellRenderer(new EditarTableCellRenderer());
-
-        Tabla1.setCellSelectionEnabled(false);
-        Tabla1.setRowSelectionAllowed(true);
-        Tabla1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
-        cargarTablaEtapa();    // Carga Tabla1
-        TemaManager.getInstance().addThemeChangeListener(() -> {
-            aplicarTema(); // Update theme when it changes
-        });
     }
-    
+
+    private void testConexion() {
+        try {
+            Connection testCon = Conexion.getConnection();
+            System.out.println("Conexión exitosa: " + testCon);
+            testCon.close();
+        } catch (SQLException e) {
+            System.err.println("Error de conexión: " + e.getMessage());
+        }
+    }
+
     public void aplicarTema() {
         boolean oscuro = TemaManager.getInstance().isOscuro();
 
         if (oscuro) {
-        // Configuración para modo oscuro
-        Color fondo = new Color(21, 21, 33);
-        Color fondoTabla = new Color(30, 30, 45);
-        Color encabezado = new Color(67, 71, 120);
-        Color texto = Color.WHITE;
+            // Configuración para modo oscuro
+            Color fondo = new Color(21, 21, 33);
+            Color fondoTabla = new Color(30, 30, 45);
+            Color encabezado = new Color(67, 71, 120);
+            Color texto = Color.WHITE;
 
-        // Panel principal
-        jPanel1.setBackground(fondo);
-        
-        // Campo de búsqueda
-        txtbuscar.setBackground(new Color(37, 37, 52));
-        txtbuscar.setForeground(texto);
-        txtbuscar.setColorIcon(texto);
-        txtbuscar.setPhColor(Color.LIGHT_GRAY);
+            // Panel principal
+            jPanel1.setBackground(fondo);
 
-        // Configuración COMPLETA de la tabla
-        Tabla1.setBackground(fondoTabla);
-        Tabla1.setForeground(texto);
-        
-        // Configuración de filas
-        Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
-        Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
-        Tabla1.setColorPrimaryText(texto);
-        Tabla1.setColorSecundaryText(texto);
-        
-        // Encabezados
-        Tabla1.setBackgoundHead(encabezado);
-        Tabla1.setForegroundHead(texto);
-        Tabla1.setColorBorderHead(encabezado);
-        
-        // Selección y hover
-        Tabla1.setSelectionBackground(new Color(67, 71, 120));
-        Tabla1.setBackgoundHover(new Color(40, 50, 90));
-        
-        // Bordes y grid
-        Tabla1.setColorBorderRows(new Color(60, 60, 60));
-        Tabla1.setGridColor(new Color(80, 80, 80));
-        Tabla1.setShowGrid(true);
-        
-        // Fuentes
-        Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
-        Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
-        Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
-        
-        // Efectos
-        Tabla1.setEffectHover(true);
+            // Campo de búsqueda
+            txtbuscar.setBackground(new Color(37, 37, 52));
+            txtbuscar.setForeground(texto);
+            txtbuscar.setColorIcon(texto);
+            txtbuscar.setPhColor(Color.LIGHT_GRAY);
 
-        // Botones
-        
+            // Configuración COMPLETA de la tabla
+            Tabla1.setBackground(fondoTabla);
+            Tabla1.setForeground(texto);
 
-    } else {
+            // Configuración de filas
+            Tabla1.setColorPrimary(new Color(37, 37, 52));  // Filas impares
+            Tabla1.setColorSecondary(new Color(30, 30, 45)); // Filas pares
+            Tabla1.setColorPrimaryText(texto);
+            Tabla1.setColorSecundaryText(texto);
+
+            // Encabezados
+            Tabla1.setBackgoundHead(encabezado);
+            Tabla1.setForegroundHead(texto);
+            Tabla1.setColorBorderHead(encabezado);
+
+            // Selección y hover
+            Tabla1.setSelectionBackground(new Color(67, 71, 120));
+            Tabla1.setBackgoundHover(new Color(40, 50, 90));
+
+            // Bordes y grid
+            Tabla1.setColorBorderRows(new Color(60, 60, 60));
+            Tabla1.setGridColor(new Color(80, 80, 80));
+            Tabla1.setShowGrid(true);
+
+            // Fuentes
+            Tabla1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+            Tabla1.setFontHead(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowHover(new Font("Tahoma", Font.BOLD, 15));
+            Tabla1.setFontRowSelect(new Font("Tahoma", Font.BOLD, 15));
+
+            // Efectos
+            Tabla1.setEffectHover(true);
+
+            
+
+        } else {
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
             Color primario = new Color(72, 92, 188);
@@ -166,7 +168,7 @@ public final class ProduccionContEtapa extends javax.swing.JPanel {
             Tabla1.setColorPrimary(new Color(242, 242, 242)); // Fondo filas impares
             Tabla1.setColorSecondary(Color.WHITE); // Fondo filas pares
             Tabla1.setForeground(Color.BLACK);
-
+            
         }
         Tabla1.repaint();
         Tabla1.getTableHeader().repaint();
@@ -215,94 +217,96 @@ public final class ProduccionContEtapa extends javax.swing.JPanel {
     // Renderizador para la columna de estado
 
     private void mostrarDetalleEtapa(DefaultTableModel model, int modelRow, int idEtapa) {
-    try {
-        // Obtener datos básicos de la fila seleccionada
-        String nombre = model.getValueAt(modelRow, 1).toString();
-        String cantidad = String.valueOf(model.getValueAt(modelRow, 2));
-        String fechaInicio = model.getValueAt(modelRow, 3).toString();
-        String fechaFin = model.getValueAt(modelRow, 4).toString();
-        String estado = model.getValueAt(modelRow, 5).toString();
-        String asignado = model.getValueAt(modelRow, 6) != null
-                ? model.getValueAt(modelRow, 6).toString() : "No asignado";
+        try {
+            // Obtener datos básicos de la fila seleccionada
+            String nombre = model.getValueAt(modelRow, 1).toString();
+            String cantidad = String.valueOf(model.getValueAt(modelRow, 2));
+            String fechaInicio = model.getValueAt(modelRow, 3).toString();
+            String fechaFin = model.getValueAt(modelRow, 4).toString();
+            String estado = model.getValueAt(modelRow, 5).toString();
+            String asignado = model.getValueAt(modelRow, 6) != null
+                    ? model.getValueAt(modelRow, 6).toString() : "No asignado";
 
-        // Consultar cantidades de materiales y herramientas desde la base de datos
-        Map<String, String> cantidadesMateriales = obtenerCantidadesMateriales(idEtapa);
-        Map<String, String> cantidadesHerramientas = obtenerCantidadesHerramientas(idEtapa);
+            // Consultar cantidades de materiales y herramientas desde la base de datos
+            Map<String, String> cantidadesMateriales = obtenerCantidadesMateriales(idEtapa);
+            Map<String, String> cantidadesHerramientas = obtenerCantidadesHerramientas(idEtapa);
 
-        // Crear el diálogo
-        DetallleEtapa dialog = new DetallleEtapa(
-                (JFrame) SwingUtilities.getWindowAncestor(this),
-                true,
-                idEtapa,
-                nombre,
-                cantidad,
-                fechaInicio,
-                fechaFin,
-                estado,
-                cantidadesMateriales, // Pasar Map en lugar de String
-                cantidadesHerramientas, // Pasar Map en lugar de String
-                asignado
-        );
+            // Crear el diálogo
+            DetallleEtapa dialog = new DetallleEtapa(
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    true,
+                    idEtapa,
+                    nombre,
+                    cantidad,
+                    fechaInicio,
+                    fechaFin,
+                    estado,
+                    cantidadesMateriales, // Pasar Map en lugar de String
+                    cantidadesHerramientas, // Pasar Map en lugar de String
+                    asignado
+            );
 
-        // Centrar y mostrar el diálogo
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
+            // Centrar y mostrar el diálogo
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this,
-                "Error al mostrar detalle: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al mostrar detalle: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
-}
-private Map<String, String> obtenerCantidadesMateriales(int idEtapa) {
-    Map<String, String> cantidades = new HashMap<>();
-    try (Connection con = Conexion.getConnection()) {
-        String sql = "SELECT i.nombre, ut.cantidad_usada "
-                + "FROM utilizado ut "
-                + "JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
-                + "WHERE ut.etapa_produccion_idetapa_produccion = ? AND i.tipo = 'material'";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idEtapa);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    cantidades.put(rs.getString("nombre"), rs.getString("cantidad_usada"));
+
+    private Map<String, String> obtenerCantidadesMateriales(int idEtapa) {
+        Map<String, String> cantidades = new HashMap<>();
+        try (Connection con = Conexion.getConnection()) {
+            String sql = "SELECT i.nombre, ut.cantidad_usada "
+                    + "FROM utilizado ut "
+                    + "JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
+                    + "WHERE ut.etapa_produccion_idetapa_produccion = ? AND i.tipo = 'material'";
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, idEtapa);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        cantidades.put(rs.getString("nombre"), rs.getString("cantidad_usada"));
+                    }
                 }
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al obtener materiales: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this,
-                "Error al obtener materiales: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
+        return cantidades;
     }
-    return cantidades;
-}
 
-private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
-    Map<String, String> cantidades = new HashMap<>();
-    try (Connection con = Conexion.getConnection()) {
-        String sql = "SELECT i.nombre, ut.cantidad_usada "
-                + "FROM utilizado ut "
-                + "JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
-                + "WHERE ut.etapa_produccion_idetapa_produccion = ? AND i.tipo = 'herramienta'";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idEtapa);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    cantidades.put(rs.getString("nombre"), rs.getString("cantidad_usada"));
+    private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
+        Map<String, String> cantidades = new HashMap<>();
+        try (Connection con = Conexion.getConnection()) {
+            String sql = "SELECT i.nombre, ut.cantidad_usada "
+                    + "FROM utilizado ut "
+                    + "JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
+                    + "WHERE ut.etapa_produccion_idetapa_produccion = ? AND i.tipo = 'herramienta'";
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, idEtapa);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        cantidades.put(rs.getString("nombre"), rs.getString("cantidad_usada"));
+                    }
                 }
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al obtener herramientas: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this,
-                "Error al obtener herramientas: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
+        return cantidades;
     }
-    return cantidades;
-}
-      private class EstadoTableCellRenderer extends DefaultTableCellRenderer {
+
+    private class EstadoTableCellRenderer extends DefaultTableCellRenderer {
 
         public EstadoTableCellRenderer() {
             setHorizontalAlignment(JLabel.CENTER);
@@ -333,7 +337,7 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
                         case "proceso":
                             label.setBackground(new Color(251, 139, 36)); // Amarillo oscuro
                             break;
-                        case "finalizado":
+                        case "completado":
                             label.setBackground(new Color(31, 123, 21)); // Verde oscuro
                             break;
                         default:
@@ -348,7 +352,7 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
                         case "proceso":
                             label.setBackground(new Color(255, 255, 153)); // Amarillo claro
                             break;
-                        case "finalizado":
+                        case "completado":
                             label.setBackground(new Color(204, 255, 204)); // Verde claro
                             break;
                         default:
@@ -474,6 +478,7 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
         Tabla1.setFontHead(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         Tabla1.setFontRowHover(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         Tabla1.setFontRowSelect(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Tabla1.setPreferredSize(new java.awt.Dimension(600, 310));
         Tabla1.setRowHeight(23);
         Tabla1.setSelectionBackground(new java.awt.Color(109, 160, 221));
         Tabla1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -503,8 +508,8 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
                 .addGap(52, 52, 52)
                 .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(38, 38, 38)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(153, Short.MAX_VALUE))
         );
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1190, 630));
@@ -516,7 +521,7 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
     }//GEN-LAST:event_txtbuscarActionPerformed
 
     private void Tabla1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla1MouseClicked
-            try {
+        try {
             int column = Tabla1.columnAtPoint(evt.getPoint());
             int viewRow = Tabla1.rowAtPoint(evt.getPoint());
 
@@ -526,20 +531,154 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
 
             int modelRow = Tabla1.convertRowIndexToModel(viewRow);
             DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-            int idEtapa = (int) model.getValueAt(modelRow, 0);
+            int idEtapa = (int) model.getValueAt(modelRow, 0); // ID está en la columna 0
 
-            if (column == 6) { // Columna "Ver"
-                mostrarDetalleEtapa(model, modelRow, idEtapa);
-            } else if (column == 7) { // Columna "Editar"
-                editarEtapa(model, modelRow, idEtapa);
+            // Si hicieron clic en la columna de acciones (7)
+            if (column == 7) {
+                // Crear menú emergente
+                JPopupMenu popup = new JPopupMenu();
+
+                JMenuItem verItem = new JMenuItem("Ver Detalles");
+                verItem.addActionListener(e -> mostrarDetalleEtapa(model, modelRow, idEtapa));
+
+                JMenuItem editarItem = new JMenuItem("Editar");
+                editarItem.addActionListener(e -> editarEtapa(model, modelRow, idEtapa));
+
+                popup.add(verItem);
+                popup.add(editarItem);
+
+                // Mostrar el menú donde hicieron clic
+                popup.show(Tabla1, evt.getX(), evt.getY());
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error al procesar clic: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
+
         }
     }//GEN-LAST:event_Tabla1MouseClicked
+    public boolean eliminarEtapa(int idEtapa) {
+        Connection con = null;
+        try {
+            con = Conexion.getConnection();
+            con.setAutoCommit(false); // Iniciar transacción
+
+            // 1. Obtener todos los materiales/herramientas utilizados en esta etapa
+            String sqlSelect = "SELECT i.id_inventario, ut.cantidad_usada, i.cantidad as cantidad_actual "
+                    + "FROM utilizado ut "
+                    + "JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
+                    + "WHERE ut.etapa_produccion_idetapa_produccion = ?";
+
+            // 2. Actualizar inventario (sumar las cantidades usadas)
+            String sqlUpdateInventario = "UPDATE inventario SET cantidad = ? "
+                    + "WHERE id_inventario = ?";
+
+            // 3. Eliminar asignaciones de empleados
+            String sqlDeleteAsignada = "DELETE FROM asignada WHERE etapa_produccion_idetapa_produccion = ?";
+
+            // 4. Eliminar registros de materiales/herramientas utilizados
+            String sqlDeleteUtilizado = "DELETE FROM utilizado WHERE etapa_produccion_idetapa_produccion = ?";
+
+            // 5. Eliminar la etapa de producción
+            String sqlDeleteEtapa = "DELETE FROM etapa_produccion WHERE idetapa_produccion = ?";
+
+            // Paso 1: Obtener items utilizados y preparar actualización de inventario
+            try (PreparedStatement psSelect = con.prepareStatement(sqlSelect); PreparedStatement psUpdate = con.prepareStatement(sqlUpdateInventario)) {
+
+                psSelect.setInt(1, idEtapa);
+                ResultSet rs = psSelect.executeQuery();
+
+                while (rs.next()) {
+                    int idInventario = rs.getInt("id_inventario");
+                    double cantidadUsada = rs.getDouble("cantidad_usada");
+                    String cantidadActualStr = rs.getString("cantidad_actual");
+
+                    // Convertir cantidad actual de String (con coma) a double
+                    double cantidadActual = convertirStringADouble(cantidadActualStr);
+
+                    // Calcular nueva cantidad
+                    double nuevaCantidad = cantidadActual + cantidadUsada;
+
+                    // Convertir de vuelta a String con formato de coma
+                    String nuevaCantidadStr = convertirDoubleAString(nuevaCantidad);
+
+                    // Preparar actualización para cada item
+                    psUpdate.setString(1, nuevaCantidadStr);
+                    psUpdate.setInt(2, idInventario);
+                    psUpdate.addBatch();
+                }
+
+                // Ejecutar todas las actualizaciones de inventario
+                psUpdate.executeBatch();
+            }
+
+            // Paso 2: Eliminar asignaciones de empleados
+            try (PreparedStatement ps = con.prepareStatement(sqlDeleteAsignada)) {
+                ps.setInt(1, idEtapa);
+                ps.executeUpdate();
+            }
+
+            // Paso 3: Eliminar registros de materiales utilizados
+            try (PreparedStatement ps = con.prepareStatement(sqlDeleteUtilizado)) {
+                ps.setInt(1, idEtapa);
+                ps.executeUpdate();
+            }
+
+            // Paso 4: Eliminar la etapa de producción
+            try (PreparedStatement ps = con.prepareStatement(sqlDeleteEtapa)) {
+                ps.setInt(1, idEtapa);
+                int affectedRows = ps.executeUpdate();
+
+                if (affectedRows > 0) {
+                    con.commit(); // Confirmar todas las operaciones
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            try {
+                if (con != null) {
+                    con.rollback(); // Revertir en caso de error
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this,
+                    "Error al eliminar la etapa: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true); // Restaurar auto-commit
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+// Método para convertir String con coma a double
+    private double convertirStringADouble(String cantidadStr) throws SQLException {
+        if (cantidadStr == null || cantidadStr.isEmpty()) {
+            return 0.0;
+        }
+        try {
+            // Reemplazar coma por punto para parsear a double
+            return Double.parseDouble(cantidadStr.replace(",", "."));
+        } catch (NumberFormatException e) {
+            throw new SQLException("Formato de cantidad inválido en inventario: " + cantidadStr);
+        }
+    }
+
+// Método para convertir double a String con coma
+    private String convertirDoubleAString(double cantidad) {
+        // Formatear el double con coma decimal
+        return String.format(Locale.GERMAN, "%.2f", cantidad)
+                .replace(".", ","); // Asegurar formato con coma
+    }
 
     private void editarEtapa(DefaultTableModel model, int modelRow, int idEtapa) {
         try {
@@ -621,58 +760,85 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
     // End of variables declaration//GEN-END:variables
 
     public void cargarTablaEtapa() {
+        // 1. Crear modelo de tabla con columnas visibles
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"ID", "Nombre", "Cantidad", "Fecha inicio", "Fecha fin", "Estado", "Asignado", "Acciones"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hacer todas las celdas no editables
+            }
+
+            @Override
+            public Class<?> getColumnClass(int column) {
+                // Especificar tipos de datos para cada columna
+                switch (column) {
+                    case 0:
+                        return Integer.class; // ID
+                    case 2:
+                        return Integer.class; // Cantidad
+                    default:
+                        return String.class;
+                }
+            }
+        };
+
+        // 2. Asignar el modelo a la tabla
+        Tabla1.setModel(model);
+
+        // 3. Configurar ancho de columnas
+        Tabla1.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
+        Tabla1.getColumnModel().getColumn(6).setPreferredWidth(100); // Asignado
+        Tabla1.getColumnModel().getColumn(7).setPreferredWidth(120); // Acciones
+
+        // 4. Conexión y consulta a la base de datos
         try (Connection con = Conexion.getConnection()) {
-            // Consulta SQL que usa la tabla asignada
-            String sql = "SELECT "
-                    + "ep.idetapa_produccion, "
-                    + "ep.nombre_etapa, "
-                    + "ep.cantidad, "
-                    + "ep.fecha_inicio, "
-                    + "ep.fecha_fin, "
-                    + "ep.estado, "
-                    + "u.nombre AS trabajador_asignado, "
-                    + "GROUP_CONCAT(DISTINCT CASE WHEN i.tipo = 'material' THEN i.nombre ELSE NULL END SEPARATOR ', ') AS materiales, "
-                    + "GROUP_CONCAT(DISTINCT CASE WHEN i.tipo = 'herramienta' THEN i.nombre ELSE NULL END SEPARATOR ', ') AS herramientas "
+            String sql = "SELECT ep.idetapa_produccion, ep.nombre_etapa, ep.cantidad, "
+                    + "ep.fecha_inicio, ep.fecha_fin, ep.estado, "
+                    + "u.nombre AS asignado "
                     + "FROM etapa_produccion ep "
                     + "LEFT JOIN asignada a ON ep.idetapa_produccion = a.etapa_produccion_idetapa_produccion "
                     + "LEFT JOIN usuario u ON a.usuario_id_usuario = u.id_usuario "
-                    + "LEFT JOIN utilizado ut ON ep.idetapa_produccion = ut.etapa_produccion_idetapa_produccion "
-                    + "LEFT JOIN inventario i ON ut.inventario_id_inventario = i.id_inventario "
                     + "WHERE ep.produccion_id_produccion = ? "
-                    + "GROUP BY ep.idetapa_produccion "
                     + "ORDER BY ep.fecha_inicio ASC";
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, this.idProduccion);
-                try (ResultSet rs = ps.executeQuery()) {
-                    DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-                    model.setRowCount(0);
+                ResultSet rs = ps.executeQuery();
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-                    while (rs.next()) {
-                        model.addRow(new Object[]{
-                            rs.getInt("idetapa_produccion"), // Columna 0 (oculta)
-                            rs.getString("nombre_etapa"), // Columna 1
-                            rs.getInt("cantidad"), // Columna 2
-                            sdf.format(rs.getDate("fecha_inicio")), // Columna 3
-                            rs.getDate("fecha_fin") != null ? sdf.format(rs.getDate("fecha_fin")) : "En proceso", // Columna 4
-                            rs.getString("estado"), // Columna 5
-                            rs.getString("trabajador_asignado"), // Columna 6
-                            "Ver", // Columna 7 (botón)
-                            "Editar",
-                            rs.getString("materiales"), // Columna 8 (oculta)
-                            rs.getString("herramientas") // Columna 9 (oculta)
-                        });
-                    }
+                // 5. Poblar la tabla con los resultados
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("idetapa_produccion"),
+                        rs.getString("nombre_etapa"),
+                        rs.getInt("cantidad"),
+                        sdf.format(rs.getDate("fecha_inicio")),
+                        rs.getDate("fecha_fin") != null ? sdf.format(rs.getDate("fecha_fin")) : "En proceso",
+                        rs.getString("estado"),
+                        rs.getString("asignado") != null ? rs.getString("asignado") : "No asignado",
+                        "Ver/Editar" // Columna combinada para acciones
+                    });
                 }
+
+                System.out.println("Registros cargados: " + model.getRowCount());
             }
         } catch (SQLException e) {
+            System.err.println("Error en cargarTablaEtapa: " + e.getMessage());
             JOptionPane.showMessageDialog(this,
-                    "Error al cargar etapas de producción: " + e.getMessage(),
+                    "Error al cargar datos: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         }
+
+        // 6. Configurar renderizadores DESPUÉS de cargar los datos
+        Tabla1.getColumnModel().getColumn(5).setCellRenderer(new EstadoTableCellRenderer());
+        Tabla1.getColumnModel().getColumn(7).setCellRenderer(new AccionesTableCellRenderer());
+
+        // 7. Forzar actualización visual
+        Tabla1.revalidate();
+        Tabla1.repaint();
     }
 
     private void filtrarTabla() {
@@ -706,6 +872,49 @@ private Map<String, String> obtenerCantidadesHerramientas(int idEtapa) {
         else {
             // Buscar en todos los campos
             tr.setRowFilter(RowFilter.regexFilter("(?i)" + textoBusqueda));
+        }
+    }
+
+    private class AccionesTableCellRenderer extends DefaultTableCellRenderer {
+
+        private final Font fontNormal = new Font("Tahoma", Font.PLAIN, 12);
+        private final Font fontBold = new Font("Tahoma", Font.BOLD, 12);
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            // Configuración basada en el tema
+            if (oscuro) {
+                if (isSelected) {
+                    c.setBackground(new Color(67, 71, 120));
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(row % 2 == 0 ? new Color(37, 37, 52) : new Color(30, 30, 45));
+                    c.setForeground(Color.WHITE);
+                }
+            } else {
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(row % 2 == 0 ? new Color(242, 242, 242) : Color.WHITE);
+                    c.setForeground(Color.BLACK);
+                }
+            }
+
+            setHorizontalAlignment(CENTER);
+            setText("Ver/Editar");
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(oscuro ? new Color(100, 100, 100) : new Color(200, 200, 200), 1),
+                    BorderFactory.createEmptyBorder(0, 5, 0, 5)
+            ));
+            setFont(isSelected ? fontBold : fontNormal);
+
+            return c;
         }
     }
 

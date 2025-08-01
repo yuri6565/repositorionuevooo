@@ -4,6 +4,7 @@
  */
 package vista.InventarioTrap;
 
+import vista.Inventario0.*;
 import controlador.Ctrl_CategoriaHerramienta;
 import controlador.Ctrl_MarcaHerramienta;
 import controlador.Ctrl_UnidadHerramienta;
@@ -325,8 +326,6 @@ public class herramientaInfo extends javax.swing.JDialog {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(herramientaInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 

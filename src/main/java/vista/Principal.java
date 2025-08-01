@@ -450,6 +450,8 @@ public class Principal extends javax.swing.JFrame {
             siete1.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios_1.png")));
             ocho.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service_1.png")));
             nueve.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
+                        nueve1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
+
             diez.setIcon(new ImageIcon(getClass().getResource("/imagenes/mechanical (1).png")));
 
             item1.setIcon(new ImageIcon(getClass().getResource("/imagenes/tratar-con-cuidado.png")));
@@ -471,7 +473,7 @@ public class Principal extends javax.swing.JFrame {
             seis1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-registradora_1.png")));
             siete2.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios_1.png")));
             ocho1.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service_1.png")));
-            diez1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogar.png")));
+            diez1.setIcon(new ImageIcon(getClass().getResource("/imagenes/mechanical (1).png")));
             btnNotificacion1.setForeground(new Color(255, 255, 255));
             rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/logo blancoooo.png")));
 
@@ -529,7 +531,9 @@ public class Principal extends javax.swing.JFrame {
             seis1.setIcon(new ImageIcon(getClass().getResource("/imagenes/caja-registradora.png")));
             siete2.setIcon(new ImageIcon(getClass().getResource("/imagenes/gestion-de-usuarios.png")));
             ocho1.setIcon(new ImageIcon(getClass().getResource("/imagenes/public-service.png")));
-            diez1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
+            nueve1.setIcon(new ImageIcon(getClass().getResource("/imagenes/catalogarnegro.png")));
+
+            diez1.setIcon(new ImageIcon(getClass().getResource("/imagenes/mechanical.png")));
             rSPanelImage3.setImagen(new ImageIcon(getClass().getResource("/imagenes/logo_azul_sin_letras.png")));
 
         }
@@ -560,6 +564,8 @@ public class Principal extends javax.swing.JFrame {
         cambiarEstiloBotonRS(seis1, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(siete2, fondoBoton, textoBoton);
         cambiarEstiloBotonRS(ocho1, fondoBoton, textoBoton);
+        cambiarEstiloBotonRS(nueve1, fondoBoton, textoBoton);
+
         cambiarEstiloBotonRS(diez1, fondoBoton, textoBoton);
 
         // Labels

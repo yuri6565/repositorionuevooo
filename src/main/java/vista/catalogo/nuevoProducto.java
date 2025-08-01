@@ -39,6 +39,7 @@ import modelo.Categoria;
 import modelo.catalogoproducto;
 
 public class nuevoProducto extends javax.swing.JDialog {
+
     private String rutaImagenSeleccionada;
     private List<byte[]> imagenesBytes = new ArrayList<>();
     private rojeru_san.rspanel.RSPanelImage[] etiquetasImagenes;
@@ -60,16 +61,48 @@ public class nuevoProducto extends javax.swing.JDialog {
 
         configurarAutocompletadoUnidades();
         List<rojeru_san.rspanel.RSPanelImage> imagenesList = new ArrayList<>();
-        if (rSLabelImage3 != null) imagenesList.add(rSLabelImage3); else System.out.println("rSLabelImage3 es null");
-        if (rSLabelImage6 != null) imagenesList.add(rSLabelImage6); else System.out.println("rSLabelImage6 es null");
-        if (rSLabelImage8 != null) imagenesList.add(rSLabelImage8); else System.out.println("rSLabelImage8 es null");
-        if (rSLabelImage9 != null) imagenesList.add(rSLabelImage9); else System.out.println("rSLabelImage9 es null");
+        if (rSLabelImage3 != null) {
+            imagenesList.add(rSLabelImage3);
+        } else {
+            System.out.println("rSLabelImage3 es null");
+        }
+        if (rSLabelImage6 != null) {
+            imagenesList.add(rSLabelImage6);
+        } else {
+            System.out.println("rSLabelImage6 es null");
+        }
+        if (rSLabelImage8 != null) {
+            imagenesList.add(rSLabelImage8);
+        } else {
+            System.out.println("rSLabelImage8 es null");
+        }
+        if (rSLabelImage9 != null) {
+            imagenesList.add(rSLabelImage9);
+        } else {
+            System.out.println("rSLabelImage9 es null");
+        }
         etiquetasImagenes = imagenesList.toArray(new rojeru_san.rspanel.RSPanelImage[0]);
         List<rojerusan.RSLabelIcon> iconosList = new ArrayList<>();
-        if (rSLabelIcon6 != null) iconosList.add(rSLabelIcon6); else System.out.println("rSLabelIcon6 es null");
-        if (rSLabelIcon7 != null) iconosList.add(rSLabelIcon7); else System.out.println("rSLabelIcon7 es null");
-        if (rSLabelIcon8 != null) iconosList.add(rSLabelIcon8); else System.out.println("rSLabelIcon8 es null");
-        if (rSLabelIcon9 != null) iconosList.add(rSLabelIcon9); else System.out.println("rSLabelIcon9 es null");
+        if (rSLabelIcon6 != null) {
+            iconosList.add(rSLabelIcon6);
+        } else {
+            System.out.println("rSLabelIcon6 es null");
+        }
+        if (rSLabelIcon7 != null) {
+            iconosList.add(rSLabelIcon7);
+        } else {
+            System.out.println("rSLabelIcon7 es null");
+        }
+        if (rSLabelIcon8 != null) {
+            iconosList.add(rSLabelIcon8);
+        } else {
+            System.out.println("rSLabelIcon8 es null");
+        }
+        if (rSLabelIcon9 != null) {
+            iconosList.add(rSLabelIcon9);
+        } else {
+            System.out.println("rSLabelIcon9 es null");
+        }
         etiquetasIconos = iconosList.toArray(new rojerusan.RSLabelIcon[0]);
         agregarListenersAImagenes();
         jLabel14.setText("Agregar Producto a " + this.nombreCategoria);
@@ -309,9 +342,13 @@ public class nuevoProducto extends javax.swing.JDialog {
     }
 
     private boolean esMedidaValida(String medida) {
-        if (medida.trim().isEmpty()) return true;
+        if (medida.trim().isEmpty()) {
+            return true;
+        }
         String[] partes = medida.trim().split("\\s+");
-        if (partes.length < 1 || partes.length > 2) return false;
+        if (partes.length < 1 || partes.length > 2) {
+            return false;
+        }
         try {
             Double.parseDouble(partes[0]);
             if (partes.length == 2) {
@@ -347,6 +384,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelnombre.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -378,6 +416,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelalto.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -409,6 +448,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelalto.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -440,6 +480,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelalto.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -470,6 +511,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelcolor.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -500,6 +542,7 @@ public class nuevoProducto extends javax.swing.JDialog {
                     jlabelma.setText("TIPO");
                 }
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -524,6 +567,7 @@ public class nuevoProducto extends javax.swing.JDialog {
             }
         });
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -869,11 +913,13 @@ public class nuevoProducto extends javax.swing.JDialog {
     }//GEN-LAST:event_txtmaterial1ActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-agregarOcultadorDeErrores(txtNombre, jlabelnombre);
+        agregarOcultadorDeErrores(txtNombre, jlabelnombre);
 
         boolean hayErrores = false;
+        String nombreProducto = txtNombre.getText().trim();
+
         // Validar Nombre
-        if (txtNombre.getText().trim().isEmpty()) {
+        if (nombreProducto.isEmpty()) {
             jlabelnombre.setText("Este campo es obligatorio");
             jlabelnombre.setForeground(Color.RED);
             jlabelnombre.setVisible(true);
@@ -926,6 +972,16 @@ agregarOcultadorDeErrores(txtNombre, jlabelnombre);
             return;
         }
 
+        // Verificar si el producto ya existe
+        Ctrl_productocatalogo ctrlProducto = new Ctrl_productocatalogo();
+        if (ctrlProducto.existeProducto(nombreProducto, idCategoria)) {
+            JOptionPane.showMessageDialog(this,
+                    "Ya existe un producto con este nombre en la categoría seleccionada.",
+                    "Producto duplicado",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         // Si todo está bien, crear el producto y guardar
         String alto = txtNombre13.getText().trim();
         String ancho = txtNombre3.getText().trim();
@@ -945,7 +1001,6 @@ agregarOcultadorDeErrores(txtNombre, jlabelnombre);
         producto.setImagen4(imagenesBytes.size() > 3 ? imagenesBytes.get(3) : null);
         producto.setIdCategoria(idCategoria);
 
-        Ctrl_productocatalogo ctrlProducto = new Ctrl_productocatalogo();
         if (ctrlProducto.guardar(producto)) {
             JOptionPane.showMessageDialog(this, "Producto guardado exitosamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             if (getParent() instanceof Productos) {
@@ -955,11 +1010,12 @@ agregarOcultadorDeErrores(txtNombre, jlabelnombre);
         } else {
             JOptionPane.showMessageDialog(this, "Error al guardar el producto. Verifique los campos y las imágenes.", "Error", JOptionPane.ERROR_MESSAGE);
             System.out.println("Error al guardar producto con idCategoria: " + idCategoria);
+
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar1ActionPerformed
-        // TODO add your handling code here:
+        this.dispose();
     }//GEN-LAST:event_btnCancelar1ActionPerformed
 
     private void txtNombre9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombre9ActionPerformed
@@ -989,10 +1045,10 @@ agregarOcultadorDeErrores(txtNombre, jlabelnombre);
     /**
      * @param args the command line arguments
      */
-/**
- * @param args the command line arguments
- */
-public static void main(String args[]) {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -1064,19 +1120,20 @@ public static void main(String args[]) {
     private RSMaterialComponent.RSTextFieldMaterial txtmaterial1;
     // End of variables declaration//GEN-END:variables
 
-private void agregarOcultadorDeErrores(JTextField campo, JLabel errorLabel) {
-    campo.getDocument().addDocumentListener(new DocumentListener() {
-        public void insertUpdate(DocumentEvent e) {
-            errorLabel.setVisible(false);
-        }
-        public void removeUpdate(DocumentEvent e) {
-            errorLabel.setVisible(false);
-        }
-        public void changedUpdate(DocumentEvent e) {
-            errorLabel.setVisible(false);
-        }
-    });
-}
+    private void agregarOcultadorDeErrores(JTextField campo, JLabel errorLabel) {
+        campo.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                errorLabel.setVisible(false);
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                errorLabel.setVisible(false);
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                errorLabel.setVisible(false);
+            }
+        });
+    }
 
 }
-
