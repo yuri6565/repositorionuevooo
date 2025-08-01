@@ -231,8 +231,13 @@ public class Usuarios1 extends javax.swing.JPanel {
     class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
 
 
-        private RSLabelIcon editIcon;
-        private RSLabelIcon deleteIcon;
+        deleteIcon = new RSLabelIcon();
+        deleteIcon.setIcons(ValoresEnum.ICONS.CANCEL);
+        deleteIcon.setToolTipText("Eliminar");
+        deleteIcon.setPreferredSize(new Dimension(20, 20));
+    
+        add(deleteIcon);
+
 
         public ButtonPanelRenderer() {
             setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
@@ -243,10 +248,11 @@ public class Usuarios1 extends javax.swing.JPanel {
             editIcon.setToolTipText("Editar");
             editIcon.setPreferredSize(new Dimension(20, 20));
 
-            deleteIcon = new RSLabelIcon();
-            deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
-            deleteIcon.setToolTipText("Eliminar");
-            deleteIcon.setPreferredSize(new Dimension(20, 20));
+        setBackground(fondo);
+    
+       
+         deleteIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33)); // Color azul que pediste
+
 
             add(editIcon);
             add(deleteIcon);
@@ -350,12 +356,17 @@ public class Usuarios1 extends javax.swing.JPanel {
                                 JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario.");
                             }
 
-                        }
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario: " + ex.getMessage());
-                    }
-                }
-            });
+    private void updateTheme() {
+        boolean oscuro = TemaManager.getInstance().isOscuro();
+        Color bgColor = oscuro ? new Color(21, 21, 33) : new Color(255, 255, 255);
+        panel.setBackground(bgColor);
+        deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+        deleteIcon.setForeground(Color.RED); // Red for delete icon
+        
+        
+        
+    }
+
 
             updateTheme();
             TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
@@ -484,6 +495,7 @@ public class Usuarios1 extends javax.swing.JPanel {
             tablaUsuarios.setGridColor(Color.BLACK);
 
             btnNuevo1.setBackground(new Color(46, 49, 82));
+
             filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
 
         }
@@ -578,6 +590,7 @@ public class Usuarios1 extends javax.swing.JPanel {
         rolesSeleccionados.clear();
         if (chkAdministrador != null) {
             chkAdministrador.setSelected(false);
+
         }
         if (chkTrabajador != null) {
             chkTrabajador.setSelected(false);
