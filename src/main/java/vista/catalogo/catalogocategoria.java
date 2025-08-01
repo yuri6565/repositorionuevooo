@@ -4,6 +4,7 @@
  */
 package vista.catalogo;
 
+import controlador.Ctrl_catalogocategoria;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -18,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import modelo.Catalogocategoria;
 import vista.alertas.productoexito;
 
 public class catalogocategoria extends javax.swing.JDialog {
@@ -239,44 +241,60 @@ public class catalogocategoria extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // 1. Validar el nombre
-        agregarOcultadorDeErrores(txtNombre, jLabel2);
+    // 1. Validar el nombre
+    agregarOcultadorDeErrores(txtNombre, jLabel2);
 
-        boolean hayErrores = false;
-        if (txtNombre.getText().trim().isEmpty()) {
-            jLabel2.setText("Este campo es obligatorio");
-            jLabel2.setForeground(Color.RED);
-            jLabel2.setVisible(true);
-            hayErrores = true;
+    boolean hayErrores = false;
+    String nombreCategoria = txtNombre.getText().trim();
+    
+    if (nombreCategoria.isEmpty()) {
+        jLabel2.setText("Este campo es obligatorio");
+        jLabel2.setForeground(Color.RED);
+        jLabel2.setVisible(true);
+        hayErrores = true;
+    }
+
+    // 2. Verificar si la categoría ya existe
+    Ctrl_catalogocategoria ctrlCategoria = new Ctrl_catalogocategoria();
+    if (ctrlCategoria.existeCategoria(nombreCategoria)) {
+        JOptionPane.showMessageDialog(this, 
+            "Ya existe una categoría con este nombre.", 
+            "Categoría duplicada", 
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 3. Validar imagen (opcional)
+    byte[] imagenCategoria = this.imagenBytes;
+    if (imagenCategoria == null) {
+        int respuesta = JOptionPane.showConfirmDialog(this,
+                "¿Desea continuar sin imagen?",
+                "Confirmación",
+                JOptionPane.YES_NO_OPTION);
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
         }
+        imagenCategoria = new byte[0];
+    }
 
-        String nombreCategoria = txtNombre.getText().trim();
-
-        byte[] imagenCategoria = this.imagenBytes;
-        if (imagenCategoria == null) {
-            int respuesta = JOptionPane.showConfirmDialog(this,
-                    "¿Desea continuar sin imagen?",
-                    "Confirmación",
-                    JOptionPane.YES_NO_OPTION);
-
-            if (respuesta != JOptionPane.YES_OPTION) {
-                return;
-            }
-            imagenCategoria = new byte[0];
-        }
-        //
-        // 3. Crear y guardar la categoría
-        modelo.Catalogocategoria nuevaCategoria = new modelo.Catalogocategoria(); // Asegúrate de que el constructor exista
-        nuevaCategoria.setNombre(nombreCategoria);
-        nuevaCategoria.setImagen(imagenCategoria);
-        dispose();
-
-        // 4. Aquí deberías guardar la categoría en la base de datos o donde sea necesario
-        // Ejemplo: ctrlCategoria.guardarCategoria(nuevaCategoria);
+    // 4. Crear y guardar la categoría
+    Catalogocategoria nuevaCategoria = new Catalogocategoria();
+    nuevaCategoria.setNombre(nombreCategoria);
+    nuevaCategoria.setImagen(imagenCategoria);
+    
+    // Guardar en la base de datos
+    if (ctrlCategoria.guardar(nuevaCategoria)) {
         productoexito exito = new productoexito();
-        exito.setVisible(true); // Mostrar el diálogo
+        exito.setVisible(true);
         dispose();
-
+    } else {
+        JOptionPane.showMessageDialog(this,
+            "Error al guardar la categoría",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    
+}                                          
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnGuardar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar2ActionPerformed

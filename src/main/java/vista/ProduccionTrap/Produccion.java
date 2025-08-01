@@ -5,32 +5,57 @@
 package vista.ProduccionTrap;
 
 import vista.Produccion.*;
+import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import modelo.Conexion;
+import rojeru_san.RSButtonRiple;
 import vista.TemaManager;
 
 /**
@@ -42,10 +67,22 @@ public final class Produccion extends javax.swing.JPanel {
     private java.awt.Frame parent;
     private int idProduccion;
 
+    // Variables de instancia para los filtros
+    private JPopupMenu popupFiltrosAvanzados;
+    private List<JCheckBox> chkEstados = new ArrayList<>();
+    private JDateChooser dateDesde;
+    private JDateChooser dateHasta;
+    private List<JCheckBox> chkClientes = new ArrayList<>();
+    private TableRowSorter<DefaultTableModel> sorter;
+    private List<String> estadosSeleccionados = new ArrayList<>();
+    private List<String> clientesSeleccionados = new ArrayList<>();
+    private Date fechaDesdeSeleccionada;
+    private Date fechaHastaSeleccionada;
+
     /**
      * Creates new form produccionContenido
      */
-    public Produccion(JFrame jFrame) {
+    public Produccion(JFrame jFrame, boolean par) {
         initComponents();
         aplicarTema();
         Tabla1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -53,7 +90,7 @@ public final class Produccion extends javax.swing.JPanel {
         // Configura el modelo de tabla correctamente
         DefaultTableModel model = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"Codigo", "Nombre", "Fecha inicio", "Fecha Final", "Estado", "Detalle", "Editar", "Cantidad", "Dimensiones"}
+                new String[]{"id produccion", "Codigo Pedido", "Nombre", "Cliente", "Fecha inicio", "Fecha Final", "Cantidad", "Estado", "Detalle", "Dimensiones"}
         ) {
 
             @Override
@@ -70,23 +107,42 @@ public final class Produccion extends javax.swing.JPanel {
         Tabla1.setModel(model);
 
         // Oculta las columnas adicionales después de establecer el modelo
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(6)); // Oculta Dimensiones
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(6)); // Oculta Cantidad
-        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(6)); // Oculta Cantidad
+        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(9)); // Oculta Dimensiones
+        Tabla1.removeColumn(Tabla1.getColumnModel().getColumn(0)); // Oculta Dimensiones
 
         // Configura el renderizador especial para la columna de estado (sobrescribe el general)
-        Tabla1.getColumnModel().getColumn(4).setCellRenderer(new EstadoTableCellRenderer());
+        Tabla1.getColumnModel().getColumn(6).setCellRenderer(new EstadoTableCellRenderer());
 
         // Configura el renderizador especial para la columna "Ver" (sobrescribe el general)
-        Tabla1.getColumnModel().getColumn(5).setCellRenderer(new VerTableCellRenderer());
+        Tabla1.getColumnModel().getColumn(7).setCellRenderer(new VerTableCellRenderer());
         // Configura el buscador
         txtbuscar.getDocument().addDocumentListener(new BuscadorDocumentListener());
+        // Ajustar el ancho de la columna
+        TableColumn cantidadColumn = Tabla1.getColumnModel().getColumn(7);
+        cantidadColumn.setPreferredWidth(10);
 
+        TableColumn cantidadColumn2 = Tabla1.getColumnModel().getColumn(0);
+        cantidadColumn2.setPreferredWidth(8);
         // Carga los datos
         cargarTablaProduccion();
         TemaManager.getInstance().addThemeChangeListener(() -> {
             aplicarTema(); // Update theme when it changes
         });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
     }
 
     public void aplicarTema() {
@@ -141,8 +197,11 @@ public final class Produccion extends javax.swing.JPanel {
             // Efectos
             Tabla1.setEffectHover(true);
 
-            // Botones
             
+            
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
         } else {
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
@@ -176,14 +235,53 @@ public final class Produccion extends javax.swing.JPanel {
             Tabla1.setColorPrimary(new Color(242, 242, 242)); // Fondo filas impares
             Tabla1.setColorSecondary(Color.WHITE); // Fondo filas pares
             Tabla1.setForeground(Color.BLACK);
-            
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
         }
         Tabla1.repaint();
         Tabla1.getTableHeader().repaint();
     }
 // Clase del renderizador
 
-    
+    private class EditarTableCellRenderer extends DefaultTableCellRenderer {
+
+        private final Font fontNormal = new Font("Tahoma", Font.PLAIN, 14);
+        private final Font fontBold = new Font("Tahoma", Font.BOLD, 14);
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            // Configuración basada en el tema
+            if (oscuro) {
+                if (isSelected) {
+                    c.setBackground(new Color(67, 71, 120)); // Seleccionado
+                    c.setForeground(Color.WHITE);
+                } else {
+                    // Alternar colores para filas pares/impares
+                    c.setBackground(row % 2 == 0 ? new Color(37, 37, 52) : new Color(30, 30, 45));
+                    c.setForeground(Color.WHITE);
+                }
+            } else {
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(row % 2 == 0 ? new Color(242, 242, 242) : Color.WHITE);
+                    c.setForeground(Color.BLACK);
+                }
+            }
+            setHorizontalAlignment(CENTER);
+            setText("Editar");
+            setBorder(BorderFactory.createLineBorder(oscuro ? new Color(153, 153, 153) : new Color(153, 153, 153), 1));
+            setFont(isSelected ? fontBold : fontNormal);
+
+            return c;
+        }
+    }
 // Renderizador para la columna de estado
 
     private class EstadoTableCellRenderer extends DefaultTableCellRenderer {
@@ -277,6 +375,7 @@ public final class Produccion extends javax.swing.JPanel {
                     c.setBackground(row % 2 == 0 ? new Color(242, 242, 242) : Color.WHITE);
                     c.setForeground(Color.BLACK);
                 }
+
             }
 
             setHorizontalAlignment(CENTER);
@@ -286,6 +385,271 @@ public final class Produccion extends javax.swing.JPanel {
 
             return c;
         }
+    }
+
+    // Método para inicializar el popup de filtros
+    private void inicializarPopupFiltrosAvanzados() {
+        popupFiltrosAvanzados = new JPopupMenu();
+        chkEstados.clear();
+        chkClientes.clear();
+
+        Set<String> clientesUnicos = new HashSet<>();
+
+        DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            clientesUnicos.add(model.getValueAt(i, 3).toString());
+        }
+
+        // Panel principal
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Sección de Estados - Solo las 3 opciones fijas
+        JPanel estadosPanel = new JPanel(new GridLayout(0, 1));
+        estadosPanel.setBorder(BorderFactory.createTitledBorder("Estados"));
+
+        String[] estadosFijos = {"pendiente", "proceso", "finalizado"};
+        for (String estado : estadosFijos) {
+            JCheckBox chkEstado = new JCheckBox(estado);
+            // Marcar solo pendiente y proceso como seleccionados por defecto
+            chkEstado.setSelected(estado.equals("pendiente") || estado.equals("proceso"));
+            chkEstados.add(chkEstado);
+            estadosPanel.add(chkEstado);
+        }
+        mainPanel.add(estadosPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Sección de Fechas
+        JPanel fechaPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        fechaPanel.setBorder(BorderFactory.createTitledBorder("Rango de Fechas"));
+
+        JButton btnDesde = new JButton(fechaDesdeSeleccionada != null
+                ? new SimpleDateFormat("dd/MM/yyyy").format(fechaDesdeSeleccionada) : "Seleccionar");
+        JButton btnHasta = new JButton(fechaHastaSeleccionada != null
+                ? new SimpleDateFormat("dd/MM/yyyy").format(fechaHastaSeleccionada) : "Seleccionar");
+
+        btnDesde.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false); // Cierra el popup primero
+            mostrarSelectorFecha(true, btnDesde, popupFiltrosAvanzados);
+        });
+
+        btnHasta.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false); // Cierra el popup primero
+            mostrarSelectorFecha(false, btnHasta, popupFiltrosAvanzados);
+        });
+
+        fechaPanel.add(new JLabel("Desde:"));
+        fechaPanel.add(btnDesde);
+        fechaPanel.add(new JLabel("Hasta:"));
+        fechaPanel.add(btnHasta);
+
+        mainPanel.add(fechaPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Sección de Clientes
+        if (!clientesUnicos.isEmpty()) {
+            JPanel clientesPanel = new JPanel(new GridLayout(0, 1));
+            clientesPanel.setBorder(BorderFactory.createTitledBorder("Clientes"));
+
+            for (String cliente : clientesUnicos) {
+                JCheckBox chkCliente = new JCheckBox(cliente);
+                // Restaurar selección de clientes
+                if (clientesSeleccionados.contains(cliente)) {
+                    chkCliente.setSelected(true);
+                }
+                chkClientes.add(chkCliente);
+                clientesPanel.add(chkCliente);
+            }
+
+            if (clientesUnicos.size() > 4) {
+                JScrollPane scroll = new JScrollPane(clientesPanel);
+                scroll.setPreferredSize(new Dimension(180, 120));
+                mainPanel.add(scroll);
+            } else {
+                mainPanel.add(clientesPanel);
+            }
+        }
+
+        // Panel de botones
+        JPanel botonesPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        botonesPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        // Botón Limpiar
+        RSButtonRiple btnLimpiar = new RSButtonRiple();
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBackground(new Color(180, 180, 180));
+        btnLimpiar.setColorHover(new Color(150, 150, 150));
+        btnLimpiar.setPreferredSize(new Dimension(100, 25)); // Tamaño más pequeño
+        btnLimpiar.addActionListener(e -> {
+            limpiarFiltros();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnLimpiar);
+
+        // Botón Aplicar
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(46, 49, 82));
+        btnAplicar.setColorHover(new Color(0, 153, 51));
+        btnAplicar.setPreferredSize(new Dimension(100, 25)); // Tamaño más pequeño
+        btnAplicar.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnAplicar);
+
+        mainPanel.add(botonesPanel);
+        popupFiltrosAvanzados.add(mainPanel);
+    }
+
+// Método para aplicar los filtros
+    private void aplicarFiltrosAvanzados() {
+        // 1. Obtener las selecciones actuales de los checkboxes
+        estadosSeleccionados.clear();
+        for (JCheckBox chk : chkEstados) {
+            if (chk.isSelected()) {
+                estadosSeleccionados.add(chk.getText().toLowerCase());
+            }
+        }
+
+        // 2. Obtener las selecciones de clientes
+        clientesSeleccionados.clear();
+        for (JCheckBox chk : chkClientes) {
+            if (chk.isSelected()) {
+                clientesSeleccionados.add(chk.getText());
+            }
+        }
+
+        // 3. Crear lista de filtros combinados
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
+
+        // 4. Filtro por estados (solo si hay estados seleccionados)
+        if (!estadosSeleccionados.isEmpty()) {
+            RowFilter<Object, Object> estadoFilter = RowFilter.regexFilter(
+                    "^(?i)(" + String.join("|", estadosSeleccionados) + ")$",
+                    7 // Columna 7 = Estado (ajusta según tu modelo)
+            );
+            filtros.add(estadoFilter);
+        }
+
+        // 5. Filtro por clientes (solo si hay clientes seleccionados)
+        if (!clientesSeleccionados.isEmpty()) {
+            RowFilter<Object, Object> clienteFilter = RowFilter.regexFilter(
+                    "^(?i)(" + String.join("|", clientesSeleccionados) + ")$",
+                    3 // Columna 3 = Cliente (ajusta según tu modelo)
+            );
+            filtros.add(clienteFilter);
+        }
+
+        // 6. Filtro por fechas (si hay fechas seleccionadas)
+        if (fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null) {
+            RowFilter<Object, Object> fechaFilter = new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        String fechaStr = entry.getStringValue(4); // Columna 4 = Fecha inicio
+                        Date fechaFila = sdf.parse(fechaStr);
+
+                        // Verificar fecha desde
+                        if (fechaDesdeSeleccionada != null && fechaFila.before(fechaDesdeSeleccionada)) {
+                            return false;
+                        }
+
+                        // Verificar fecha hasta
+                        if (fechaHastaSeleccionada != null && fechaFila.after(fechaHastaSeleccionada)) {
+                            return false;
+                        }
+
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }
+            };
+            filtros.add(fechaFilter);
+        }
+
+        // 7. Aplicar los filtros combinados
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+        } else {
+            // Si no hay filtros seleccionados, mostrar todos excepto "finalizado"
+            RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                    RowFilter.regexFilter("(?i)^finalizado$", 7)
+            );
+            sorter.setRowFilter(filtroInicial);
+        }
+
+        // 8. Actualizar la tabla
+        Tabla1.repaint();
+    }
+
+// Método para limpiar los filtros
+    private void limpiarFiltros() {
+        // Restablecer checkboxes (solo pendiente y proceso seleccionados)
+        for (JCheckBox chk : chkEstados) {
+            chk.setSelected(chk.getText().equals("pendiente")
+                    || chk.getText().equals("proceso"));
+        }
+
+        // Limpiar otros filtros
+        estadosSeleccionados.clear();
+        clientesSeleccionados.clear();
+        fechaDesdeSeleccionada = null;
+        fechaHastaSeleccionada = null;
+
+        // Aplicar filtro inicial (ocultar finalizados)
+        RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                RowFilter.regexFilter("(?i)^finalizado$", 7)
+        );
+        sorter.setRowFilter(filtroInicial);
+    }
+
+    private void mostrarSelectorFecha(boolean esDesde, JButton botonActualizar, JPopupMenu popup) {
+        JDialog fechaDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Seleccionar Fecha", true);
+        fechaDialog.setSize(250, 250);
+        fechaDialog.setLayout(new BorderLayout());
+
+        fechaDialog.setLocationRelativeTo(filtar);
+
+        JCalendar calendar = new JCalendar();
+        calendar.setWeekOfYearVisible(false);
+
+        JButton btnAceptar = new JButton("Aceptar");
+        btnAceptar.addActionListener(e -> {
+            Date fechaSeleccionada = calendar.getDate();
+            if (esDesde) {
+                fechaDesdeSeleccionada = fechaSeleccionada;
+            } else {
+                fechaHastaSeleccionada = fechaSeleccionada;
+            }
+
+            // Actualizar el texto del botón
+            botonActualizar.setText(new SimpleDateFormat("dd/MM/yyyy").format(fechaSeleccionada));
+            fechaDialog.dispose();
+
+            // Volver a mostrar el popup de filtros
+            SwingUtilities.invokeLater(() -> {
+                popup.show(filtar, 0, filtar.getHeight());
+            });
+        });
+
+        fechaDialog.add(calendar, BorderLayout.CENTER);
+        fechaDialog.add(btnAceptar, BorderLayout.SOUTH);
+        fechaDialog.setVisible(true);
+    }
+
+    private Date normalizarFecha(Date fecha) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fecha);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     /**
@@ -302,11 +666,13 @@ public final class Produccion extends javax.swing.JPanel {
         txtbuscar = new RSMaterialComponent.RSTextFieldMaterialIcon();
         jScrollPane4 = new javax.swing.JScrollPane();
         Tabla1 = new RSMaterialComponent.RSTableMetroCustom();
+        filtar = new rojerusan.RSLabelImage();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setPreferredSize(new java.awt.Dimension(1250, 630));
 
         jPanel1.setBackground(new java.awt.Color(242, 247, 255));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         txtbuscar.setBackground(new java.awt.Color(245, 245, 245));
         txtbuscar.setForeground(new java.awt.Color(29, 30, 91));
@@ -319,6 +685,7 @@ public final class Produccion extends javax.swing.JPanel {
                 txtbuscarActionPerformed(evt);
             }
         });
+        jPanel1.add(txtbuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 430, 40));
 
         Tabla1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -358,6 +725,7 @@ public final class Produccion extends javax.swing.JPanel {
         Tabla1.setFontHead(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         Tabla1.setFontRowHover(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         Tabla1.setFontRowSelect(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Tabla1.setPreferredSize(new java.awt.Dimension(450, 499));
         Tabla1.setRowHeight(23);
         Tabla1.setSelectionBackground(new java.awt.Color(109, 160, 221));
         Tabla1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -368,27 +736,21 @@ public final class Produccion extends javax.swing.JPanel {
         jScrollPane4.setViewportView(Tabla1);
         Tabla1.getColumnModel().getColumn(0).setPreferredWidth(10);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 1211, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(33, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 627, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+        jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 67, 1211, 536));
+
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(465, 24, 35, 35));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -398,7 +760,7 @@ public final class Produccion extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -407,45 +769,33 @@ public final class Produccion extends javax.swing.JPanel {
     }//GEN-LAST:event_txtbuscarActionPerformed
 
     private void Tabla1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla1MouseClicked
-
         try {
-            // 1. Obtener posición del clic
             int column = Tabla1.columnAtPoint(evt.getPoint());
             int viewRow = Tabla1.rowAtPoint(evt.getPoint());
 
-            // 2. Validar que el clic fue en una fila y columna válida
             if (viewRow < 0 || column < 0) {
                 return;
             }
 
-            // 3. Convertir índice de vista a modelo (importante con filtros)
-            int modelRow = Tabla1.convertRowIndexToModel(viewRow);
-            DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+            if (column == 7) { // Columna "Ver Detalle"
+                int modelRow = Tabla1.convertRowIndexToModel(viewRow);
+                DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
 
-            // 4. Obtener el ID de producción (columna 0)
-            int idProduccion = obtenerIdProduccion(model, modelRow);
-            if (idProduccion <= 0) {
-                return;
+                // Obtener el ID de producción directamente de la columna 0
+                int idProduccion = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
+
+                // Llamar al método con solo el ID de producción
+                mostrarDetalleProduccion(idProduccion);
             }
-
-            // 5. Determinar qué acción ejecutar según la columna clickeada
-            switch (column) {
-                case 5: // Columna "Ver Detalle"
-                    mostrarDetalleProduccion(model, modelRow, idProduccion);
-                    break;
-
-                case 6: // Columna "Editar"
-                    editarProduccion(model, modelRow, idProduccion);
-                    break;
-            }
-
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al procesar clic: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            new Error_guardar(
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    true,
+                    "Error",
+                    "Error al procesar clic: " + e.getMessage()
+            ).setVisible(true);
             e.printStackTrace();
         }
-        cargarTablaProduccion();
     }
 
 // Método auxiliar para obtener el ID de producción con validación
@@ -455,93 +805,130 @@ public final class Produccion extends javax.swing.JPanel {
             int id = Integer.parseInt(idObj.toString());
 
             if (id <= 0) {
-                JOptionPane.showMessageDialog(this,
-                        "ID de producción no válido",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                new Error_guardar(
+                        (Frame) SwingUtilities.getWindowAncestor(this),
+                        true,
+                        "Error",
+                        "ID de producción no válido"
+                ).setVisible(true);
                 return -1;
             }
             return id;
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Formato de ID inválido",
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            new Error_guardar(
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    true,
+                    "Error",
+                    "Formato de ID inválido"
+            ).setVisible(true);
             return -1;
         }
     }
 
-// Método para mostrar el detalle de producción
-    private void mostrarDetalleProduccion(DefaultTableModel model, int modelRow, int idProduccion) {
-        try {
-            // 1. Obtener datos de la fila
-            String nombre = obtenerValorCelda(model, modelRow, 1);
-            String fechaInicio = obtenerValorCelda(model, modelRow, 2);
-            String fechaFin = obtenerValorCelda(model, modelRow, 3, "En proceso");
-            String estado = obtenerValorCelda(model, modelRow, 4);
-            int cantidad = obtenerValorCeldaEntero(model, modelRow, 7);
-            String dimensiones = obtenerValorCelda(model, modelRow, 8);
+    private int obtenerIdProduccionDesdeBD(int idPedido) throws SQLException {
+        String sql = "SELECT p.id_produccion "
+                + "FROM produccion p "
+                + "JOIN detalle_pedido dp ON p.detalle_pedido_iddetalle_pedido = dp.iddetalle_pedido "
+                + "JOIN pedido ped ON dp.pedido_id_pedido = ped.id_pedido "
+                + "WHERE ped.id_pedido = ?";
 
-            // 2. Crear y mostrar panel de detalle
-            DetalleProduProducto detallePanel = new DetalleProduProducto(
-                    idProduccion,
-                    nombre,
-                    fechaInicio,
-                    fechaFin,
-                    estado,
-                    String.valueOf(cantidad),
-                    dimensiones
-            );
-
-            // 3. Reemplazar contenido actual con el panel de detalle
-            removeAll();
-            setLayout(new BorderLayout());
-            add(detallePanel, BorderLayout.CENTER);
-            revalidate();
-            repaint();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al mostrar detalle: " + e.getMessage(), e);
+        try (Connection con = new Conexion().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPedido);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("id_produccion") : -1;
+            }
         }
     }
 
-// Método para editar producción
-    private void editarProduccion(DefaultTableModel model, int modelRow, int idProduccion) {
+    private int obtenerIdDetallePedido(int idProduccion) throws SQLException {
+        String sql = "SELECT detalle_pedido_iddetalle_pedido FROM produccion WHERE id_produccion = ?";
+
+        try (Connection con = new Conexion().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProduccion);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("detalle_pedido_iddetalle_pedido");
+                } else {
+                    throw new SQLException("No se encontró detalle de pedido para la producción: " + idProduccion);
+                }
+            }
+        }
+    }
+
+// Método para mostrar el detalle de producción
+    private void mostrarDetalleProduccion(int idProduccion) {
         try {
-            // 1. Obtener datos de la fila
-            String nombre = obtenerValorCelda(model, modelRow, 1);
-            String fechaInicio = obtenerValorCelda(model, modelRow, 2);
-            String fechaFin = obtenerValorCelda(model, modelRow, 3, "En proceso");
-            String estado = obtenerValorCelda(model, modelRow, 4);
-            int cantidad = obtenerValorCeldaEntero(model, modelRow, 7);
-            String dimensiones = obtenerValorCelda(model, modelRow, 8);
-
-            // 2. Crear y configurar diálogo de edición
-            EditProduccion dialog = new EditProduccion(
-                    (Frame) SwingUtilities.getWindowAncestor(this),
-                    true,
-                    idProduccion
-            );
-
-            dialog.setDatos(
-                    idProduccion,
-                    nombre,
-                    fechaInicio,
-                    fechaFin,
-                    estado,
-                    cantidad,
-                    dimensiones
-            );
-
-            // 3. Mostrar diálogo y recargar datos si hubo cambios
-            dialog.setVisible(true);
-            if (dialog.datosModificados()) {
-                cargarTablaProduccion();
+            if (idProduccion <= 0) {
+                throw new IllegalArgumentException("ID de producción inválido: " + idProduccion);
             }
 
+            String sql = "SELECT p.id_produccion, dp.descripcion, "
+                    + "CONCAT(c.nombre, ' ', c.apellido) AS cliente, "
+                    + "p.fecha_inicio, p.fecha_fin, p.estado, "
+                    + "dp.cantidad, dp.dimension "
+                    + "FROM produccion p "
+                    + "JOIN detalle_pedido dp ON p.detalle_pedido_iddetalle_pedido = dp.iddetalle_pedido "
+                    + "JOIN pedido ped ON dp.pedido_id_pedido = ped.id_pedido "
+                    + "LEFT JOIN cliente c ON ped.cliente_codigo = c.codigo "
+                    + "WHERE p.id_produccion = ?";
+
+            try (Connection con = new Conexion().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, idProduccion);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                        String nombre = rs.getString("descripcion");
+                        String cliente = rs.getString("cliente");
+                        String fechaInicio = sdf.format(rs.getDate("fecha_inicio"));
+                        String fechaFin = rs.getDate("fecha_fin") != null
+                                ? sdf.format(rs.getDate("fecha_fin")) : "En proceso";
+                        String estado = rs.getString("estado");
+                        String cantidad = String.valueOf(rs.getInt("cantidad"));
+                        String dimensiones = rs.getString("dimension");
+
+                        DetalleProduProducto detallePanel = new DetalleProduProducto(
+                                idProduccion, nombre, fechaInicio, fechaFin,
+                                estado, cantidad, dimensiones, cliente
+                        );
+
+                        removeAll();
+                        setLayout(new BorderLayout());
+                        add(detallePanel, BorderLayout.CENTER);
+                        revalidate();
+                        repaint();
+                    } else {
+                        throw new SQLException("No se encontraron datos para la producción ID: " + idProduccion);
+                    }
+                }
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Error al editar producción: " + e.getMessage(), e);
+            new Error_guardar(
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    true,
+                    "Error",
+                    "Error al mostrar detalle: " + e.getMessage()
+            ).setVisible(true);
+            e.printStackTrace();
         }
-        cargarTablaProduccion();
+    }
+
+    private String obtenerDimensionesDeBD(int idProduccion) {
+        String sql = "SELECT dp.dimension FROM produccion p "
+                + "JOIN detalle_pedido dp ON p.detalle_pedido_iddetalle_pedido = dp.iddetalle_pedido "
+                + "WHERE p.id_produccion = ?";
+
+        try (Connection con = new Conexion().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProduccion);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("dimension") : "";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
 // Métodos auxiliares para obtener valores de celdas con valores por defecto
@@ -563,9 +950,23 @@ public final class Produccion extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_Tabla1MouseClicked
 
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        inicializarPopupFiltrosAvanzados();
+        popupFiltrosAvanzados.show(filtar, evt.getX(), evt.getY());
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RSMaterialComponent.RSTableMetroCustom Tabla1;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane4;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtbuscar;
@@ -589,14 +990,19 @@ public final class Produccion extends javax.swing.JPanel {
 
     public void cargarTablaProduccion() {
         DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-        model.setRowCount(0); // Limpiar tabla
+        model.setRowCount(0);
 
         try (Connection con = new Conexion().getConnection()) {
-            String sql = "SELECT p.id_produccion, dp.descripcion, p.fecha_inicio, "
-                    + "p.fecha_fin, p.estado, dp.cantidad, dp.dimension "
+            // Consulta que trae TODOS los registros (incluyendo finalizados)
+            String sql = "SELECT p.id_produccion, dp.descripcion, "
+                    + "CONCAT(c.nombre, ' ', c.apellido) AS cliente, "
+                    + "p.fecha_inicio, p.fecha_fin, p.estado, "
+                    + "dp.cantidad, dp.dimension, ped.num_pedido "
                     + "FROM produccion p "
                     + "JOIN detalle_pedido dp ON p.detalle_pedido_iddetalle_pedido = dp.iddetalle_pedido "
-                    + "ORDER BY p.id_produccion ASC";
+                    + "JOIN pedido ped ON dp.pedido_id_pedido = ped.id_pedido "
+                    + "LEFT JOIN cliente c ON ped.cliente_codigo = c.codigo "
+                    + "ORDER BY p.estado ASC";
 
             try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
@@ -605,21 +1011,36 @@ public final class Produccion extends javax.swing.JPanel {
                 while (rs.next()) {
                     model.addRow(new Object[]{
                         rs.getInt("id_produccion"),
+                        rs.getString("num_pedido"),
                         rs.getString("descripcion"),
+                        rs.getString("cliente") != null ? rs.getString("cliente") : "Sin cliente",
                         sdf.format(rs.getDate("fecha_inicio")),
                         rs.getDate("fecha_fin") != null ? sdf.format(rs.getDate("fecha_fin")) : "En proceso",
+                        rs.getInt("cantidad"),
                         rs.getString("estado"),
                         "ver",
-                        "editar",
-                        rs.getInt("cantidad"),
                         rs.getString("dimension")
                     });
                 }
             }
+
+            // Configurar el filtro inicial para ocultar "finalizado"
+            sorter = new TableRowSorter<>(model);
+            Tabla1.setRowSorter(sorter);
+
+            // Filtro inicial que excluye "finalizado" pero no afecta los checkboxes
+            RowFilter<Object, Object> filtroInicial = RowFilter.notFilter(
+                    RowFilter.regexFilter("(?i)^finalizado$", 7) // Columna 7 = Estado
+            );
+            sorter.setRowFilter(filtroInicial);
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar datos: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            new Error_guardar(
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    true,
+                    "Error",
+                    "Error al cargar datos: " + e.getMessage()
+            ).setVisible(true);
             e.printStackTrace();
         }
     }
