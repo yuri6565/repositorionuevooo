@@ -507,7 +507,7 @@ public final class ingresos extends javax.swing.JPanel {
         estadoPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
 
         ButtonGroup estadoGroup = new ButtonGroup();
-        radioTodos = new JRadioButton("Todos", true);
+        radioTodos = new JRadioButton("Todos");
         radioPendientes = new JRadioButton("Pendientes (sin pagos)");
         radioAbonos = new JRadioButton("Con abonos parciales");
         radioPagados = new JRadioButton("Pagados completamente");
@@ -542,7 +542,7 @@ public final class ingresos extends javax.swing.JPanel {
         clientesPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
 
         for (String cliente : clientesDisponibles) {
-            JCheckBox chkCliente = new JCheckBox(cliente, true);
+            JCheckBox chkCliente = new JCheckBox(cliente, false);
             chkCliente.setFont(fuenteTexto);
             chkClientesItems.add(chkCliente);
             clientesPanel.add(chkCliente);
@@ -556,21 +556,53 @@ public final class ingresos extends javax.swing.JPanel {
             panelFiltros.add(clientesPanel);
         }
 
-        // 3. Botón de aplicar
-        RSButtonRiple btnAplicar = new RSButtonRiple();
-        btnAplicar.setText("Aplicar");
-        btnAplicar.setBackground(new Color(180, 180, 180));
-        btnAplicar.setColorHover(new Color(150, 150, 150));
-        btnAplicar.setPreferredSize(new Dimension(100, 25));
-        btnAplicar.setFont(fuenteBoton);
-        btnAplicar.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinear a la izquierda
-        btnAplicar.addActionListener(e -> {
-            aplicarFiltrosAvanzados();
-            filtrosMenu.setVisible(false);
-        });
+        // 3. Panel para botones (Limpiar y Aplicar)
+    JPanel botonesPanel = new JPanel();
+    botonesPanel.setLayout(new BoxLayout(botonesPanel, BoxLayout.X_AXIS));
+    botonesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        panelFiltros.add(btnAplicar);
-        filtrosMenu.add(panelFiltros);
+    // Botón de limpiar (a la izquierda)
+    RSButtonRiple btnLimpiar = new RSButtonRiple();
+    btnLimpiar.setText("Limpiar");
+    btnLimpiar.setBackground(new Color(180, 180, 180));
+    btnLimpiar.setColorHover(new Color(150, 150, 150));
+    btnLimpiar.setPreferredSize(new Dimension(100, 25));
+    btnLimpiar.setFont(fuenteBoton);
+    btnLimpiar.addActionListener(e -> {
+        // Limpiar selección de estados de pago
+        estadoGroup.clearSelection();
+
+        // Desmarcar todos los checkboxes de clientes
+        for (JCheckBox chk : chkClientesItems) {
+            chk.setSelected(false);
+        }
+
+        // Aplicar filtro para excluir filas pagadas
+        filtrarFilasPagadas();
+        filtrosMenu.setVisible(false);
+    });
+
+    // Agregar botón Limpiar y espacio horizontal
+    botonesPanel.add(btnLimpiar);
+    botonesPanel.add(Box.createHorizontalStrut(10)); // Espacio de 10px entre botones
+    botonesPanel.add(Box.createHorizontalGlue());
+
+    // Botón de aplicar (a la derecha)
+    RSButtonRiple btnAplicar = new RSButtonRiple();
+    btnAplicar.setText("Aplicar");
+    btnAplicar.setBackground(new Color(46, 49, 82));
+    btnAplicar.setColorHover(new Color(0, 153, 51));
+    btnAplicar.setPreferredSize(new Dimension(100, 25));
+    btnAplicar.setFont(fuenteBoton);
+    btnAplicar.addActionListener(e -> {
+        aplicarFiltrosAvanzados();
+        filtrosMenu.setVisible(false);
+    });
+
+    botonesPanel.add(btnAplicar);
+    panelFiltros.add(botonesPanel);
+
+    filtrosMenu.add(panelFiltros);
 
         filtar.addMouseListener(new MouseAdapter() {
             @Override
@@ -994,6 +1026,7 @@ public final class ingresos extends javax.swing.JPanel {
     
     
     private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
+
 // Crear diálogo para seleccionar fechas
         JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
         String[] periodos = {"Última Semana", "Último Mes", "Últimos 6 Meses", "Último Año", "Personalizado"};
@@ -1283,6 +1316,7 @@ public final class ingresos extends javax.swing.JPanel {
 
     
 
+>
     private void filtrarFilasPagadas() {
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
 

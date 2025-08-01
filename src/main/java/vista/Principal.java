@@ -227,6 +227,9 @@ public class Principal extends javax.swing.JFrame {
         submenuInventario.add(item2);
 //submenu inventario------------------
 
+
+
+
 //submenu ventas------------------
 // Inicializar el submenú de Ventas
         submenuVentas = new JPanel();
