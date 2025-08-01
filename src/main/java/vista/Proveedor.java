@@ -261,7 +261,8 @@ public class Proveedor extends javax.swing.JPanel {
                 rSButtonMaterialRippleIcon1.setVisible(true);
                 rSButtonMaterialRippleIcon1.setToolTipText("Activar proveedores seleccionados");
                 rSButtonMaterialRippleIcon1.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE); // Ícono para activar
-                rSButtonMaterialRippleIcon1.setForeground(new Color(0, 102, 204)); // Azul para activar
+                rSButtonMaterialRippleIcon1.setForeground(Color.gray /*(0, 102, 204)*/); // Azul para activar
+                
             } else if (todosActivos) {
                 rSButtonMaterialRippleIcon1.setVisible(true);
                 rSButtonMaterialRippleIcon1.setToolTipText("Desactivar proveedores seleccionados");
@@ -360,8 +361,9 @@ public class Proveedor extends javax.swing.JPanel {
             setBackground(fondo);
             editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
             stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            editIcon.setForeground(new Color(29, 30, 81));
-            stateIcon.setForeground(new Color(29, 30, 81));
+            
+            editIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33));
+            stateIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33));
         }
 
         @Override
@@ -371,15 +373,12 @@ public class Proveedor extends javax.swing.JPanel {
 
             if (estado.equals("activo")) {
                 stateIcon.setIcons(ValoresEnum.ICONS.CANCEL);
-                stateIcon.setForeground(Color.GRAY);
                 stateIcon.setToolTipText("Desactivar");
             } else if (estado.equals("inactivo")) {
                 stateIcon.setIcons(ValoresEnum.ICONS.CHECK_CIRCLE);
-                stateIcon.setForeground(new Color(0, 102, 204));
                 stateIcon.setToolTipText("Activar");
             } else {
                 stateIcon.setIcons(ValoresEnum.ICONS.HELP);
-                stateIcon.setForeground(Color.BLACK);
                 stateIcon.setToolTipText("Estado Desconocido");
             }
 
@@ -532,16 +531,15 @@ public class Proveedor extends javax.swing.JPanel {
             TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
         }
 
-        private void updateTheme() {
-            boolean oscuro = TemaManager.getInstance().isOscuro();
-            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-            panel.setBackground(fondo);
-            editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            editIcon.setForeground(new Color(29, 30, 81));
-            stateIcon.setForeground(new Color(29, 30, 81));
-        }
-
+    private void updateTheme() {
+    boolean oscuro = TemaManager.getInstance().isOscuro();
+    Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+    panel.setBackground(fondo);
+    editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+    stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+    editIcon.setForeground(Color.GRAY); // Cambia a Color.GRAY
+    stateIcon.setForeground(Color.GRAY); // Cambia a Color.GRAY
+}
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {

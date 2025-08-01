@@ -191,7 +191,6 @@ class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
         deleteIcon.setIcons(ValoresEnum.ICONS.CANCEL);
         deleteIcon.setToolTipText("Eliminar");
         deleteIcon.setPreferredSize(new Dimension(20, 20));
-
     
         add(deleteIcon);
 
@@ -205,9 +204,8 @@ class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
 
         setBackground(fondo);
     
-        deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
        
-         deleteIcon.setForeground(new Color(29, 30, 81)); // Color azul que pediste
+         deleteIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33)); // Color azul que pediste
 
     }
 
@@ -285,6 +283,9 @@ class ButtonPanelEditor extends DefaultCellEditor {
         panel.setBackground(bgColor);
         deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
         deleteIcon.setForeground(Color.RED); // Red for delete icon
+        
+        
+        
     }
 
     @Override
@@ -396,6 +397,7 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
             tablaUsuarios.setGridColor(Color.BLACK);
 
             btnNuevo1.setBackground(new Color(46, 49, 82));
+           
           
         }
     }

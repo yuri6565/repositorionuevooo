@@ -318,7 +318,10 @@ public class VistaClientes extends javax.swing.JPanel {
             setBackground(fondo);
             checkBox.setBackground(fondo);
             checkBox.setForeground(oscuro ? Color.WHITE : Color.BLACK);
+            
+           
         }
+        
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -429,8 +432,9 @@ public class VistaClientes extends javax.swing.JPanel {
             setBackground(fondo);
             editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
             stateIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-            editIcon.setForeground(new Color(29, 30, 81));
-            stateIcon.setForeground(new Color(29, 30, 81));
+            
+            editIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33));
+            stateIcon.setForeground(oscuro ? new Color(255,255,255) : new Color(21,21,33));
         }
 
         @Override
