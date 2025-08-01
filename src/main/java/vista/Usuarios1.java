@@ -180,24 +180,19 @@ public void cargarTablaUsuarios() {
 
 // In ButtonPanelRenderer
 class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
-    private RSLabelIcon editIcon;
+  
     private RSLabelIcon deleteIcon;
 
     public ButtonPanelRenderer() {
         setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
         setOpaque(true);
 
-        editIcon = new RSLabelIcon();
-        editIcon.setIcons(ValoresEnum.ICONS.EDIT);
-        editIcon.setToolTipText("Editar");
-        editIcon.setPreferredSize(new Dimension(20, 20));
-
         deleteIcon = new RSLabelIcon();
-        deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
+        deleteIcon.setIcons(ValoresEnum.ICONS.CANCEL);
         deleteIcon.setToolTipText("Eliminar");
         deleteIcon.setPreferredSize(new Dimension(20, 20));
 
-        add(editIcon);
+    
         add(deleteIcon);
 
         updateTheme();
@@ -209,9 +204,9 @@ class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
         Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
 
         setBackground(fondo);
-        editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+    
         deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        editIcon.setForeground(new Color(21, 21, 33)); // Green for edit icon
+       
          deleteIcon.setForeground(new Color(29, 30, 81)); // Color azul que pediste
 
     }
@@ -231,7 +226,7 @@ class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
 // In ButtonPanelEditor
 class ButtonPanelEditor extends DefaultCellEditor {
     private JPanel panel;
-    private RSLabelIcon editIcon;
+    
     private RSLabelIcon deleteIcon;
     private String label;
     private boolean isPushed;
@@ -243,38 +238,15 @@ class ButtonPanelEditor extends DefaultCellEditor {
         panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
         panel.setOpaque(true);
 
-        editIcon = new RSLabelIcon();
-        editIcon.setIcons(ValoresEnum.ICONS.EDIT);
-        editIcon.setToolTipText("Editar");
-        editIcon.setPreferredSize(new Dimension(20, 20));
-
+      
         deleteIcon = new RSLabelIcon();
-        deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
+        deleteIcon.setIcons(ValoresEnum.ICONS.CANCEL);
         deleteIcon.setToolTipText("Eliminar");
         deleteIcon.setPreferredSize(new Dimension(20, 20));
 
-        panel.add(editIcon);
+       
         panel.add(deleteIcon);
 
-        editIcon.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                isPushed = true;
-                fireEditingStopped();
-                try {
-                    int idUsuario = (int) tablaUsuarios.getValueAt(selectedRow, 1);
-                    editar_usuario2 dialog = new editar_usuario2(new JFrame(), true, idUsuario,
-                            (DefaultTableModel) tablaUsuarios.getModel(), selectedRow);
-                    dialog.setLocationRelativeTo(null);
-                    dialog.setVisible(true);
-                    if (dialog.isGuardado()) {
-                        cargarTablaUsuarios();
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Usuarios1.this, "Error al abrir el formulario de edición: " + ex.getMessage());
-                }
-            }
-        });
 
         deleteIcon.addMouseListener(new MouseAdapter() {
             @Override
@@ -311,9 +283,7 @@ class ButtonPanelEditor extends DefaultCellEditor {
         boolean oscuro = TemaManager.getInstance().isOscuro();
         Color bgColor = oscuro ? new Color(21, 21, 33) : new Color(255, 255, 255);
         panel.setBackground(bgColor);
-        editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
         deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        editIcon.setForeground(Color.GREEN); // Green for edit icon
         deleteIcon.setForeground(Color.RED); // Red for delete icon
     }
 
@@ -380,12 +350,11 @@ class ButtonPanelEditor extends DefaultCellEditor {
             tablaUsuarios.setEffectHover(true);
             tablaUsuarios.setShowGrid(true);
             tablaUsuarios.setGridColor(Color.WHITE);
-rSButtonMaterialRippleIcon1.setForegroundIcon(fondo);   //[46,49,82]
- rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
-  rSButtonMaterialRippleIcon1.setForegroundHover(new Color(67, 71, 120));
-   rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(67, 71, 120));
-     rSButtonMaterialRippleIcon1.setForegroundText(new Color(67, 71, 120));
-         rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
+            
+ rSButtonMaterialRippleIcon1.setBackground(new Color(21, 21, 33));
+  rSButtonMaterialRippleIcon1.setForegroundHover(new Color(21, 21, 33));
+   rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(255,255,255)); /*67, 71, 120)*/
+         rSButtonMaterialRippleIcon1.setBackgroundHover(new Color(21, 21, 33)); /*67, 71, 120)*/
             btnNuevo1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackgroundHover(new Color(118, 142, 240));
         
@@ -393,6 +362,8 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(fondo);   //[46,49,82]
             Color fondo = new Color(241,245,253);
             Color texto = Color.BLACK;
             Color primario = new Color(72, 92, 188);
+            btnNotificacion1.setBackground(Color.black);
+                    
 rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,49,82]
  rSButtonMaterialRippleIcon1.setBackground(new Color(247,247,255));
   rSButtonMaterialRippleIcon1.setForegroundHover(new Color(21, 21, 33));
@@ -568,20 +539,19 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
         rSCheckBox1.setColorUnCheck(new java.awt.Color(204, 153, 0));
         jPanel1.add(rSCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 670, 190, 20));
 
-        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(102, 102, 102));
-        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(253, 126, 20));
-        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
-        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(255, 51, 51));
+        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(204, 255, 51));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(204, 255, 0));
+        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(102, 255, 102));
+        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(204, 255, 204));
+        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(255, 51, 153));
+        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(51, 0, 255));
         rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.DELETE);
         rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rSButtonMaterialRippleIcon1ActionPerformed(evt);
             }
         });
-        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 680, 40, 40));
+        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 680, 40, 40));
 
         Añadir5.setBackground(new java.awt.Color(46, 49, 82));
         Añadir5.setText("Anterior");
@@ -603,7 +573,7 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
                 Añadir4ActionPerformed(evt);
             }
         });
-        jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 98, 40));
+        jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 100, 40));
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 730));
     }// </editor-fold>//GEN-END:initComponents
