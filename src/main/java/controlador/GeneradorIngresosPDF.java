@@ -1,183 +1,275 @@
 package controlador;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import javax.swing.table.DefaultTableModel;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.DecimalFormat;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.awt.Desktop;
 
 public class GeneradorIngresosPDF {
-
-    // Configuración de diseño
     private static final float MARGIN_LEFT = 50;
-    private static final float MARGIN_TOP = 70;
-    private static final float LOGO_WIDTH = 120;
-    private static final float LOGO_HEIGHT = 80;
-    private static final float ROW_HEIGHT = 20;
+    private static final float MARGIN_TOP = 50;
+    private static final float PAGE_WIDTH = PDRectangle.A4.getWidth();
+    private static final float PAGE_HEIGHT = PDRectangle.A4.getHeight();
     private static final float FOOTER_Y = 50;
-    private static final float PAGE_WIDTH = PDRectangle.LETTER.getWidth();
+    private static final float LINE_SPACING = 15;
 
-    // Formatos
-    private final DecimalFormat decimalFormat = new DecimalFormat("$#,##0.00");
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    private String montoTotal; // Variable de clase agregada
-    private String pagado;
-    private String debido;
-
-    public void generarPDF(String nombreCliente, int codigoCliente, String telefonoCliente,
-            String direccionCliente, String departamentoCliente, String municipioCliente, DefaultTableModel tablaModel, String montoTotal,
-            String archivoSalida, String fechaPedido, String numPedido, String pagado, String debido) {
-        this.montoTotal = montoTotal; // Asignar el valor a la variable de clase
-        this.pagado = pagado;
-        this.debido = debido;
-
+    public void generarReporteConsolidado(DefaultTableModel model, String fechaInicio, String fechaFin,
+            String totalMonto, String archivoSalida) {
+        System.out.println("Generando reporte consolidado - Inicio: filas=" + (model != null ? model.getRowCount() : "null") +
+                          ", fechaInicio='" + fechaInicio + "', fechaFin='" + fechaFin + 
+                          "', totalMonto='" + totalMonto + "', archivoSalida='" + archivoSalida + "'");
+        if (model == null || model.getRowCount() == 0) {
+            System.out.println("Error: Modelo de datos nulo o vacío.");
+            mostrarError("No hay datos para generar el reporte consolidado.");
+            return;
+        }
         try (PDDocument document = new PDDocument()) {
-            // Configuración inicial
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
             try {
-                float yPosition = setupPage(document, contentStream, page, nombreCliente, codigoCliente, telefonoCliente,
-                        direccionCliente, departamentoCliente, municipioCliente, fechaPedido, numPedido);
-                yPosition = addTable(contentStream, document, page, tablaModel, yPosition);
-                addFooter(contentStream, yPosition);
+                float yPosition = agregarEncabezado(contentStream);
+                yPosition = agregarInfoPeriodo(contentStream, yPosition, fechaInicio, fechaFin);
+                yPosition = agregarTablaAbonos(contentStream, document, page, model, yPosition);
+                agregarTotal(contentStream, yPosition, totalMonto);
+                agregarPiePagina(contentStream);
+            } catch (IOException e) {
+                System.out.println("Error en contenido del PDF: " + e.getMessage());
+                e.printStackTrace();
+                throw e;
             } finally {
                 if (contentStream != null) {
                     contentStream.close();
                 }
             }
 
-            // Guardar y abrir
             File file = new File(archivoSalida);
             document.save(file);
             abrirDocumento(file);
+        } catch (IOException e) {
+            System.out.println("Error al guardar o abrir el PDF: " + e.getMessage());
+            mostrarError("Error al generar reporte consolidado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-        } catch (Exception e) {
+    public void generarPDF(String nombreCliente, int codigoCliente, String telefonoCliente,
+            String direccionCliente, String departamentoCliente, String municipioCliente,
+            DefaultTableModel tablaModel, String montoTotal, String archivoSalida,
+            String fechaPedido, String numPedido, String pagado, String debido) {
+        System.out.println("Generando PDF - Inicio: nombreCliente='" + nombreCliente + 
+                          "', codigoCliente=" + codigoCliente + ", fechaPedido='" + fechaPedido + 
+                          "', numPedido='" + numPedido + "', filas=" + (tablaModel != null ? tablaModel.getRowCount() : "null"));
+        if (tablaModel == null || tablaModel.getRowCount() == 0) {
+            System.out.println("Error: Modelo de datos nulo o vacío.");
+            mostrarError("No hay datos para generar el PDF.");
+            return;
+        }
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            try {
+                float yPosition = agregarLogoYEncabezado(document, contentStream);
+                yPosition = agregarInformacionCliente(contentStream, yPosition, nombreCliente, codigoCliente,
+                        telefonoCliente, direccionCliente, departamentoCliente, municipioCliente,
+                        fechaPedido, numPedido);
+                yPosition = addTableDetalles(contentStream, document, page, tablaModel, yPosition);
+                addResumenPagos(contentStream, yPosition, montoTotal, pagado, debido);
+            } catch (IOException e) {
+                System.out.println("Error en contenido del PDF: " + e.getMessage());
+                e.printStackTrace();
+                throw e;
+            } finally {
+                if (contentStream != null) {
+                    contentStream.close();
+                }
+            }
+
+            File file = new File(archivoSalida);
+            document.save(file);
+            abrirDocumento(file);
+        } catch (IOException e) {
+            System.out.println("Error al guardar o abrir el PDF: " + e.getMessage());
             mostrarError("Error al generar PDF: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private float setupPage(PDDocument document, PDPageContentStream contentStream,
-            PDPage page, String nombreCliente, int codigoCliente, String telefonoCliente,
-            String direccionCliente, String departamentoCliente, String municipioCliente, String fechaPedido, String numPedido) throws IOException {
-        float yPosition = agregarLogoYEncabezado(document, contentStream);
-        yPosition = agregarInformacionCliente(contentStream, yPosition, nombreCliente, codigoCliente, telefonoCliente,
-                direccionCliente, departamentoCliente, municipioCliente, fechaPedido, numPedido);
+    private float agregarEncabezado(PDPageContentStream contentStream) throws IOException {
+        float yPosition = PAGE_HEIGHT - MARGIN_TOP;
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
+        escribirTextoCentrado(contentStream, "REPORTE CONSOLIDADO DE ABONOS", yPosition);
+        yPosition -= 50;
         return yPosition;
     }
 
-    private void agregarLogo(PDDocument document, PDPageContentStream contentStream) throws IOException {
-        try {
-            URL imageUrl = getClass().getResource("/imagenes/logo_azul_sin_letras.png");
-            if (imageUrl != null) {
-                PDImageXObject pdImage = PDImageXObject.createFromFile(imageUrl.getPath(), document);
-                float logoX = MARGIN_LEFT; // A la izquierda
-                float logoY = PDRectangle.A4.getHeight() - MARGIN_TOP - LOGO_HEIGHT;
-                contentStream.drawImage(pdImage, logoX, logoY, LOGO_WIDTH, LOGO_HEIGHT);
-            }
-        } catch (IOException e) {
-            System.err.println("No se pudo cargar el logo: " + e.getMessage());
-        }
-    }
-
-    private float agregarTitulo(PDPageContentStream contentStream, float yPosition) throws IOException {
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
-        escribirTextoCentrado(contentStream, "COMPROBANTE DE INGRESO", yPosition);
-        return yPosition - 40;
-    }
-
-    private float agregarInformacionCliente(PDPageContentStream contentStream, float yPosition,
-            String nombreCliente, int codigoCliente, String telefonoCliente, String direccionCliente, String departamentoCliente, String municipioCliente, String fechaPedido, String numPedido) throws IOException {
-
-        float anchoPagina = PDRectangle.A4.getWidth();
-        float margenDerecho = 50;
-
-        // Pedido N° y Fecha Emisión alineados a la derecha
+    private float agregarInfoPeriodo(PDPageContentStream contentStream, float yPosition,
+            String fechaInicio, String fechaFin) throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-
-        String textoPedido = "Pedido N°: " + safeString(numPedido);
-        float anchoTextoPedido = PDType1Font.HELVETICA_BOLD.getStringWidth(textoPedido) / 1000 * 12;
-        float xPedido = anchoPagina - margenDerecho - anchoTextoPedido;
-        escribirTexto(contentStream, textoPedido, xPedido, yPosition);
-        yPosition -= 20;
-
-        String textoFechaEmision = "Fecha de Emisión: " + dateFormat.format(new Date());
-        float anchoTextoFecha = PDType1Font.HELVETICA_BOLD.getStringWidth(textoFechaEmision) / 1000 * 12;
-        float xFecha = anchoPagina - margenDerecho - anchoTextoFecha;
-        escribirTexto(contentStream, textoFechaEmision, xFecha, yPosition);
-        yPosition -= 20;
-
-        // Información del cliente y pedido
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 11);
-        escribirTexto(contentStream, "Información del cliente", MARGIN_LEFT, yPosition);
-        yPosition -= 20;
-
-        contentStream.setFont(PDType1Font.HELVETICA, 10);
-        escribirTexto(contentStream, "Cliente: " + safeString(nombreCliente), MARGIN_LEFT, yPosition);
-        yPosition -= 15;
-
-        escribirTexto(contentStream, "ID: " + safeString(codigoCliente),
+        escribirTexto(contentStream, "Período: " + safeString(fechaInicio) + " a " + safeString(fechaFin),
                 MARGIN_LEFT, yPosition);
-        yPosition -= 15;
-
-        escribirTexto(contentStream, "Teléfono: " + safeString(telefonoCliente),
-                MARGIN_LEFT, yPosition);
-        yPosition -= 15;
-
-        // Línea 3: Dirección completa (puede ocupar varias líneas si es muy larga)
-        String direccionCompleta = "Dirección: " + safeString(departamentoCliente) + "-" + safeString(municipioCliente) + " " + safeString(direccionCliente);
-        if (direccionCompleta.length() > 60) { // Si es muy larga, partimos en dos líneas
-            String parte1 = direccionCompleta.substring(0, 60);
-            String parte2 = direccionCompleta.substring(60);
-
-            escribirTexto(contentStream, parte1, MARGIN_LEFT, yPosition);
-            yPosition -= 15;
-            escribirTexto(contentStream, parte2, MARGIN_LEFT, yPosition);
-        } else {
-            escribirTexto(contentStream, direccionCompleta, MARGIN_LEFT, yPosition);
-        }
-
-        return yPosition - 20;
+        yPosition -= LINE_SPACING * 2;
+        return yPosition;
     }
 
-    private float addTable(PDPageContentStream contentStream, PDDocument document,
-            PDPage page, DefaultTableModel tablaModel, float yPosition) throws IOException {
-        // Encabezados de tabla
-        String[] headers = {"Descripción", "Cantidad", "Dimensiones", "Precio Unitario", "Subtotal"};
-        float[] columnWidths = {120, 60, 130, 90, 80};
+    private float agregarTablaAbonos(PDPageContentStream contentStream, PDDocument document,
+            PDPage page, DefaultTableModel model, float yPosition) throws IOException {
+        String[] headers = {"# Pedido", "Cliente", "Fecha Abono", "Monto Abono", "Método Pago"};
+        float[] columnWidths = {80, 150, 100, 100, 100};
 
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
         yPosition = dibujarEncabezadosTabla(contentStream, headers, columnWidths, yPosition);
 
-        // Datos de la tabla
         contentStream.setFont(PDType1Font.HELVETICA, 10);
-        int totalRows = tablaModel.getRowCount() - 1; // Excluye fila de totales
-
-        for (int row = 0; row < totalRows; row++) {
+        for (int row = 0; row < model.getRowCount(); row++) {
             if (yPosition < FOOTER_Y + 50) {
                 contentStream.close();
                 page = nuevaPagina(document);
                 contentStream = new PDPageContentStream(document, page);
-                yPosition = PDRectangle.A4.getHeight() - MARGIN_TOP;
+                yPosition = PAGE_HEIGHT - MARGIN_TOP;
                 yPosition = dibujarEncabezadosTabla(contentStream, headers, columnWidths, yPosition);
             }
-
-            yPosition = dibujarFila(contentStream, tablaModel, row, columnWidths, yPosition);
+            yPosition = dibujarFila(contentStream, model, row, columnWidths, yPosition);
         }
-
         return yPosition;
+    }
+
+    private void agregarTotal(PDPageContentStream contentStream, float yPosition, String totalMonto)
+            throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+        float columnaDerechaX = PAGE_WIDTH - MARGIN_LEFT - 150;
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Total Acumulado:", columnaDerechaX, yPosition);
+        escribirTexto(contentStream, safeString(totalMonto), columnaDerechaX + 90, yPosition);
+    }
+
+    private void agregarPiePagina(PDPageContentStream contentStream) throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
+        escribirTextoCentrado(contentStream, "Reporte generado - " + new SimpleDateFormat("yyyy").format(new Date()), FOOTER_Y);
+    }
+
+    private float agregarLogoYEncabezado(PDDocument document, PDPageContentStream contentStream) throws IOException {
+        float yPosition = PAGE_HEIGHT - MARGIN_TOP;
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
+        escribirTextoCentrado(contentStream, "DETALLE DE PEDIDO", yPosition);
+        yPosition -= 50;
+        return yPosition;
+    }
+
+    private float agregarInformacionCliente(PDPageContentStream contentStream, float yPosition,
+            String nombreCliente, int codigoCliente, String telefonoCliente, String direccionCliente,
+            String departamentoCliente, String municipioCliente, String fechaPedido, String numPedido)
+            throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        escribirTexto(contentStream, "Cliente: " + safeString(nombreCliente), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Código Cliente: " + codigoCliente, MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Teléfono: " + safeString(telefonoCliente), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Dirección: " + safeString(direccionCliente), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Departamento: " + safeString(departamentoCliente), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Municipio: " + safeString(municipioCliente), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Fecha Pedido: " + safeString(fechaPedido), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Número Pedido: " + safeString(numPedido), MARGIN_LEFT, yPosition);
+        yPosition -= LINE_SPACING * 2;
+        return yPosition;
+    }
+
+    private float addTableDetalles(PDPageContentStream contentStream, PDDocument document,
+            PDPage page, DefaultTableModel tablaModel, float yPosition) throws IOException {
+        String[] headers = {"Descripción", "Cantidad", "Dimensiones", "Precio Unitario", "Subtotal", "Total"};
+        float[] columnWidths = {150, 60, 80, 80, 80, 80};
+
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+        yPosition = dibujarEncabezadosTabla(contentStream, headers, columnWidths, yPosition);
+
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
+        for (int row = 0; row < tablaModel.getRowCount(); row++) {
+            if (yPosition < FOOTER_Y + 50) {
+                contentStream.close();
+                page = nuevaPagina(document);
+                contentStream = new PDPageContentStream(document, page);
+                yPosition = PAGE_HEIGHT - MARGIN_TOP;
+                yPosition = dibujarEncabezadosTabla(contentStream, headers, columnWidths, yPosition);
+            }
+            Object descripcion = tablaModel.getValueAt(row, 0);
+            if (descripcion != null && descripcion.toString().equals("ABONOS REGISTRADOS")) {
+                yPosition -= LINE_SPACING * 1.5f;
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                escribirTexto(contentStream, "Abonos Registrados:", MARGIN_LEFT, yPosition);
+                yPosition -= LINE_SPACING;
+                contentStream.setFont(PDType1Font.HELVETICA, 10);
+                String abonosInfo = safeString(tablaModel.getValueAt(row, 1));
+                String[] lineasAbonos = abonosInfo.split("\n");
+                for (String linea : lineasAbonos) {
+                    if (yPosition < FOOTER_Y + 50) {
+                        contentStream.close();
+                        page = nuevaPagina(document);
+                        contentStream = new PDPageContentStream(document, page);
+                        yPosition = PAGE_HEIGHT - MARGIN_TOP;
+                    }
+                    escribirTexto(contentStream, linea, MARGIN_LEFT, yPosition);
+                    yPosition -= LINE_SPACING;
+                }
+            } else {
+                yPosition = dibujarFila(contentStream, tablaModel, row, columnWidths, yPosition);
+            }
+        }
+        return yPosition;
+    }
+
+    private void addResumenPagos(PDPageContentStream contentStream, float yPosition,
+            String montoTotal, String pagado, String debido) throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+        float columnaDerechaX = PAGE_WIDTH - MARGIN_LEFT - 150;
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Monto Total:", columnaDerechaX, yPosition);
+        escribirTexto(contentStream, safeString(montoTotal), columnaDerechaX + 70, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Pagado:", columnaDerechaX, yPosition);
+        escribirTexto(contentStream, safeString(pagado), columnaDerechaX + 70, yPosition);
+        yPosition -= LINE_SPACING;
+        escribirTexto(contentStream, "Debido:", columnaDerechaX, yPosition);
+        escribirTexto(contentStream, safeString(debido), columnaDerechaX + 70, yPosition);
+        yPosition -= LINE_SPACING;
+        contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
+        escribirTextoCentrado(contentStream, "Gracias por su preferencia - " + new SimpleDateFormat("yyyy").format(new Date()), FOOTER_Y);
+    }
+
+    private float dibujarEncabezadosTabla(PDPageContentStream contentStream, String[] headers,
+            float[] columnWidths, float yPosition) throws IOException {
+        float x = MARGIN_LEFT;
+        for (int i = 0; i < headers.length; i++) {
+            escribirTexto(contentStream, headers[i], x, yPosition);
+            x += columnWidths[i];
+        }
+        return yPosition - LINE_SPACING;
+    }
+
+    private float dibujarFila(PDPageContentStream contentStream, DefaultTableModel model,
+            int row, float[] columnWidths, float yPosition) throws IOException {
+        float x = MARGIN_LEFT;
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            String value = safeString(model.getValueAt(row, i));
+            escribirTexto(contentStream, value, x, yPosition);
+            x += columnWidths[i];
+        }
+        return yPosition - LINE_SPACING;
     }
 
     private PDPage nuevaPagina(PDDocument document) {
@@ -186,117 +278,33 @@ public class GeneradorIngresosPDF {
         return page;
     }
 
-    private float dibujarEncabezadosTabla(PDPageContentStream contentStream,
-            String[] headers, float[] widths, float y) throws IOException {
-        float x = MARGIN_LEFT;
-        float desplazamientoTexto = 6; // Baja el texto dentro de la celda
-        for (int i = 0; i < headers.length; i++) {
-            escribirTexto(contentStream, headers[i], x, y - desplazamientoTexto);
-            x += widths[i];
+    private void escribirTexto(PDPageContentStream contentStream, String text, float x, float y)
+            throws IOException {
+        contentStream.beginText();
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(text);
+        contentStream.endText();
+    }
+
+    private void escribirTextoCentrado(PDPageContentStream contentStream, String text, float y)
+            throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20); // Tamaño fijo para consistencia
+        float textWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(text) / 1000 * 20;
+        float x = (PAGE_WIDTH - textWidth) / 2;
+        if (x < MARGIN_LEFT || x + textWidth > PAGE_WIDTH - MARGIN_LEFT) {
+            System.out.println("Advertencia: Texto fuera de márgenes - x=" + x + ", textWidth=" + textWidth + ", ajustando a " + MARGIN_LEFT);
+            x = MARGIN_LEFT; // Ajuste de emergencia
         }
-        y -= 15;
-        dibujarLinea(contentStream, MARGIN_LEFT, y, calcularAnchoTotal(widths));
-        return y - 10;
-    }
-
-    private float dibujarFila(PDPageContentStream contentStream, DefaultTableModel model,
-            int row, float[] widths, float y) throws IOException {
-        float x = MARGIN_LEFT;
-        for (int col = 0; col < widths.length; col++) {
-            Object value = model.getValueAt(row, col);
-            String text = formatearValor(value, col >= 4); // Formatea números para columnas 4+
-            escribirTextoTabla(contentStream, text, x, y);
-            x += widths[col];
+        System.out.println("Centrando texto: '" + text + "', y=" + y + ", textWidth=" + textWidth + ", x=" + x);
+        if (y < FOOTER_Y) {
+            System.out.println("Advertencia: yPosition (" + y + ") por debajo de FOOTER_Y (" + FOOTER_Y + "), omitiendo texto.");
+            return;
         }
-        y -= 15;
-        dibujarLinea(contentStream, MARGIN_LEFT, y, calcularAnchoTotal(widths), 0.5f);
-        return y - 5;
+        escribirTexto(contentStream, text, x, y);
     }
 
-    private void addFooter(PDPageContentStream contentStream, float yPosition) throws IOException {
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
-
-        float columnaDerechaX = PAGE_WIDTH - MARGIN_LEFT - 170; // Ajusta 150 según el espacio deseado
-
-        escribirTexto(contentStream, "Total General:", columnaDerechaX, yPosition - 20);
-        escribirTexto(contentStream, safeString(montoTotal), columnaDerechaX + 70, yPosition - 20);
-
-        escribirTexto(contentStream, "Pagado:", columnaDerechaX, yPosition - 35);
-        escribirTexto(contentStream, safeString(pagado), columnaDerechaX + 70, yPosition - 35);
-
-        escribirTexto(contentStream, "Debido:", columnaDerechaX, yPosition - 50);
-        escribirTexto(contentStream, safeString(debido), columnaDerechaX + 70, yPosition - 50);
-
-        // Espacio extra antes de las firmas
-        yPosition -= 120;
-
-        dibujarLinea(contentStream, MARGIN_LEFT, yPosition, 200);
-        dibujarLinea(contentStream, MARGIN_LEFT + 300, yPosition, 200);
-
-        escribirTexto(contentStream, "Firma del Cliente", MARGIN_LEFT + 50, yPosition - 15);
-        escribirTexto(contentStream, "Firma del Responsable", MARGIN_LEFT + 350, yPosition - 15);
-
-        // Pie de página
-        contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
-        escribirTextoCentrado(contentStream, "Gracias por su preferencia - "
-                + new SimpleDateFormat("yyyy").format(new Date()), FOOTER_Y);
-    }
-
-    // Métodos auxiliares
-    private String safeString(Object value, String defaultValue) {
-        return value != null ? value.toString() : defaultValue;
-    }
-
-    private String safeString(Object value) {
-        return safeString(value, "");
-    }
-
-    private String formatearValor(Object value, boolean esMoneda) {
-        if (value == null) {
-            return "";
-        }
-        String text = value.toString();
-        if (esMoneda) {
-            try {
-                double num = Double.parseDouble(text.replaceAll("[^\\d.]", ""));
-                return decimalFormat.format(num);
-            } catch (NumberFormatException e) {
-                return "$0.00";
-            }
-        }
-        return text;
-    }
-
-    private float calcularAnchoTotal(float[] widths) {
-        float total = 0;
-        for (float w : widths) {
-            total += w;
-        }
-        return total;
-    }
-
-    private void escribirTexto(PDPageContentStream stream, String text, float x, float y) throws IOException {
-        stream.beginText();
-        stream.newLineAtOffset(x, y);
-        stream.showText(text);
-        stream.endText();
-    }
-
-    private void escribirTextoCentrado(PDPageContentStream stream, String text, float y) throws IOException {
-        float textWidth = PDType1Font.HELVETICA.getStringWidth(text) / 1000 * 10;
-        float x = (PDRectangle.A4.getWidth() - textWidth) / 2;
-        escribirTexto(stream, text, x, y);
-    }
-
-    private void dibujarLinea(PDPageContentStream stream, float x, float y, float length) throws IOException {
-        dibujarLinea(stream, x, y, length, 1f);
-    }
-
-    private void dibujarLinea(PDPageContentStream stream, float x, float y, float length, float width) throws IOException {
-        stream.setLineWidth(width);
-        stream.moveTo(x, y);
-        stream.lineTo(x + length, y);
-        stream.stroke();
+    private String safeString(Object obj) {
+        return obj != null ? obj.toString() : "";
     }
 
     private void abrirDocumento(File file) throws IOException {
@@ -306,57 +314,35 @@ public class GeneradorIngresosPDF {
     }
 
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        javax.swing.JOptionPane.showMessageDialog(null, mensaje, "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
     }
 
-    private void escribirTextoTabla(PDPageContentStream stream, String text, float x, float y) throws IOException {
-        float textoDesplazamiento = 10;
-        stream.beginText();
-        stream.newLineAtOffset(x, y - textoDesplazamiento);
-        stream.showText(text);
-        stream.endText();
-    }
-
-    private float agregarLogoYEncabezado(PDDocument document, PDPageContentStream contentStream) throws IOException {
-        float yPosition = PDRectangle.A4.getHeight() - 40;
-
-        try {
-            URL imageUrl = getClass().getResource("/imagenes/logo_azul_sin_letras.png");
-            if (imageUrl != null) {
-                PDImageXObject pdImage = PDImageXObject.createFromFile(imageUrl.getPath(), document);
-
-                float logoX = MARGIN_LEFT;
-                float logoY = yPosition - LOGO_HEIGHT;
-
-                contentStream.drawImage(pdImage, logoX, logoY, LOGO_WIDTH, LOGO_HEIGHT);
-
-                // Mover el texto más a la derecha (original + 30)
-                float textoX = logoX + LOGO_WIDTH + 50;
-                float textoY = logoY + LOGO_HEIGHT - 20;
-
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                escribirTexto(contentStream, "Carpintería y Muebles JoseAbel", textoX, textoY);
-
-                contentStream.setFont(PDType1Font.HELVETICA, 11);
-                escribirTexto(contentStream, "Duitama - Boyacá", textoX, textoY - 15);
-                escribirTexto(contentStream, "Calle 26 #17-46", textoX, textoY - 30);
-                escribirTexto(contentStream, "Cel: 314 7352468", textoX, textoY - 45);
-
-                // Línea de separación debajo del logo y el texto en color gris
-                float lineaY = logoY - 10;
-                contentStream.setStrokingColor(183, 183, 183); // Gris claro RGB
-                dibujarLinea(contentStream, MARGIN_LEFT, lineaY, PDRectangle.A4.getWidth() - 2 * MARGIN_LEFT);
-
-                // Restaurar color a negro por si se dibujan más líneas luego
-                contentStream.setStrokingColor(0, 0, 0);
-
-                return lineaY - 20; // Devuelves nueva posición Y para continuar
+    // Método de prueba para verificar el centrado y separación
+    public void generarPDFPrueba(String archivoSalida) {
+        System.out.println("Generando PDF de prueba: archivo=" + archivoSalida);
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            try {
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
+                float y = PAGE_HEIGHT - MARGIN_TOP;
+                escribirTextoCentrado(contentStream, "Prueba de Centrado 1", y);
+                y -= 50;
+                escribirTextoCentrado(contentStream, "Prueba de Centrado 2", y);
+                y -= 50;
+                escribirTextoCentrado(contentStream, "Prueba de Centrado 3", y);
+            } finally {
+                contentStream.close();
             }
+            File file = new File(archivoSalida);
+            document.save(file);
+            abrirDocumento(file);
         } catch (IOException e) {
-            System.err.println("No se pudo cargar el logo: " + e.getMessage());
+            System.out.println("Error en PDF de prueba: " + e.getMessage());
+            mostrarError("Error en PDF de prueba: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        return yPosition - LOGO_HEIGHT - 20;
     }
-
 }
