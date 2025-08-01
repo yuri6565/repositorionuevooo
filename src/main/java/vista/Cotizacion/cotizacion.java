@@ -128,7 +128,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.WHITE);
 
-
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
             Tabla1.setForeground(texto);
@@ -234,7 +233,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setBackgroundHover(hover);
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.BLACK);
-
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -432,7 +430,6 @@ public class cotizacion extends javax.swing.JPanel {
             jButton_anadir_producto.setBackgroundHover(hover);
             jButton_anadir_producto.setForeground(texto);
             jButton_anadir_producto.setForegroundHover(Color.WHITE);
-
 
             // Configuración COMPLETA de la tabla
             Tabla1.setBackground(fondoTabla);
@@ -971,7 +968,7 @@ public class cotizacion extends javax.swing.JPanel {
 
             Cliente cliente = new Cliente();
             cliente.setIdentificacion(identificaciontxt.getSelectedItem().toString());
-
+            cliente.setId_cliente(Integer.parseInt(numeroidtxt.getText().trim()));
             cliente.setNombre(txt_NombreCliente.getText().trim());
             cliente.setApellido(txt_ApellidoCliente.getText().trim());
             cliente.setTelefono(telefonotxt.getText().trim());
@@ -981,7 +978,7 @@ public class cotizacion extends javax.swing.JPanel {
             if (contro.guardar(cliente)) {
                 clienteIngresado = true;
                 clienteCodigo = cliente.getId_cliente();
-                datos = new String[]{"", cliente.getIdentificacion(), String.valueOf(cliente.getId_cliente()),
+                datos = new String[]{cliente.getIdentificacion(), String.valueOf(cliente.getId_cliente()),
                     cliente.getNombre(), cliente.getApellido(), cliente.getTelefono(), cliente.getDireccion()};
                 JOptionPane.showMessageDialog(null, "Cliente guardado Exitosamente");
 

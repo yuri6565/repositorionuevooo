@@ -10,6 +10,9 @@ import controlador.Ctrl_CajaEgresos;
 import controlador.GeneradorEgresosPDF;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -17,22 +20,33 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import modelo.Caja;
+import rojeru_san.RSButtonRiple;
 import vista.TemaManager;
 
 /**
@@ -42,6 +56,13 @@ import vista.TemaManager;
 public final class Egresos extends javax.swing.JPanel {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    private JPopupMenu popupFiltrosAvanzados;
+    private List<JCheckBox> chkCategorias = new ArrayList<>();
+    private Date fechaDesdeSeleccionada = null;
+    private Date fechaHastaSeleccionada = null;
+    private Set<String> categoriasSeleccionadas = new HashSet<>();
+    private TableRowSorter<DefaultTableModel> sorter;
 
     /**
      * Creates new form CajaContenido
@@ -65,11 +86,36 @@ public final class Egresos extends javax.swing.JPanel {
         Tabla1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         Tabla1.setRowSelectionAllowed(true);
         Tabla1.setFocusable(false);
+
+        sorter = new TableRowSorter<>((DefaultTableModel) Tabla1.getModel()); // Inicializar sorter
+        Tabla1.setRowSorter(sorter);
+
+        DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+        model.setRowCount(0); // Limpiar tabla
+
+        // Inicializar el sorter
+        sorter = new TableRowSorter<>(model);
+        Tabla1.setRowSorter(sorter);
+
         cargarTablaEgresos();
         aplicarTema();
         TemaManager.getInstance().addThemeChangeListener(() -> {
             aplicarTema(); // Update theme when it changes
         });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
     }
 
     public void aplicarTema() {
@@ -129,6 +175,9 @@ public final class Egresos extends javax.swing.JPanel {
             btnEliminar1.setBackgroundHover(new Color(118, 142, 240));
             btnNuevo.setBackground(encabezado);
             btnNuevo.setBackgroundHover(new Color(118, 142, 240));
+
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
         } else {
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
@@ -165,88 +214,330 @@ public final class Egresos extends javax.swing.JPanel {
             btnEliminar1.setBackground(new Color(46, 49, 82));
             btnNuevo.setBackground(new Color(46, 49, 82));
 
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
+
         }
         Tabla1.repaint();
         Tabla1.getTableHeader().repaint();
     }
 
-    public void cargarTablaEgresos() {
+public void cargarTablaEgresos() {
+    DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
+    model.setRowCount(0); // Limpiar tabla
+
+    Ctrl_CajaEgresos ctrl = new Ctrl_CajaEgresos();
+    List<Caja> egresos = ctrl.obtenerEgresos();
+
+    if (egresos.isEmpty()) {
+        System.out.println("No se encontraron egresos en la base de datos");
+        return;
+    }
+
+    try {
+        for (Caja caja : egresos) {
+            Object endDate = null;
+            Object startDate = null;
+
+            // Filtrar por rango de fechas si se proporcionan
+            if (startDate != null && endDate != null) {
+                try {
+                    Date fechaEgreso = dateFormat.parse(caja.getFecha());
+                    // Normalizar fechas para comparar solo el día (ignorar horas)
+                    Date start = truncateTime((Date) startDate);
+                    Date end = truncateTime((Date) endDate);
+                    Date fecha = truncateTime(fechaEgreso);
+                    // Incluir fechas iguales a startDate y endDate
+                    if (fecha.compareTo(start) >= 0 && fecha.compareTo(end) <= 0) {
+                        // Formatear el monto con $ y separadores de miles
+                        String montoFormateado = String.format("$%,.2f", caja.getMonto());
+                        model.addRow(new Object[]{
+                            caja.getId_codigo(),
+                            caja.getFecha(),
+                            montoFormateado, // Monto formateado
+                            caja.getDescripcion(),
+                            caja.getCategoria(),
+                            "Ver",
+                            "editar",
+                            caja.getProveedor() != null ? caja.getProveedor() : "",
+                            caja.getProductos() != null ? String.join(", ", caja.getProductos()) : "",
+                            caja.getCantidad()
+                        });
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error al parsear fecha de egreso: " + caja.getFecha() + " - " + e.getMessage());
+                    continue; // Saltar registros con fechas inválidas
+                }
+            } else {
+                // Sin filtro, añadir todos los registros
+                // Formatear el monto con $ y separadores de miles
+                String montoFormateado = String.format("$%,.2f", caja.getMonto());
+                model.addRow(new Object[]{
+                    caja.getId_codigo(),
+                    caja.getFecha(),
+                    montoFormateado, // Monto formateado
+                    caja.getDescripcion(),
+                    caja.getCategoria(),
+                    "Ver",
+                    "editar",
+                    caja.getProveedor() != null ? caja.getProveedor() : "",
+                    caja.getProductos() != null ? String.join(", ", caja.getProductos()) : "",
+                    caja.getCantidad()
+                });
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+                "Error al cargar egresos: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+
+    // Ajustar ancho de columnas
+    Tabla1.getColumnModel().getColumn(0).setPreferredWidth(20);  // ID
+    Tabla1.getColumnModel().getColumn(1).setPreferredWidth(100); // Fecha
+    Tabla1.getColumnModel().getColumn(2).setPreferredWidth(80);  // Monto
+    Tabla1.getColumnModel().getColumn(3).setPreferredWidth(200); // Descripción
+    Tabla1.getColumnModel().getColumn(4).setPreferredWidth(300); // Categoría
+    Tabla1.getColumnModel().getColumn(5).setPreferredWidth(40);  // Ver
+    Tabla1.getColumnModel().getColumn(6).setPreferredWidth(50);  // Editar
+}
+
+    private void inicializarPopupFiltrosAvanzados() {
+        popupFiltrosAvanzados = new JPopupMenu();
+
+        // Panel principal
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Sección de Fechas
+        JPanel fechaPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        fechaPanel.setBorder(BorderFactory.createTitledBorder("Rango de Fechas"));
+
+        JButton btnDesde = new JButton(fechaDesdeSeleccionada != null
+                ? dateFormat.format(fechaDesdeSeleccionada) : "Seleccionar");
+        JButton btnHasta = new JButton(fechaHastaSeleccionada != null
+                ? dateFormat.format(fechaHastaSeleccionada) : "Seleccionar");
+
+        btnDesde.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false);
+            mostrarSelectorFecha(true, btnDesde, popupFiltrosAvanzados);
+        });
+
+        btnHasta.addActionListener(e -> {
+            popupFiltrosAvanzados.setVisible(false);
+            mostrarSelectorFecha(false, btnHasta, popupFiltrosAvanzados);
+        });
+
+        fechaPanel.add(new JLabel("Desde:"));
+        fechaPanel.add(btnDesde);
+        fechaPanel.add(new JLabel("Hasta:"));
+        fechaPanel.add(btnHasta);
+
+        mainPanel.add(fechaPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Sección de Categorías
+        JPanel categoriasPanel = new JPanel(new GridLayout(0, 1));
+        categoriasPanel.setBorder(BorderFactory.createTitledBorder("Categorías"));
+
+        // Definir las categorías fijas
+        String[] categoriasFijas = {
+            "Servicios Publicos",
+            "Compra de Productos e Insumos",
+            "Arriendo",
+            "Nómina",
+            "Gastos Administrativos",
+            "Mercadeo y Publicidad",
+            "Transporte",
+            "Domicilios y Logistica",
+            "Mantenimiento y Reparaciones",
+            "Muebles, Equipos o Maquinaria",
+            "Otros"
+        };
+
+        for (String categoria : categoriasFijas) {
+            JCheckBox chkCategoria = new JCheckBox(categoria);
+            if (categoriasSeleccionadas.contains(categoria)) {
+                chkCategoria.setSelected(true);
+            }
+            chkCategorias.add(chkCategoria);
+            categoriasPanel.add(chkCategoria);
+        }
+
+        JScrollPane scrollCategorias = new JScrollPane(categoriasPanel);
+        scrollCategorias.setPreferredSize(new Dimension(250, 220));
+        mainPanel.add(scrollCategorias);
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        // Panel de botones
+        JPanel botonesPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        botonesPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        // Botón Limpiar
+        RSButtonRiple btnLimpiar = new RSButtonRiple();
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBackground(new Color(180, 180, 180));
+        btnLimpiar.setColorHover(new Color(150, 150, 150));
+        btnLimpiar.setPreferredSize(new Dimension(100, 25));
+        btnLimpiar.addActionListener(e -> {
+            limpiarFiltrosEgresos();
+            btnDesde.setText("Seleccionar"); // Reiniciar botón "Desde"
+            btnHasta.setText("Seleccionar"); // Reiniciar botón "Hasta"
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnLimpiar);
+
+        // Botón Aplicar
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(46, 49, 82));
+        btnAplicar.setColorHover(new Color(0, 153, 51));
+        btnAplicar.setPreferredSize(new Dimension(100, 25));
+        btnAplicar.addActionListener(e -> {
+            aplicarFiltrosEgresos();
+            popupFiltrosAvanzados.setVisible(false);
+        });
+        botonesPanel.add(btnAplicar);
+
+        mainPanel.add(botonesPanel);
+        popupFiltrosAvanzados.add(mainPanel);
+    }
+
+    private void aplicarFiltrosEgresos() {
+        // Guardar selecciones de categorías
+        categoriasSeleccionadas.clear();
+        for (JCheckBox chk : chkCategorias) {
+            if (chk.isSelected()) {
+                categoriasSeleccionadas.add(chk.getText());
+            }
+        }
+
+        // Aplicar filtros a la tabla
         DefaultTableModel model = (DefaultTableModel) Tabla1.getModel();
-        model.setRowCount(0); // Limpiar tabla
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        Tabla1.setRowSorter(sorter);
 
-        Ctrl_CajaEgresos ctrl = new Ctrl_CajaEgresos();
-        List<Caja> egresos = ctrl.obtenerEgresos();
+        List<RowFilter<Object, Object>> filtros = new ArrayList<>();
 
-        if (egresos.isEmpty()) {
-            System.out.println("No se encontraron egresos en la base de datos");
+        // Filtro por categorías
+        if (!categoriasSeleccionadas.isEmpty()) {
+            filtros.add(RowFilter.regexFilter(String.join("|", categoriasSeleccionadas), 4)); // Columna 4 es categoría
+        }
+
+        // Filtro por fechas
+        if (fechaDesdeSeleccionada != null || fechaHastaSeleccionada != null) {
+            filtros.add(new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+                    try {
+                        String fechaStr = entry.getStringValue(1); // Columna 1 es fecha
+                        Date fechaEgreso = dateFormat.parse(fechaStr);
+
+                        boolean fechaValida = true;
+
+                        if (fechaDesdeSeleccionada != null && fechaEgreso.before(fechaDesdeSeleccionada)) {
+                            fechaValida = false;
+                        }
+
+                        if (fechaHastaSeleccionada != null && fechaEgreso.after(fechaHastaSeleccionada)) {
+                            fechaValida = false;
+                        }
+
+                        return fechaValida;
+                    } catch (Exception ex) {
+                        return false;
+                    }
+                }
+            });
+        }
+
+        if (!filtros.isEmpty()) {
+            sorter.setRowFilter(RowFilter.andFilter(filtros));
+            // Verificar si no hay filas después de aplicar el filtro
+            if (Tabla1.getRowCount() == 0) {
+            }
+        } else {
+            sorter.setRowFilter(null);
+        }
+
+        Tabla1.repaint();
+    }
+
+    private void limpiarFiltrosEgresos() {
+        // Limpiar selecciones
+        categoriasSeleccionadas.clear();
+        fechaDesdeSeleccionada = null;
+        fechaHastaSeleccionada = null;
+
+        // Desmarcar todos los checkboxes
+        for (JCheckBox chk : chkCategorias) {
+            chk.setSelected(false);
+        }
+
+        // Si la tabla no tiene un modelo válido, salir
+        if (!(Tabla1.getModel() instanceof DefaultTableModel)) {
+            System.err.println("Error: El modelo de la tabla no es DefaultTableModel.");
             return;
         }
 
-        try {
-            for (Caja caja : egresos) {
-                Object endDate = null;
-                Object startDate = null;
-
-//
-                // Filtrar por rango de fechas si se proporcionan
-                if (startDate != null && endDate != null) {
-                    try {
-                        Date fechaEgreso = dateFormat.parse(caja.getFecha());
-                        // Normalizar fechas para comparar solo el día (ignorar horas)
-                        Date start = truncateTime((Date) startDate);
-                        Date end = truncateTime((Date) endDate);
-                        Date fecha = truncateTime(fechaEgreso);
-                        // Incluir fechas iguales a startDate y endDate
-                        if (fecha.compareTo(start) >= 0 && fecha.compareTo(end) <= 0) {
-                            model.addRow(new Object[]{
-                                caja.getId_codigo(),
-                                caja.getFecha(),
-                                caja.getMonto(),
-                                caja.getDescripcion(),
-                                caja.getCategoria(),
-                                "Ver",
-                                "editar",
-                                caja.getProveedor() != null ? caja.getProveedor() : "",
-                                caja.getProductos() != null ? String.join(", ", caja.getProductos()) : "",
-                                caja.getCantidad()
-                            });
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error al parsear fecha de egreso: " + caja.getFecha() + " - " + e.getMessage());
-                        continue; // Saltar registros con fechas inválidas
-                    }
-                } else {
-                    // Sin filtro, añadir todos los registros
-                    model.addRow(new Object[]{
-                        caja.getId_codigo(),
-                        caja.getFecha(),
-                        caja.getMonto(),
-                        caja.getDescripcion(),
-                        caja.getCategoria(),
-                        "Ver",
-                        "editar",
-                        caja.getProveedor() != null ? caja.getProveedor() : "",
-                        caja.getProductos() != null ? String.join(", ", caja.getProductos()) : "",
-                        caja.getCantidad()
-                    });
-                }
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar egresos: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        // Si no tiene sorter, crear uno
+        if (!(Tabla1.getRowSorter() instanceof TableRowSorter)) {
+            sorter = new TableRowSorter<>((DefaultTableModel) Tabla1.getModel());
+            Tabla1.setRowSorter(sorter);
         }
 
-        // Ajustar ancho de columnas
-        Tabla1.getColumnModel().getColumn(0).setPreferredWidth(20);  // ID
-        Tabla1.getColumnModel().getColumn(1).setPreferredWidth(100); // Fecha
-        Tabla1.getColumnModel().getColumn(2).setPreferredWidth(80);  // Monto
-        Tabla1.getColumnModel().getColumn(3).setPreferredWidth(200); // Descripción
-        Tabla1.getColumnModel().getColumn(4).setPreferredWidth(300); // Categoría
-        Tabla1.getColumnModel().getColumn(5).setPreferredWidth(40);  // Ver
-        Tabla1.getColumnModel().getColumn(6).setPreferredWidth(50);  // Editar
+        // Ahora ya es seguro limpiar el filtro
+        ((TableRowSorter<?>) Tabla1.getRowSorter()).setRowFilter(null);
 
+        // Recargar la tabla completa
+        cargarTablaEgresos();
+    }
+
+    private void mostrarSelectorFecha(boolean esDesde, JButton botonActualizar, JPopupMenu popup) {
+        JDialog fechaDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Seleccionar Fecha", true);
+        fechaDialog.setSize(250, 250);
+        fechaDialog.setLayout(new BorderLayout());
+        fechaDialog.setLocationRelativeTo(filtar);
+
+        JCalendar calendar = new JCalendar();
+        calendar.setWeekOfYearVisible(false);
+
+        JButton btnAceptar = new JButton("Aceptar");
+        btnAceptar.addActionListener(e -> {
+            Date fechaSeleccionada = calendar.getDate();
+            if (esDesde) {
+                fechaDesdeSeleccionada = truncateTime(fechaSeleccionada);
+            } else {
+                fechaHastaSeleccionada = truncateTime(fechaSeleccionada);
+            }
+
+            botonActualizar.setText(dateFormat.format(fechaSeleccionada));
+            fechaDialog.dispose();
+
+            // Volver a mostrar el popup de filtros
+            SwingUtilities.invokeLater(() -> {
+                popup.show(filtar, 0, filtar.getHeight());
+            });
+        });
+
+        fechaDialog.add(calendar, BorderLayout.CENTER);
+        fechaDialog.add(btnAceptar, BorderLayout.SOUTH);
+        fechaDialog.setVisible(true);
+    }
+
+    private Date truncateTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     /**
@@ -265,6 +556,7 @@ public final class Egresos extends javax.swing.JPanel {
         txtbuscar = new RSMaterialComponent.RSTextFieldMaterialIcon();
         btnNuevo = new RSMaterialComponent.RSButtonShape();
         btnImprimirReg = new RSMaterialComponent.RSButtonShape();
+        filtar = new rojerusan.RSLabelImage();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -349,6 +641,11 @@ public final class Egresos extends javax.swing.JPanel {
                 txtbuscarActionPerformed(evt);
             }
         });
+        txtbuscar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtbuscarKeyReleased(evt);
+            }
+        });
         jPanel2.add(txtbuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 410, 30));
 
         btnNuevo.setBackground(new java.awt.Color(46, 49, 82));
@@ -380,6 +677,20 @@ public final class Egresos extends javax.swing.JPanel {
             }
         });
         jPanel2.add(btnImprimirReg, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 110, 40));
+
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel2.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 46, 35, 35));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -562,7 +873,7 @@ public final class Egresos extends javax.swing.JPanel {
 
     private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
 // Crear diálogo para seleccionar fechas
-       JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
         String[] periodos = {"Ultima Semana", "Ultimos Mes", "Ultimos 6 Meses", "Ultimo Año", "Personalizado", "Por Categoría"};
         JComboBox<String> comboPeriodo = new JComboBox<>(periodos);
         List<Integer> años = obtenerAñosEgresos();
@@ -731,8 +1042,8 @@ public final class Egresos extends javax.swing.JPanel {
                     if (caja.getFecha() == null || caja.getFecha().isEmpty()) {
                         continue;
                     }
-                    boolean categoriaCoincide = categoriaSeleccionada.equals("Todas") || 
-                        (caja.getCategoria() != null && caja.getCategoria().equals(categoriaSeleccionada));
+                    boolean categoriaCoincide = categoriaSeleccionada.equals("Todas")
+                            || (caja.getCategoria() != null && caja.getCategoria().equals(categoriaSeleccionada));
                     if (!categoriaCoincide) {
                         continue;
                     }
@@ -776,7 +1087,6 @@ public final class Egresos extends javax.swing.JPanel {
 
                 //cargarTablaEgresos(startDate, endDate, categoriaSeleccionada.equals("Todas") ? null : categoriaSeleccionada);
                 // // cargarTablaEgresos(null, null, null); // Descomentar si no quieres filtrar la tabla
-
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -784,17 +1094,24 @@ public final class Egresos extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnImprimirRegActionPerformed
 
-    private Date truncateTime(Date date) {
-        if (date == null) {
-            return null;
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        if (popupFiltrosAvanzados == null) {
+            inicializarPopupFiltrosAvanzados();
         }
-        try {
-            String formattedDate = dateFormat.format(date);
-            return dateFormat.parse(formattedDate);
-        } catch (Exception e) {
-            return date; // Devolver la fecha original si falla el parseo
-        }
-    }
+        popupFiltrosAvanzados.show(filtar, 0, filtar.getHeight());
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
+    private void txtbuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtbuscarKeyReleased
+        filtrarTabla();
+    }//GEN-LAST:event_txtbuscarKeyReleased
 
     private void abrirEditarEgreso(int idEgreso) {
         try {
@@ -834,34 +1151,40 @@ public final class Egresos extends javax.swing.JPanel {
     }
 
     private void filtrarTabla() {
-        String textoBusqueda = txtbuscar.getText().trim();
+        String textoBusqueda = txtbuscar.getText().trim().toLowerCase();
         DefaultTableModel modelo = (DefaultTableModel) Tabla1.getModel();
         TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(modelo);
         Tabla1.setRowSorter(tr);
-        List<RowFilter<Object, Object>> filters = new ArrayList<>();
 
         if (textoBusqueda.isEmpty()) {
             tr.setRowFilter(null);
             return;
         }
-        // Expresión regular para detectar si son solo números (1-2 dígitos)
-        if (textoBusqueda.matches("\\d+")) {
-            // Buscar en ID (columna 0) y fechas (columnas 1 y 2)
-            filters.add(RowFilter.regexFilter(textoBusqueda, 0));// ID (coincidencia exacta)
-            filters.add(RowFilter.regexFilter(textoBusqueda, 1));
-            filters.add(RowFilter.regexFilter(textoBusqueda, 4));
 
-        } // Si contiene letras (aunque sea parcial)
-        else {
-            // Buscar en Detalle (columna 2) y Categoría (columna 3)
-            String regex = "(?i)" + textoBusqueda; // (?i) = ignore case
-            filters.add(RowFilter.regexFilter(regex, 2)); // Detalle
-            filters.add(RowFilter.regexFilter(regex, 3)); // Categoría
-        }
+        // Crear un filtro que busque en todas las columnas visibles
+        RowFilter<DefaultTableModel, Object> filter = new RowFilter<DefaultTableModel, Object>() {
+            @Override
+            public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+                // Buscar en todas las columnas visibles
+                for (int i = 0; i < entry.getValueCount(); i++) {
+                    // Saltar columnas de botones ("Ver" y "Editar")
+                    if (i == 5 || i == 6) {
+                        continue;
+                    }
 
-        // Aplicar todos los filtros combinados con OR
-        tr.setRowFilter(RowFilter.orFilter(filters));
+                    Object value = entry.getValue(i);
+                    if (value != null) {
+                        String strValue = value.toString().toLowerCase();
+                        if (strValue.contains(textoBusqueda)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
 
+        tr.setRowFilter(filter);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -869,6 +1192,7 @@ public final class Egresos extends javax.swing.JPanel {
     private RSMaterialComponent.RSButtonShape btnEliminar1;
     private RSMaterialComponent.RSButtonShape btnImprimirReg;
     private RSMaterialComponent.RSButtonShape btnNuevo;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane3;
     private RSMaterialComponent.RSTextFieldMaterialIcon txtbuscar;

@@ -8,8 +8,10 @@ import controlador.Ctrl_Cliente;
 import controlador.Ctrl_Perfil;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -18,9 +20,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import static javax.swing.GroupLayout.Alignment.CENTER;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -31,6 +39,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -39,6 +49,8 @@ import rojeru_san.efectos.ValoresEnum;
 import rojerusan.RSLabelIcon;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
+import rojeru_san.RSButtonRiple;
+
 /**
  *
  * @author ZenBook
@@ -48,305 +60,345 @@ public class Usuarios1 extends javax.swing.JPanel {
     private int id_usuario;
     private Ctrl_Perfil controlador;
     private int idUsuario;
-private int columnaFiltro = -1;
+    private int columnaFiltro = -1;
 
-
+    // Variables para el popup de roles
+    private JPopupMenu popupFiltroRoles;
+    private JCheckBox chkAdministrador;
+    private JCheckBox chkTrabajador;
+    private Set<String> rolesSeleccionados = new HashSet<>();
 
 // In Usuarios1 class, add a field for the TableRowSorter
-private TableRowSorter<DefaultTableModel> sorter;
+    private TableRowSorter<DefaultTableModel> sorter;
 
 // In the constructor or cargarTablaUsuarios, initialize the sorter
-public Usuarios1(JFrame jFrame, boolean par) {
-    controlador = new Ctrl_Perfil();
-    this.id_usuario = -1;
-    initComponents();
-    // Immediately replace the model
-    SwingUtilities.invokeLater(() -> {
-        cargarTablaUsuarios();
-        System.out.println("Table model initialized with " + tablaUsuarios.getColumnCount() + " columns");
-    });
-    inicializarMenuFiltros();
-    aplicarTema();
-    TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
+    public Usuarios1(JFrame jFrame, boolean par) {
+        controlador = new Ctrl_Perfil();
+        this.id_usuario = -1;
+        initComponents();
+        // Immediately replace the model
+        SwingUtilities.invokeLater(() -> {
+            cargarTablaUsuarios();
+            System.out.println("Table model initialized with " + tablaUsuarios.getColumnCount() + " columns");
+        });
 
-    // Initialize sorter
-    sorter = new TableRowSorter<>((DefaultTableModel) tablaUsuarios.getModel());
-    tablaUsuarios.setRowSorter(sorter);
+        // Inicializar el popup de roles aquí
+        inicializarPopupFiltroRoles();
 
-    // Add DocumentListener to txtBuscar for real-time filtering
-    txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
-        @Override
-        public void insertUpdate(DocumentEvent e) { filtrarUsuarios(); }
-        @Override
-        public void removeUpdate(DocumentEvent e) { filtrarUsuarios(); }
-        @Override
-        public void changedUpdate(DocumentEvent e) { filtrarUsuarios(); }
-    });
+        aplicarTema();
+        TemaManager.getInstance().addThemeChangeListener(this::aplicarTema);
 
-}
-public void cargarTablaUsuarios() {
-    SwingUtilities.invokeLater(() -> {
-        tablaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Initialize sorter
+        sorter = new TableRowSorter<>((DefaultTableModel) tablaUsuarios.getModel());
+        tablaUsuarios.setRowSorter(sorter);
 
-        DefaultTableModel model = new DefaultTableModel() {
+        // Inicializar el sorter
+        sorter = new TableRowSorter<>((DefaultTableModel) tablaUsuarios.getModel());
+        tablaUsuarios.setRowSorter(sorter);
+
+        // Configurar el DocumentListener para búsqueda en tiempo real
+        txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                if (column < 0 || column >= getColumnCount() || row < 0 || row >= getRowCount()) {
-                    System.err.println("Invalid access: row=" + row + ", column=" + column);
-                    return false;
-                }
-                return column == 0 || column == 7;
+            public void insertUpdate(DocumentEvent e) {
+                filtrarUsuarios();
             }
 
             @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Boolean.class;
-                return super.getColumnClass(columnIndex);
+            public void removeUpdate(DocumentEvent e) {
+                filtrarUsuarios();
             }
-        };
 
-        model.addColumn("Selec");
-        model.addColumn("Código");
-        model.addColumn("Nombre");
-        model.addColumn("Apellido");
-        model.addColumn("Usuario");
-        model.addColumn("Correo Electrónico");
-        model.addColumn("Rol");
-        model.addColumn("Acciones");
-
-        List<modelo.UsuarioModelo> usuarios = controlador.obtenerUsuarios();
-        if (usuarios == null || usuarios.isEmpty()) {
-            System.out.println("No users found, initializing empty table");
-        } else {
-            for (modelo.UsuarioModelo usuario : usuarios) {
-                Object[] fila = new Object[8];
-                fila[0] = false;
-                fila[1] = usuario.getId_usuario();
-                fila[2] = usuario.getNombre() != null ? usuario.getNombre() : "Sin nombre";
-                fila[3] = usuario.getApellido() != null ? usuario.getApellido() : "Sin apellido";
-                fila[4] = usuario.getUsuario() != null ? usuario.getUsuario() : "Sin usuario";
-                fila[5] = usuario.getCorreo_electronico() != null ? usuario.getCorreo_electronico() : "Sin correo";
-                fila[6] = usuario.getRol() != null ? usuario.getRol() : "Sin rol";
-                fila[7] = "";
-                model.addRow(fila);
-            }
-        }
-
-        try {
-            tablaUsuarios.setModel(model);
-            System.out.println("Table model set: " + model.getColumnCount() + " columns, " + model.getRowCount() + " rows");
-        } catch (Exception e) {
-            System.err.println("Error setting table model: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        try {
-            tablaUsuarios.getColumnModel().getColumn(0).setCellRenderer(new CustomCheckboxRenderer());
-            tablaUsuarios.getColumnModel().getColumn(0).setCellEditor(new CustomCheckboxEditor());
-            tablaUsuarios.getColumnModel().getColumn(7).setCellRenderer(new ButtonPanelRenderer());
-            tablaUsuarios.getColumnModel().getColumn(7).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
-
-            tablaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(60);
-            tablaUsuarios.getColumnModel().getColumn(1).setPreferredWidth(70);
-            tablaUsuarios.getColumnModel().getColumn(2).setPreferredWidth(90);
-            tablaUsuarios.getColumnModel().getColumn(3).setPreferredWidth(100);
-            tablaUsuarios.getColumnModel().getColumn(4).setPreferredWidth(100);
-            tablaUsuarios.getColumnModel().getColumn(5).setPreferredWidth(250);
-            tablaUsuarios.getColumnModel().getColumn(6).setPreferredWidth(100);
-            tablaUsuarios.getColumnModel().getColumn(7).setPreferredWidth(80);
-            tablaUsuarios.setRowHeight(24);
-        } catch (Exception e) {
-            System.err.println("Error configuring table columns: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        tablaUsuarios.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                int fila_point = tablaUsuarios.rowAtPoint(e.getPoint());
-                if (fila_point > -1 && fila_point < tablaUsuarios.getRowCount() && tablaUsuarios.getColumnCount() > 1) {
-                    id_usuario = (int) tablaUsuarios.getValueAt(fila_point, 1);
-                    System.out.println("Selected user ID: " + id_usuario);
-                } else {
-                    System.err.println("Invalid row selection: row=" + fila_point);
-                }
+            public void changedUpdate(DocumentEvent e) {
+                filtrarUsuarios();
             }
         });
 
-        sorter = new TableRowSorter<>(model);
-        tablaUsuarios.setRowSorter(sorter);
-    });
-}
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
+    }
+
+    public void cargarTablaUsuarios() {
+        SwingUtilities.invokeLater(() -> {
+            tablaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    if (column < 0 || column >= getColumnCount() || row < 0 || row >= getRowCount()) {
+                        System.err.println("Invalid access: row=" + row + ", column=" + column);
+                        return false;
+                    }
+                    return column == 0 || column == 7;
+                }
+
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    if (columnIndex == 0) {
+                        return Boolean.class;
+                    }
+                    return super.getColumnClass(columnIndex);
+                }
+            };
+
+            model.addColumn("Selec");
+            model.addColumn("Código");
+            model.addColumn("Nombre");
+            model.addColumn("Apellido");
+            model.addColumn("Usuario");
+            model.addColumn("Correo Electrónico");
+            model.addColumn("Rol");
+            model.addColumn("Acciones");
+
+            List<modelo.UsuarioModelo> usuarios = controlador.obtenerUsuarios();
+            if (usuarios == null || usuarios.isEmpty()) {
+                System.out.println("No users found, initializing empty table");
+            } else {
+                for (modelo.UsuarioModelo usuario : usuarios) {
+                    Object[] fila = new Object[8];
+                    fila[0] = false;
+                    fila[1] = usuario.getId_usuario();
+                    fila[2] = usuario.getNombre() != null ? usuario.getNombre() : "Sin nombre";
+                    fila[3] = usuario.getApellido() != null ? usuario.getApellido() : "Sin apellido";
+                    fila[4] = usuario.getUsuario() != null ? usuario.getUsuario() : "Sin usuario";
+                    fila[5] = usuario.getCorreo_electronico() != null ? usuario.getCorreo_electronico() : "Sin correo";
+                    fila[6] = usuario.getRol() != null ? usuario.getRol() : "Sin rol";
+                    fila[7] = "";
+                    model.addRow(fila);
+                }
+            }
+
+            try {
+                tablaUsuarios.setModel(model);
+                System.out.println("Table model set: " + model.getColumnCount() + " columns, " + model.getRowCount() + " rows");
+            } catch (Exception e) {
+                System.err.println("Error setting table model: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            try {
+                tablaUsuarios.getColumnModel().getColumn(0).setCellRenderer(new CustomCheckboxRenderer());
+                tablaUsuarios.getColumnModel().getColumn(0).setCellEditor(new CustomCheckboxEditor());
+                tablaUsuarios.getColumnModel().getColumn(7).setCellRenderer(new ButtonPanelRenderer());
+                tablaUsuarios.getColumnModel().getColumn(7).setCellEditor(new ButtonPanelEditor(new JCheckBox()));
+
+                tablaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(60);
+                tablaUsuarios.getColumnModel().getColumn(1).setPreferredWidth(70);
+                tablaUsuarios.getColumnModel().getColumn(2).setPreferredWidth(90);
+                tablaUsuarios.getColumnModel().getColumn(3).setPreferredWidth(100);
+                tablaUsuarios.getColumnModel().getColumn(4).setPreferredWidth(100);
+                tablaUsuarios.getColumnModel().getColumn(5).setPreferredWidth(250);
+                tablaUsuarios.getColumnModel().getColumn(6).setPreferredWidth(100);
+                tablaUsuarios.getColumnModel().getColumn(7).setPreferredWidth(80);
+                tablaUsuarios.setRowHeight(24);
+            } catch (Exception e) {
+                System.err.println("Error configuring table columns: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            tablaUsuarios.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int fila_point = tablaUsuarios.rowAtPoint(e.getPoint());
+                    if (fila_point > -1 && fila_point < tablaUsuarios.getRowCount() && tablaUsuarios.getColumnCount() > 1) {
+                        id_usuario = (int) tablaUsuarios.getValueAt(fila_point, 1);
+                        System.out.println("Selected user ID: " + id_usuario);
+                    } else {
+                        System.err.println("Invalid row selection: row=" + fila_point);
+                    }
+                }
+            });
+
+            sorter = new TableRowSorter<>(model);
+            tablaUsuarios.setRowSorter(sorter);
+        });
+
+    }
 
 // In ButtonPanelRenderer
-class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
-    private RSLabelIcon editIcon;
-    private RSLabelIcon deleteIcon;
+    class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
 
-    public ButtonPanelRenderer() {
-        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
-        setOpaque(true);
+        private RSLabelIcon editIcon;
+        private RSLabelIcon deleteIcon;
 
-        editIcon = new RSLabelIcon();
-        editIcon.setIcons(ValoresEnum.ICONS.EDIT);
-        editIcon.setToolTipText("Editar");
-        editIcon.setPreferredSize(new Dimension(20, 20));
+        public ButtonPanelRenderer() {
+            setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
+            setOpaque(true);
 
-        deleteIcon = new RSLabelIcon();
-        deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
-        deleteIcon.setToolTipText("Eliminar");
-        deleteIcon.setPreferredSize(new Dimension(20, 20));
+            editIcon = new RSLabelIcon();
+            editIcon.setIcons(ValoresEnum.ICONS.EDIT);
+            editIcon.setToolTipText("Editar");
+            editIcon.setPreferredSize(new Dimension(20, 20));
 
-        add(editIcon);
-        add(deleteIcon);
+            deleteIcon = new RSLabelIcon();
+            deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
+            deleteIcon.setToolTipText("Eliminar");
+            deleteIcon.setPreferredSize(new Dimension(20, 20));
 
-        updateTheme();
-        TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
-    }
+            add(editIcon);
+            add(deleteIcon);
 
-    private void updateTheme() {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-
-        setBackground(fondo);
-        editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        editIcon.setForeground(new Color(21, 21, 33)); // Green for edit icon
-         deleteIcon.setForeground(new Color(29, 30, 81)); // Color azul que pediste
-
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        if (isSelected) {
-            setBackground(new Color(240, 240, 240));
-        } else {
             updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
         }
-        return this;
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+
+            setBackground(fondo);
+            editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            editIcon.setForeground(new Color(21, 21, 33)); // Green for edit icon
+            deleteIcon.setForeground(new Color(29, 30, 81)); // Color azul que pediste
+
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            if (isSelected) {
+                setBackground(new Color(240, 240, 240));
+            } else {
+                updateTheme();
+            }
+            return this;
+        }
     }
-}
 
 // In ButtonPanelEditor
-class ButtonPanelEditor extends DefaultCellEditor {
-    private JPanel panel;
-    private RSLabelIcon editIcon;
-    private RSLabelIcon deleteIcon;
-    private String label;
-    private boolean isPushed;
-    private int selectedRow;
+    class ButtonPanelEditor extends DefaultCellEditor {
 
-    public ButtonPanelEditor(JCheckBox checkBox) {
-        super(checkBox);
-        panel = new JPanel();
-        panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
-        panel.setOpaque(true);
+        private JPanel panel;
+        private RSLabelIcon editIcon;
+        private RSLabelIcon deleteIcon;
+        private String label;
+        private boolean isPushed;
+        private int selectedRow;
 
-        editIcon = new RSLabelIcon();
-        editIcon.setIcons(ValoresEnum.ICONS.EDIT);
-        editIcon.setToolTipText("Editar");
-        editIcon.setPreferredSize(new Dimension(20, 20));
+        public ButtonPanelEditor(JCheckBox checkBox) {
+            super(checkBox);
+            panel = new JPanel();
+            panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 2, 0));
+            panel.setOpaque(true);
 
-        deleteIcon = new RSLabelIcon();
-        deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
-        deleteIcon.setToolTipText("Eliminar");
-        deleteIcon.setPreferredSize(new Dimension(20, 20));
+            editIcon = new RSLabelIcon();
+            editIcon.setIcons(ValoresEnum.ICONS.EDIT);
+            editIcon.setToolTipText("Editar");
+            editIcon.setPreferredSize(new Dimension(20, 20));
 
-        panel.add(editIcon);
-        panel.add(deleteIcon);
+            deleteIcon = new RSLabelIcon();
+            deleteIcon.setIcons(ValoresEnum.ICONS.DELETE);
+            deleteIcon.setToolTipText("Eliminar");
+            deleteIcon.setPreferredSize(new Dimension(20, 20));
 
-        editIcon.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                isPushed = true;
-                fireEditingStopped();
-                try {
-                    int idUsuario = (int) tablaUsuarios.getValueAt(selectedRow, 1);
-                    editar_usuario2 dialog = new editar_usuario2(new JFrame(), true, idUsuario,
-                            (DefaultTableModel) tablaUsuarios.getModel(), selectedRow);
-                    dialog.setLocationRelativeTo(null);
-                    dialog.setVisible(true);
-                    if (dialog.isGuardado()) {
-                        cargarTablaUsuarios();
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Usuarios1.this, "Error al abrir el formulario de edición: " + ex.getMessage());
-                }
-            }
-        });
+            panel.add(editIcon);
+            panel.add(deleteIcon);
 
-        deleteIcon.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                isPushed = true;
-                fireEditingStopped();
-                try {
-                    int idUsuario = (int) tablaUsuarios.getValueAt(selectedRow, 1);
-                    int confirm = JOptionPane.showConfirmDialog(Usuarios1.this,
-                            "¿Está seguro de que desea eliminar este usuario?",
-                            "Confirmar eliminación",
-                            JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        Ctrl_Perfil controlador = new Ctrl_Perfil();
-                        boolean eliminado = controlador.eliminar(idUsuario);
-                        if (eliminado) {
-                            JOptionPane.showMessageDialog(Usuarios1.this, "Usuario eliminado correctamente.");
+            editIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    isPushed = true;
+                    fireEditingStopped();
+                    try {
+                        int idUsuario = (int) tablaUsuarios.getValueAt(selectedRow, 1);
+                        editar_usuario2 dialog = new editar_usuario2(new JFrame(), true, idUsuario,
+                                (DefaultTableModel) tablaUsuarios.getModel(), selectedRow);
+                        dialog.setLocationRelativeTo(null);
+                        dialog.setVisible(true);
+                        if (dialog.isGuardado()) {
                             cargarTablaUsuarios();
-                        } else {
-                            JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario.");
                         }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(Usuarios1.this, "Error al abrir el formulario de edición: " + ex.getMessage());
                     }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario: " + ex.getMessage());
                 }
-            }
-        });
+            });
 
-        updateTheme();
-        TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
-    }
+            deleteIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    isPushed = true;
+                    fireEditingStopped();
+                    try {
+                        int idUsuario = (int) tablaUsuarios.getValueAt(selectedRow, 1);
+                        int confirm = JOptionPane.showConfirmDialog(Usuarios1.this,
+                                "¿Está seguro de que desea eliminar este usuario?",
+                                "Confirmar eliminación",
+                                JOptionPane.YES_NO_OPTION);
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            Ctrl_Perfil controlador = new Ctrl_Perfil();
+                            boolean eliminado = controlador.eliminar(idUsuario);
+                            if (eliminado) {
+                                JOptionPane.showMessageDialog(Usuarios1.this, "Usuario eliminado correctamente.");
+                                cargarTablaUsuarios();
+                            } else {
+                                JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario.");
+                            }
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario: " + ex.getMessage());
+                    }
+                }
+            });
 
-    private void updateTheme() {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color bgColor = oscuro ? new Color(21, 21, 33) : new Color(255, 255, 255);
-        panel.setBackground(bgColor);
-        editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
-        editIcon.setForeground(Color.GREEN); // Green for edit icon
-        deleteIcon.setForeground(Color.RED); // Red for delete icon
-    }
-
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value,
-            boolean isSelected, int row, int column) {
-        label = (value == null) ? "" : value.toString();
-        isPushed = true;
-        selectedRow = row;
-        if (row == table.getSelectedRow()) {
-            panel.setBackground(new Color(240, 240, 240));
-        } else {
             updateTheme();
+            TemaManager.getInstance().addThemeChangeListener(this::updateTheme);
         }
-        return panel;
+
+        private void updateTheme() {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color bgColor = oscuro ? new Color(21, 21, 33) : new Color(255, 255, 255);
+            panel.setBackground(bgColor);
+            editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            deleteIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
+            editIcon.setForeground(Color.GREEN); // Green for edit icon
+            deleteIcon.setForeground(Color.RED); // Red for delete icon
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            label = (value == null) ? "" : value.toString();
+            isPushed = true;
+            selectedRow = row;
+            if (row == table.getSelectedRow()) {
+                panel.setBackground(new Color(240, 240, 240));
+            } else {
+                updateTheme();
+            }
+            return panel;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return label;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+
+        @Override
+        protected void fireEditingStopped() {
+            super.fireEditingStopped();
+        }
     }
 
-    @Override
-    public Object getCellEditorValue() {
-        return label;
-    }
-
-    @Override
-    public boolean stopCellEditing() {
-        isPushed = false;
-        return super.stopCellEditing();
-    }
-
-    @Override
-    protected void fireEditingStopped() {
-        super.fireEditingStopped();
-    }
-}
     public void aplicarTema() {
         boolean oscuro = TemaManager.getInstance().isOscuro();
 
@@ -361,11 +413,11 @@ class ButtonPanelEditor extends DefaultCellEditor {
             txtBuscar.setColorIcon(texto);
             txtBuscar.setPhColor(Color.LIGHT_GRAY);
             rSCheckBox1.setForeground(new Color(255, 255, 255));
- 
-  rSCheckBox1.setColorUnCheck(new Color(255, 255, 255));
+
+            rSCheckBox1.setColorUnCheck(new Color(255, 255, 255));
             tablaUsuarios.setBackground(fondo); // Explicitly set table background
             tablaUsuarios.setBackgoundHead(new Color(67, 71, 120));
-                tablaUsuarios.setForegroundHead(new Color(255, 255, 255));
+            tablaUsuarios.setForegroundHead(new Color(255, 255, 255));
             tablaUsuarios.setBackgoundHover(new Color(40, 50, 90));
             tablaUsuarios.setFont(new Font("Tahoma", Font.PLAIN, 15));
             tablaUsuarios.setColorPrimary(new Color(37, 37, 52));
@@ -380,31 +432,32 @@ class ButtonPanelEditor extends DefaultCellEditor {
             tablaUsuarios.setEffectHover(true);
             tablaUsuarios.setShowGrid(true);
             tablaUsuarios.setGridColor(Color.WHITE);
-rSButtonMaterialRippleIcon1.setForegroundIcon(fondo);   //[46,49,82]
- rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
-  rSButtonMaterialRippleIcon1.setForegroundHover(new Color(67, 71, 120));
-   rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(67, 71, 120));
-     rSButtonMaterialRippleIcon1.setForegroundText(new Color(67, 71, 120));
-         rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
+            rSButtonMaterialRippleIcon1.setForegroundIcon(fondo);   //[46,49,82]
+            rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
+            rSButtonMaterialRippleIcon1.setForegroundHover(new Color(67, 71, 120));
+            rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(67, 71, 120));
+            rSButtonMaterialRippleIcon1.setForegroundText(new Color(67, 71, 120));
+            rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackgroundHover(new Color(118, 142, 240));
-        
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
         } else {
-            Color fondo = new Color(241,245,253);
+            Color fondo = new Color(241, 245, 253);
             Color texto = Color.BLACK;
             Color primario = new Color(72, 92, 188);
-rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,49,82]
- rSButtonMaterialRippleIcon1.setBackground(new Color(247,247,255));
-  rSButtonMaterialRippleIcon1.setForegroundHover(new Color(21, 21, 33));
-   rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(21, 21, 33));
+            rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,49,82]
+            rSButtonMaterialRippleIcon1.setBackground(new Color(247, 247, 255));
+            rSButtonMaterialRippleIcon1.setForegroundHover(new Color(21, 21, 33));
+            rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(21, 21, 33));
             jPanel1.setBackground(fondo);
             txtBuscar.setBackground(fondo);
             txtBuscar.setForeground(texto);
             txtBuscar.setColorIcon(texto);
             txtBuscar.setPhColor(Color.GRAY);
-                rSCheckBox1.setForeground(new Color(67, 71, 120));
- 
-  rSCheckBox1.setColorUnCheck(new Color(67, 71, 120));
+            rSCheckBox1.setForeground(new Color(67, 71, 120));
+
+            rSCheckBox1.setColorUnCheck(new Color(67, 71, 120));
             tablaUsuarios.setBackground(fondo); // Explicitly set table background
             tablaUsuarios.setBackgoundHead(new Color(46, 49, 82));
             tablaUsuarios.setForegroundHead(new Color(255, 255, 255));
@@ -425,8 +478,111 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
             tablaUsuarios.setGridColor(Color.BLACK);
 
             btnNuevo1.setBackground(new Color(46, 49, 82));
-          
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
+
         }
+    }
+
+    private void inicializarPopupFiltroRoles() {
+        popupFiltroRoles = new JPopupMenu();
+
+        // Panel principal con BoxLayout vertical
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Panel de categorías con GridLayout
+        JPanel categoriasPanel = new JPanel(new GridLayout(0, 1, 0, 5)); // Espaciado vertical de 5px
+        categoriasPanel.setBorder(BorderFactory.createTitledBorder("Filtrar por roles:"));
+
+        // Checkbox para Administrador
+        chkAdministrador = new JCheckBox("Administrador");
+        chkAdministrador.setSelected(rolesSeleccionados.contains("Administrador"));
+        categoriasPanel.add(chkAdministrador);
+
+        // Checkbox para Trabajador
+        chkTrabajador = new JCheckBox("Trabajador");
+        chkTrabajador.setSelected(rolesSeleccionados.contains("Trabajador"));
+        categoriasPanel.add(chkTrabajador);
+
+        mainPanel.add(categoriasPanel);
+        mainPanel.add(Box.createVerticalStrut(10)); // Espacio antes de los botones
+
+        // Panel de botones con GridLayout
+        JPanel panelBotones = new JPanel(new GridLayout(1, 2, 10, 0)); // Espaciado horizontal de 10px
+
+        RSButtonRiple btnLimpiar = new RSButtonRiple();
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBackground(new Color(180, 180, 180));
+        btnLimpiar.setColorHover(new Color(150, 150, 150));
+        btnLimpiar.setPreferredSize(new Dimension(100, 25));
+        btnLimpiar.addActionListener(e -> {
+            chkAdministrador.setSelected(false);
+            chkTrabajador.setSelected(false);
+            rolesSeleccionados.clear();
+            aplicarFiltroRoles(); // Aplicará filtro vacío (mostrará todos)
+            popupFiltroRoles.setVisible(false);
+        });
+        panelBotones.add(btnLimpiar);
+
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(46, 49, 82));
+        btnAplicar.setColorHover(new Color(0, 153, 51));
+        btnAplicar.setPreferredSize(new Dimension(100, 25));
+        btnAplicar.addActionListener(e -> {
+            rolesSeleccionados.clear();
+            if (chkAdministrador.isSelected()) {
+                rolesSeleccionados.add("Administrador");
+            }
+            if (chkTrabajador.isSelected()) {
+                rolesSeleccionados.add("Trabajador");
+            }
+            aplicarFiltroRoles();
+            popupFiltroRoles.setVisible(false);
+        });
+        panelBotones.add(btnAplicar);
+
+        mainPanel.add(panelBotones);
+        popupFiltroRoles.add(mainPanel);
+
+        // Ajustar tamaño preferido del popup
+        popupFiltroRoles.pack();
+    }
+
+    private void aplicarFiltroRoles() {
+        if (rolesSeleccionados.isEmpty()) {
+            // Si no hay roles seleccionados, quitar filtro
+            sorter.setRowFilter(null);
+        } else {
+            // Crear filtro para la columna de Rol (índice 6 en el modelo)
+            RowFilter<Object, Object> filtroRoles = new RowFilter<Object, Object>() {
+                @Override
+                public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                    Object valorRol = entry.getValue(6); // Índice 6 es Rol
+                    return valorRol != null && rolesSeleccionados.contains(valorRol.toString());
+                }
+            };
+            sorter.setRowFilter(filtroRoles);
+        }
+    }
+
+    private void limpiarFiltrosEgresos() {
+        // Limpiar filtros existentes
+        rolesSeleccionados.clear();
+        if (chkAdministrador != null) {
+            chkAdministrador.setSelected(false);
+        }
+        if (chkTrabajador != null) {
+            chkTrabajador.setSelected(false);
+        }
+
+        // Restablecer todos los filtros
+        sorter.setRowFilter(null);
+        txtBuscar.setText("");
+
+        // Opcional: Recargar datos si es necesario
+        cargarTablaUsuarios();
     }
 
     /**
@@ -443,12 +599,12 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
         jScrollPane3 = new javax.swing.JScrollPane();
         tablaUsuarios = new RSMaterialComponent.RSTableMetroCustom();
         txtBuscar = new RSMaterialComponent.RSTextFieldMaterialIcon();
-        btnNotificacion1 = new rojerusan.RSLabelIcon();
         btnNuevo2 = new RSMaterialComponent.RSButtonShape();
         rSCheckBox1 = new rojerusan.RSCheckBox();
         rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
         Añadir5 = new rojeru_san.RSButtonRiple();
         Añadir4 = new rojeru_san.RSButtonRiple();
+        filtar = new rojerusan.RSLabelImage();
 
         setPreferredSize(new java.awt.Dimension(1290, 730));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -529,22 +685,17 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
         txtBuscar.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.SEARCH);
         txtBuscar.setPhColor(new java.awt.Color(102, 102, 102));
         txtBuscar.setPlaceholder("Buscar...");
+        txtBuscar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtBuscarMouseClicked(evt);
+            }
+        });
         txtBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtBuscarActionPerformed(evt);
             }
         });
         jPanel1.add(txtBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 60, 430, 40));
-
-        btnNotificacion1.setBackground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setForeground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.TUNE);
-        btnNotificacion1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnNotificacion1MouseClicked(evt);
-            }
-        });
-        jPanel1.add(btnNotificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, -1, -1));
 
         btnNuevo2.setBackground(new java.awt.Color(67, 94, 190));
         btnNuevo2.setBorder(javax.swing.BorderFactory.createCompoundBorder());
@@ -605,6 +756,20 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
         });
         jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 98, 40));
 
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
+            }
+        });
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(546, 64, 35, 35));
+
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 730));
     }// </editor-fold>//GEN-END:initComponents
 
@@ -619,12 +784,8 @@ rSButtonMaterialRippleIcon1.setForegroundIcon(new Color(72, 92, 188));   //[46,4
     }//GEN-LAST:event_btnNuevo1ActionPerformed
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-filtrarUsuarios();
+        filtrarUsuarios();
     }//GEN-LAST:event_txtBuscarActionPerformed
-
-    private void btnNotificacion1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificacion1MouseClicked
-      menuFiltros.show(btnNotificacion1, 0, btnNotificacion1.getHeight());
-    }//GEN-LAST:event_btnNotificacion1MouseClicked
 
     private void btnNuevo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo2ActionPerformed
         crear_cliente dialog = new crear_cliente(new javax.swing.JFrame(), true);
@@ -720,13 +881,32 @@ filtrarUsuarios();
 //        }
     }//GEN-LAST:event_Añadir4ActionPerformed
 
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        if (popupFiltroRoles == null) {
+            inicializarPopupFiltroRoles();
+        }
+        popupFiltroRoles.show(filtar, 0, filtar.getHeight());
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
+
+    private void txtBuscarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtBuscarMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtBuscarMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private rojeru_san.RSButtonRiple Añadir4;
     private rojeru_san.RSButtonRiple Añadir5;
-    private rojerusan.RSLabelIcon btnNotificacion1;
     private RSMaterialComponent.RSButtonShape btnNuevo1;
     private RSMaterialComponent.RSButtonShape btnNuevo2;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private RSMaterialComponent.RSButtonMaterialRippleIcon rSButtonMaterialRippleIcon1;
@@ -735,117 +915,92 @@ filtrarUsuarios();
     private RSMaterialComponent.RSTextFieldMaterialIcon txtBuscar;
     // End of variables declaration//GEN-END:variables
 class CustomCheckboxRenderer extends JCheckBox implements TableCellRenderer {
-    public CustomCheckboxRenderer() {
-        setHorizontalAlignment(CENTER);
-        setOpaque(true);
-    }
 
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        Color borde = oscuro ? new Color(100, 100, 150) : new Color(180, 180, 180);
-        Color seleccion = oscuro ? new Color(118, 142, 240) : new Color(72, 92, 188);
-
-        if (isSelected) {
-            setBackground(new Color(240, 240, 240)); // Light gray for selection/hover
-        } else {
-            setBackground(fondo);
+        public CustomCheckboxRenderer() {
+            setHorizontalAlignment(CENTER);
+            setOpaque(true);
         }
 
-        setBorderPainted(true);
-        setForeground(seleccion);
-        setSelected(Boolean.TRUE.equals(value));
-        setBorder(javax.swing.BorderFactory.createLineBorder(borde));
-        setOpaque(true); // Ensure background is painted
-
-        return this;
-    }
-
-
-}
-
-class CustomCheckboxEditor extends DefaultCellEditor {
-    private final JCheckBox checkBox;
-
-    public CustomCheckboxEditor() {
-        super(new JCheckBox());
-        checkBox = (JCheckBox) getComponent();
-
-        checkBox.setOpaque(true);
-    }
-
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value,
-            boolean isSelected, int row, int column) {
-
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        checkBox.setBackground(oscuro ? new Color(21, 21, 33) : Color.WHITE);
-        checkBox.setSelected(Boolean.TRUE.equals(value));
-        return checkBox;
-    }
-
-    @Override
-    public Object getCellEditorValue() {
-        return checkBox.isSelected();
-    }
-}
-
-private JPopupMenu menuFiltros = new JPopupMenu();
-
-public void inicializarMenuFiltros() {
-    JMenuItem itemTodos = new JMenuItem("Todos");
-    JMenuItem itemNombre = new JMenuItem("Nombre");
-    JMenuItem itemApellido = new JMenuItem("Apellido");
-    JMenuItem itemUsuario = new JMenuItem("Usuario");
-    JMenuItem itemCorreo = new JMenuItem("Correo electrónico");
-
-    menuFiltros.add(itemTodos);
-    menuFiltros.add(itemNombre);
-    menuFiltros.add(itemApellido);
-    menuFiltros.add(itemUsuario);
-    menuFiltros.add(itemCorreo);
-
-    itemTodos.addActionListener(e -> { columnaFiltro = -1; filtrarUsuarios(); });
-    itemNombre.addActionListener(e -> { columnaFiltro = 2; filtrarUsuarios(); });
-    itemApellido.addActionListener(e -> { columnaFiltro = 3; filtrarUsuarios(); });
-    itemUsuario.addActionListener(e -> { columnaFiltro = 4; filtrarUsuarios(); });
-    itemCorreo.addActionListener(e -> { columnaFiltro = 5; filtrarUsuarios(); });
-
-    txtBuscar.addMouseListener(new MouseAdapter() {
         @Override
-        public void mouseClicked(MouseEvent e) {
-            if (SwingUtilities.isRightMouseButton(e)) {
-                menuFiltros.show(txtBuscar, e.getX(), e.getY());
-            }
-        }
-    });
-}
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+            Color borde = oscuro ? new Color(100, 100, 150) : new Color(180, 180, 180);
+            Color seleccion = oscuro ? new Color(118, 142, 240) : new Color(72, 92, 188);
 
-private void filtrarUsuarios() {
-    String texto = txtBuscar.getText().trim().toLowerCase();
-
-    if (texto.length() == 0) {
-        sorter.setRowFilter(null);
-    } else {
-        try {
-            if (columnaFiltro == -1) {
-                // Filter across all relevant columns
-                sorter.setRowFilter(RowFilter.orFilter(Arrays.asList(
-                    RowFilter.regexFilter("(?i)" + texto, 2), // Nombre
-                    RowFilter.regexFilter("(?i)" + texto, 3), // Apellido
-                    RowFilter.regexFilter("(?i)" + texto, 4), // Usuario
-                    RowFilter.regexFilter("(?i)" + texto, 5)  // Correo
-                )));
+            if (isSelected) {
+                setBackground(new Color(240, 240, 240)); // Light gray for selection/hover
             } else {
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto, columnaFiltro));
+                setBackground(fondo);
             }
-        } catch (Exception e) {
-            System.out.println("Error applying filter: " + e.getMessage());
-        }
-    
 
-}
-}
+            setBorderPainted(true);
+            setForeground(seleccion);
+            setSelected(Boolean.TRUE.equals(value));
+            setBorder(javax.swing.BorderFactory.createLineBorder(borde));
+            setOpaque(true); // Ensure background is painted
+
+            return this;
+        }
+
+    }
+
+    class CustomCheckboxEditor extends DefaultCellEditor {
+
+        private final JCheckBox checkBox;
+
+        public CustomCheckboxEditor() {
+            super(new JCheckBox());
+            checkBox = (JCheckBox) getComponent();
+
+            checkBox.setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+
+            boolean oscuro = TemaManager.getInstance().isOscuro();
+            checkBox.setBackground(oscuro ? new Color(21, 21, 33) : Color.WHITE);
+            checkBox.setSelected(Boolean.TRUE.equals(value));
+            return checkBox;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return checkBox.isSelected();
+        }
+    }
+
+    private JPopupMenu menuFiltros = new JPopupMenu();
+
+    private void filtrarUsuarios() {
+        String texto = txtBuscar.getText().trim().toLowerCase();
+
+        if (texto.length() == 0) {
+            sorter.setRowFilter(null);
+        } else {
+            try {
+                // Verificar si el texto es numérico
+                boolean esNumerico = texto.matches("\\d+"); // Expresión regular para números enteros
+
+                if (esNumerico) {
+                    // Filtrar solo en la columna "Código" (índice 1)
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto, 1));
+                } else {
+                    // Filtrar en las columnas de texto (Nombre, Apellido, Usuario, Correo)
+                    sorter.setRowFilter(RowFilter.orFilter(Arrays.asList(
+                            RowFilter.regexFilter("(?i)" + texto, 2), // Nombre
+                            RowFilter.regexFilter("(?i)" + texto, 3), // Apellido
+                            RowFilter.regexFilter("(?i)" + texto, 4), // Usuario
+                            RowFilter.regexFilter("(?i)" + texto, 5) // Correo
+                    )));
+                }
+            } catch (Exception e) {
+                System.out.println("Error applying filter: " + e.getMessage());
+            }
+        }
+    }
+
 }

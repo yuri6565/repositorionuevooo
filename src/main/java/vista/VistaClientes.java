@@ -5,6 +5,7 @@
 package vista;
 
 import controlador.Ctrl_Cliente;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -12,34 +13,47 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import modelo.Cliente;
 import modelo.Conexion;
 import rojeru_san.RSButton;
+import rojeru_san.RSButtonRiple;
 import rojeru_san.efectos.ValoresEnum;
 import rojerusan.RSLabelIcon;
+import rojerusan.RSLabelImage;
 import vista.Usuarios1.CustomCheckboxEditor;
 import vista.Usuarios1.CustomCheckboxRenderer;
 
@@ -58,6 +72,7 @@ public class VistaClientes extends javax.swing.JPanel {
     private TableRowSorter<DefaultTableModel> sorter; // Declaración de sorter
     private JPopupMenu popupFiltrosAvanzados; // Popup para filtros avanzados
     private List<JCheckBox> chkEstados = new ArrayList<>(); // Lista para checkboxes de estados
+    private List<JCheckBox> chkMunicipios = new ArrayList<>(); // Lista para checkboxes de estados
     private List<JCheckBox> chkDepartamentos = new ArrayList<>(); // Lista para checkboxes de departamentos
     private List<JCheckBox> chkProductos = new ArrayList<>(); // Lista para checkboxes de tipos de documento
     private rojeru_san.RSButtonRiple btnAplicarFiltros;
@@ -90,25 +105,41 @@ public class VistaClientes extends javax.swing.JPanel {
                 buscarDinamico();
             }
         });
+
+        /// Versión con tamaño de fuente aumentado a 14px
+        filtar.setToolTipText("<html><body style='"
+                + "background-color: black;"
+                + "color: white;"
+                + "font-weight: bold;"
+                + "font-size: 11px;" // Tamaño aumentado (normal es 10-12px)
+                + "margin: 0;"
+                + "padding: 5px;" // Espacio interno para mejor visualización
+                + "'>Filtrar materiales</body></html>");
+
+// Quitar el borde del tooltip
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        UIManager.put("ToolTip.border", BorderFactory.createEmptyBorder());
+
     }
 
     public void cargartablaclientes() {
-        tablaclientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    // Desactivar el sorter temporalmente
+    tablaclientes.setRowSorter(null);
+    
+    DefaultTableModel model = new DefaultTableModel() {
+        @Override
+        public boolean isCellEditable(int fila, int columna) {
+            return columna == 0 || columna == 9;
+        }
 
-        DefaultTableModel model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int fila, int columna) {
-                return columna == 0 || columna == 9; // "Selec" y "Acciones"
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 0) {
+                return Boolean.class;
             }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) {
-                    return Boolean.class;
-                }
-                return String.class;
-            }
-        };
+            return String.class;
+        }
+    };
 
         model.addColumn("Selec");
         model.addColumn("Código");
@@ -121,10 +152,13 @@ public class VistaClientes extends javax.swing.JPanel {
         model.addColumn("Estado");
         model.addColumn("Acciones");
 
-        List<Cliente> clientes = controlador.obtenerClientes();
-        todasLasClientes = new ArrayList<>(clientes);
-        System.out.println("Número de clientes cargados: " + todasLasClientes.size());
-        seleccionados = new boolean[todasLasClientes.size()];
+    List<Cliente> clientes = controlador.obtenerClientes();
+    todasLasClientes = new ArrayList<>(clientes);
+    System.out.println("Número de clientes cargados: " + todasLasClientes.size());
+    
+    // Inicializar el array de seleccionados
+    seleccionados = new boolean[todasLasClientes.size()];
+    Arrays.fill(seleccionados, false); // Asegurar que todos empiezan como false
 
         for (Cliente cliente : todasLasClientes) {
             String ubicacion = (cliente.getDepartamento() != null ? cliente.getDepartamento() : "Sin departamento") + "/"
@@ -224,18 +258,27 @@ public class VistaClientes extends javax.swing.JPanel {
         }
     }
 
-    private void mostrarPagina(int pagina) {
-        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-        model.setRowCount(0);
+ private void mostrarPagina(int pagina) {
+    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+    
+    // Desactivar el sorter temporalmente para evitar conflictos
+    TableRowSorter<?> sorter = (TableRowSorter<?>) tablaclientes.getRowSorter();
+    tablaclientes.setRowSorter(null);
+    
+    try {
+        model.setRowCount(0); // Limpiar la tabla
 
         int inicio = pagina * CLIENTES_POR_PAGINA;
         int fin = Math.min(inicio + CLIENTES_POR_PAGINA, todasLasClientes.size());
 
-        if (inicio >= todasLasClientes.size()) {
-            currentPage = 0;
-            inicio = 0;
-            fin = Math.min(CLIENTES_POR_PAGINA, todasLasClientes.size());
+        // Verificar que haya datos para mostrar
+        if (todasLasClientes.isEmpty()) {
+            return;
         }
+
+        // Asegurarse de que los índices estén dentro de los límites
+        inicio = Math.max(0, Math.min(inicio, todasLasClientes.size() - 1));
+        fin = Math.max(0, Math.min(fin, todasLasClientes.size()));
 
         for (int i = inicio; i < fin; i++) {
             Cliente cliente = todasLasClientes.get(i);
@@ -259,23 +302,33 @@ public class VistaClientes extends javax.swing.JPanel {
         paginacion.setText("Página " + (currentPage + 1) + " de " + totalPaginas);
         Añadir5.setEnabled(currentPage > 0);
         Añadir4.setEnabled(currentPage < totalPaginas - 1);
+    } finally {
+        // Restaurar el sorter después de actualizar los datos
+        tablaclientes.setRowSorter(sorter);
     }
+}
 
-    private void seleccionarTodo() {
-        DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
-        boolean seleccionado = rSCheckBox1.isSelected();
-        int inicio = currentPage * CLIENTES_POR_PAGINA;
-        int fin = Math.min(inicio + CLIENTES_POR_PAGINA, todasLasClientes.size());
-
-        for (int i = 0; i < model.getRowCount(); i++) {
+private void seleccionarTodo() {
+    DefaultTableModel model = (DefaultTableModel) tablaclientes.getModel();
+    boolean seleccionado = rSCheckBox1.isSelected();
+    int inicio = currentPage * CLIENTES_POR_PAGINA;
+    
+    // Asegurarse de que no excedamos el tamaño del array
+    int maxSeleccionables = Math.min(CLIENTES_POR_PAGINA, todasLasClientes.size() - inicio);
+    
+    for (int i = 0; i < maxSeleccionables; i++) {
+        int indexReal = inicio + i;
+        if (indexReal < seleccionados.length) {
             model.setValueAt(seleccionado, i, 0);
-            seleccionados[inicio + i] = seleccionado;
+            seleccionados[indexReal] = seleccionado;
         }
-        actualizarEstadoBotonAccion();
     }
+    actualizarEstadoBotonAccion();
+}
 
     private void buscarDinamico() {
-        String textoBusqueda = txtBuscar.getText().trim();
+        String textoBusqueda = txtBuscar.getText().trim().toLowerCase();
+
         if (textoBusqueda.isEmpty()) {
             todasLasClientes = new ArrayList<>(controlador.obtenerClientes());
             seleccionados = new boolean[todasLasClientes.size()];
@@ -284,17 +337,44 @@ public class VistaClientes extends javax.swing.JPanel {
             return;
         }
 
-        List<Cliente> resultados = controlador.buscarClientePorTodos(textoBusqueda);
-        if (!resultados.isEmpty()) {
-            todasLasClientes = new ArrayList<>(resultados);
-            seleccionados = new boolean[todasLasClientes.size()];
-            currentPage = 0;
-            mostrarPagina(currentPage);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontraron clientes con el texto: " + textoBusqueda, "No encontrado", JOptionPane.WARNING_MESSAGE);
-            todasLasClientes = new ArrayList<>();
-            seleccionados = new boolean[todasLasClientes.size()];
-            mostrarPagina(currentPage);
+        List<Cliente> resultados = new ArrayList<>();
+
+        for (Cliente cliente : controlador.obtenerClientes()) {
+            // Buscar en ID (numérico)
+            if (textoBusqueda.matches("\\d+")
+                    && String.valueOf(cliente.getId_cliente()).contains(textoBusqueda)) {
+                resultados.add(cliente);
+                continue;
+            }
+
+            // Buscar en identificación (puede contener números y letras)
+            if (cliente.getIdentificacion() != null
+                    && cliente.getIdentificacion().toLowerCase().contains(textoBusqueda)) {
+                resultados.add(cliente);
+                continue;
+            }
+
+            // Buscar en otros campos (nombre, apellido, etc.)
+            if ((cliente.getNombre() != null && cliente.getNombre().toLowerCase().contains(textoBusqueda))
+                    || (cliente.getApellido() != null && cliente.getApellido().toLowerCase().contains(textoBusqueda))
+                    || (cliente.getTelefono() != null && cliente.getTelefono().contains(textoBusqueda))
+                    || (cliente.getDepartamento() != null && cliente.getDepartamento().toLowerCase().contains(textoBusqueda))
+                    || (cliente.getMunicipio() != null && cliente.getMunicipio().toLowerCase().contains(textoBusqueda))
+                    || (cliente.getDireccion() != null && cliente.getDireccion().toLowerCase().contains(textoBusqueda))) {
+                resultados.add(cliente);
+            }
+        }
+
+        todasLasClientes = new ArrayList<>(resultados);
+        seleccionados = new boolean[todasLasClientes.size()];
+        currentPage = 0;
+        mostrarPagina(currentPage);
+
+        if (resultados.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No se encontraron clientes con: " + textoBusqueda,
+                    "No encontrado",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -670,6 +750,8 @@ public class VistaClientes extends javax.swing.JPanel {
 
             btnNuevo1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackgroundHover(new Color(118, 142, 240));
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
+
         } else {
             Color fondo = new Color(242, 247, 255);
             Color texto = Color.BLACK;
@@ -706,6 +788,7 @@ public class VistaClientes extends javax.swing.JPanel {
             tablaclientes.setGridColor(Color.BLACK);
 
             btnNuevo1.setBackground(new Color(46, 49, 82));
+            filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (1).png")));
         }
     }
 
@@ -728,7 +811,7 @@ public class VistaClientes extends javax.swing.JPanel {
         Añadir4 = new rojeru_san.RSButtonRiple();
         rSButtonMaterialRippleIcon1 = new RSMaterialComponent.RSButtonMaterialRippleIcon();
         paginacion = new javax.swing.JLabel();
-        btnNotificacion1 = new rojerusan.RSLabelIcon();
+        filtar = new rojerusan.RSLabelImage();
 
         setPreferredSize(new java.awt.Dimension(1290, 730));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -869,15 +952,19 @@ public class VistaClientes extends javax.swing.JPanel {
         });
         jPanel1.add(paginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 680, -1, -1));
 
-        btnNotificacion1.setBackground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setForeground(new java.awt.Color(255, 255, 255));
-        btnNotificacion1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.TUNE);
-        btnNotificacion1.addMouseListener(new java.awt.event.MouseAdapter() {
+        filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
+        filtar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnNotificacion1MouseClicked(evt);
+                filtarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filtarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filtarMouseExited(evt);
             }
         });
-        jPanel1.add(btnNotificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, -1, -1));
+        jPanel1.add(filtar, new org.netbeans.lib.awtextra.AbsoluteConstraints(547, 63, 35, 35));
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 750));
     }// </editor-fold>//GEN-END:initComponents
@@ -1022,20 +1109,31 @@ public class VistaClientes extends javax.swing.JPanel {
         // TODO add your handling code here: 777777
     }//GEN-LAST:event_paginacionMouseClicked
 
-    private void btnNotificacion1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificacion1MouseClicked
-        // TODO add your handling code here:
-        System.out.println("Clic en btnNotificacion1");
-        inicializarPopupFiltrosAvanzados();
-        popupFiltrosAvanzados.show(btnNotificacion1, evt.getX(), evt.getY());
+    private void filtarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseClicked
+        if (popupFiltrosAvanzados == null) {
+            inicializarPopupFiltrosAvanzados(); // Inicializa el popup si no existe
+        }
 
-    }//GEN-LAST:event_btnNotificacion1MouseClicked
+        // Mostrar el popup debajo del icono de filtro
+        popupFiltrosAvanzados.show(filtar, 0, filtar.getHeight());
+
+
+    }//GEN-LAST:event_filtarMouseClicked
+
+    private void filtarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseEntered
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Mano al pasar
+    }//GEN-LAST:event_filtarMouseEntered
+
+    private void filtarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtarMouseExited
+        setCursor(Cursor.getDefaultCursor()); // Cursor normal al salir
+    }//GEN-LAST:event_filtarMouseExited
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private rojeru_san.RSButtonRiple Añadir4;
     private rojeru_san.RSButtonRiple Añadir5;
-    private rojerusan.RSLabelIcon btnNotificacion1;
     private RSMaterialComponent.RSButtonShape btnNuevo1;
+    private rojerusan.RSLabelImage filtar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel paginacion;
@@ -1158,77 +1256,185 @@ public class VistaClientes extends javax.swing.JPanel {
         System.out.println("Valores únicos - Tipos de Documento: " + tiposDocumento);
     }
 
-    private void inicializarPopupFiltrosAvanzados() {
-        popupFiltrosAvanzados = new JPopupMenu();
-        chkEstados.clear();
-        chkDepartamentos.clear();
-        chkProductos.clear(); // Note: We're repurposing this list for tiposDocumento
+private void inicializarPopupFiltrosAvanzados() {
+    popupFiltrosAvanzados = new JPopupMenu();
+    // Eliminar el borde por defecto del popup
+    popupFiltrosAvanzados.setBorder(BorderFactory.createEmptyBorder());
+    
+    chkEstados.clear();
+    chkDepartamentos.clear();
+    chkMunicipios.clear();
+    chkProductos.clear();
 
-        List<String> estados = new ArrayList<>();
-        List<String> departamentos = new ArrayList<>();
-        List<String> tiposDocumento = new ArrayList<>();
-        obtenerValoresUnicos(estados, departamentos, tiposDocumento);
+    // Obtener valores únicos
+    List<String> estados = new ArrayList<>();
+    List<String> departamentos = new ArrayList<>();
+    List<String> municipios = new ArrayList<>();
+    List<String> tiposDocumento = new ArrayList<>();
+    obtenerValoresUnicos(estados, departamentos, municipios, tiposDocumento);
 
-        System.out.println("Iniciando popup. Estados: " + estados + ", Departamentos: " + departamentos + ", Tipos de Documento: " + tiposDocumento);
+    // Configurar fuente y colores
+    Font fuenteTexto = new Font("Segoe UI", Font.PLAIN, 12);
+    Font fuenteTitulo = new Font("Segoe UI", Font.BOLD, 13);
+    Font fuenteBoton = new Font("Segoe UI", Font.BOLD, 14);
 
-        if (estados.isEmpty() && departamentos.isEmpty() && tiposDocumento.isEmpty()) {
-            popupFiltrosAvanzados.add(new JLabel("No hay filtros disponibles"));
-        } else {
-            // Estados
-            if (!estados.isEmpty()) {
-                popupFiltrosAvanzados.add(new JLabel("Estados:"));
-                for (String estado : estados) {
-                    JCheckBox chkEstado = new JCheckBox(estado);
-                    chkEstados.add(chkEstado);
-                    popupFiltrosAvanzados.add(chkEstado);
-                }
-                popupFiltrosAvanzados.addSeparator();
+    // Panel principal - ahora con BorderLayout para mejor control
+    JPanel panelFiltros = new JPanel(new BorderLayout(5, 5));
+    panelFiltros.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    
+            // Agregar panel para el botón de cerrar (X)
+        JPanel panelCerrar = new JPanel(new BorderLayout());
+        panelCerrar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        RSLabelImage lblCerrar = new RSLabelImage();
+        URL imageUrl = getClass().getResource("/x (8).png");
+        ImageIcon icono = (imageUrl != null) ? new ImageIcon(imageUrl) : new ImageIcon("default_bell.png");
+        lblCerrar.setIcon(icono);
+        lblCerrar.setPreferredSize(new Dimension(16, 16));
+
+        lblCerrar.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        lblCerrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblCerrar.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                popupFiltrosAvanzados.setVisible(false);
             }
 
-            // Departamentos
-            if (!departamentos.isEmpty()) {
-                popupFiltrosAvanzados.add(new JLabel("Departamentos:"));
-                for (String depto : departamentos) {
-                    JCheckBox chkDepto = new JCheckBox(depto);
-                    chkDepartamentos.add(chkDepto);
-                    popupFiltrosAvanzados.add(chkDepto);
-                }
-                popupFiltrosAvanzados.addSeparator();
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                lblCerrar.setForeground(new Color(255, 50, 50)); // Rojo al pasar el ratón
             }
 
-            // Tipos de Documento
-            if (!tiposDocumento.isEmpty()) {
-                popupFiltrosAvanzados.add(new JLabel("Tipos de Documento:"));
-                for (String tipo : tiposDocumento) {
-                    JCheckBox chkTipo = new JCheckBox(tipo);
-                    chkProductos.add(chkTipo); // Reusing chkProductos for tiposDocumento
-                    popupFiltrosAvanzados.add(chkTipo);
-                }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                lblCerrar.setForeground(TemaManager.getInstance().isOscuro() ? Color.WHITE : Color.BLACK);
             }
-        }
-
-        btnAplicarFiltros = new rojeru_san.RSButtonRiple();
-        btnAplicarFiltros.setText("Aplicar");
-        btnAplicarFiltros.setBackground(new Color(46, 49, 82));
-        btnAplicarFiltros.setColorHover(new Color(0, 153, 51));
-        popupFiltrosAvanzados.addSeparator();
-        popupFiltrosAvanzados.add(btnAplicarFiltros);
-
-        // Apply theme to popup
-        boolean oscuro = TemaManager.getInstance().isOscuro();
-        Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
-        Color texto = oscuro ? Color.WHITE : Color.BLACK;
-        popupFiltrosAvanzados.setBackground(fondo);
-        for (Component comp : popupFiltrosAvanzados.getComponents()) {
-            comp.setBackground(fondo);
-            comp.setForeground(texto);
-        }
-
-        btnAplicarFiltros.addActionListener(e -> {
-            aplicarFiltrosAvanzados();
-            popupFiltrosAvanzados.setVisible(false);
         });
+        panelCerrar.add(lblCerrar, BorderLayout.EAST);
+    
+    // Panel de contenido con scroll
+    JPanel contenidoPanel = new JPanel();
+    contenidoPanel.setLayout(new BoxLayout(contenidoPanel, BoxLayout.Y_AXIS));
+    
+    // 1. Sección de Estados
+    JPanel estadoPanel = crearPanelFiltro("Estados", estados, chkEstados, fuenteTitulo, fuenteTexto);
+    contenidoPanel.add(estadoPanel);
+    contenidoPanel.add(Box.createVerticalStrut(10));
+
+    // 2. Sección de Departamentos
+    JPanel deptoPanel = crearPanelFiltro("Departamentos", departamentos, chkDepartamentos, fuenteTitulo, fuenteTexto);
+    contenidoPanel.add(deptoPanel);
+    contenidoPanel.add(Box.createVerticalStrut(10));
+
+    // 3. Sección de Municipios
+    JPanel municipioPanel = crearPanelFiltro("Municipios", municipios, chkMunicipios, fuenteTitulo, fuenteTexto);
+    contenidoPanel.add(municipioPanel);
+    contenidoPanel.add(Box.createVerticalStrut(10));
+
+    // 4. Sección de Tipos de Documento
+    JPanel docPanel = crearPanelFiltro("Tipos de Documento", tiposDocumento, chkProductos, fuenteTitulo, fuenteTexto);
+    contenidoPanel.add(docPanel);
+    contenidoPanel.add(Box.createVerticalStrut(15));
+
+    // Panel de botones (Limpiar y Aplicar)
+    JPanel botonesPanel = new JPanel();
+    botonesPanel.setLayout(new BoxLayout(botonesPanel, BoxLayout.X_AXIS));
+    botonesPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+
+    // Botón Limpiar
+    RSButtonRiple btnLimpiar = crearBotonFiltro("Limpiar", new Color(180, 180, 180), new Color(150, 150, 150), fuenteBoton);
+    btnLimpiar.addActionListener(e -> {
+        limpiarFiltros();
+        popupFiltrosAvanzados.setVisible(false);
+    });
+
+    // Botón Aplicar
+    RSButtonRiple btnAplicar = crearBotonFiltro("Aplicar", new Color(46, 49, 82), new Color(0, 153, 51), fuenteBoton);
+    btnAplicar.addActionListener(e -> {
+        aplicarFiltrosAvanzados();
+        popupFiltrosAvanzados.setVisible(false);
+    });
+
+    botonesPanel.add(Box.createHorizontalGlue());
+    botonesPanel.add(btnLimpiar);
+    botonesPanel.add(Box.createHorizontalStrut(10));
+    botonesPanel.add(btnAplicar);
+    botonesPanel.add(Box.createHorizontalGlue());
+
+   // Añadir todo al panel principal
+    JScrollPane scrollPane = new JScrollPane(contenidoPanel);
+    scrollPane.setBorder(BorderFactory.createEmptyBorder());
+    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    
+    // Agregar panelCerrar (con la "X") en la parte superior (NORTH)
+    panelFiltros.add(panelCerrar, BorderLayout.NORTH);
+    panelFiltros.add(scrollPane, BorderLayout.CENTER);
+    panelFiltros.add(botonesPanel, BorderLayout.SOUTH);
+    
+    // Establecer tamaño preferido (ajusta estos valores según necesites)
+    panelFiltros.setPreferredSize(new Dimension(300, 520));
+    
+    popupFiltrosAvanzados.add(panelFiltros);
+    popupFiltrosAvanzados.pack(); // Esto ajustará el tamaño al contenido
+}
+
+private JPanel crearPanelFiltro(String titulo, List<String> opciones, List<JCheckBox> checkboxes, 
+                               Font fuenteTitulo, Font fuenteTexto) {
+    // Panel principal que contendrá el título y el contenido (con o sin scroll)
+    JPanel panelPrincipal = new JPanel(new BorderLayout());
+    panelPrincipal.setAlignmentX(Component.LEFT_ALIGNMENT);
+    
+    // Título del panel (usando TitledBorder)
+    TitledBorder border = BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(Color.GRAY),
+            titulo,
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            fuenteTitulo,
+            Color.BLACK);
+    panelPrincipal.setBorder(border);
+
+    // Panel interno para los checkboxes
+    JPanel panelCheckboxes = new JPanel();
+    panelCheckboxes.setLayout(new BoxLayout(panelCheckboxes, BoxLayout.Y_AXIS));
+    
+    // Agregar los checkboxes al panel interno
+    for (String opcion : opciones) {
+        JCheckBox chk = new JCheckBox(opcion);
+        chk.setFont(fuenteTexto);
+        chk.setForeground(Color.BLACK);
+        chk.setAlignmentX(Component.LEFT_ALIGNMENT);
+        checkboxes.add(chk);
+        panelCheckboxes.add(chk);
+        panelCheckboxes.add(Box.createVerticalStrut(2));
     }
+
+    // Si hay más de 5 opciones, agregar un JScrollPane
+    if (opciones.size() > 5) {
+        JScrollPane scrollPane = new JScrollPane(panelCheckboxes);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(250, 120)); // Altura fija para mostrar ~5 elementos
+        
+        panelPrincipal.add(scrollPane, BorderLayout.CENTER);
+    } else {
+        panelPrincipal.add(panelCheckboxes, BorderLayout.CENTER);
+    }
+    
+    return panelPrincipal;
+}
+
+// Método auxiliar para crear botones
+private RSButtonRiple crearBotonFiltro(String texto, Color fondo, Color hover, Font fuente) {
+    RSButtonRiple btn = new RSButtonRiple();
+    btn.setText(texto);
+    btn.setBackground(fondo);
+    btn.setColorHover(hover);
+    btn.setPreferredSize(new Dimension(100, 30));
+    btn.setFont(fuente);
+    return btn;
+}
 
     private void aplicarFiltrosAvanzados() {
         List<String> filtrosEstado = new ArrayList<>();
@@ -1245,8 +1451,15 @@ public class VistaClientes extends javax.swing.JPanel {
             }
         }
 
+        List<String> filtrosMunicipio = new ArrayList<>();
+        for (JCheckBox chk : chkMunicipios) {
+            if (chk.isSelected()) {
+                filtrosMunicipio.add(chk.getText());
+            }
+        }
+
         List<String> filtrosTipoDocumento = new ArrayList<>();
-        for (JCheckBox chk : chkProductos) { // Reusing chkProductos for tiposDocumento
+        for (JCheckBox chk : chkProductos) {
             if (chk.isSelected()) {
                 filtrosTipoDocumento.add(chk.getText());
             }
@@ -1263,9 +1476,14 @@ public class VistaClientes extends javax.swing.JPanel {
             filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosEstado) + ")$", 8));
         }
 
-        // Filter by Departamento (column 6, which contains Departamento/Municipio)
+        // Filter by Departamento (column 6)
         if (!filtrosDepartamento.isEmpty()) {
             filtros.add(RowFilter.regexFilter("(?i)^(" + String.join("|", filtrosDepartamento) + ").*", 6));
+        }
+
+        // Filter by Municipio (column 6)
+        if (!filtrosMunicipio.isEmpty()) {
+            filtros.add(RowFilter.regexFilter("(?i).*/(" + String.join("|", filtrosMunicipio) + ")$", 6));
         }
 
         // Filter by Tipo de Documento (column 2)
@@ -1279,4 +1497,58 @@ public class VistaClientes extends javax.swing.JPanel {
             sorter.setRowFilter(null);
         }
     }
+
+    private void obtenerValoresUnicos(List<String> estados, List<String> departamentos,
+            List<String> municipios, List<String> tiposDocumento) {
+        Set<String> estadosSet = new HashSet<>();
+        Set<String> deptosSet = new HashSet<>();
+        Set<String> municipiosSet = new HashSet<>();
+        Set<String> tiposDocSet = new HashSet<>();
+
+        for (Cliente cliente : todasLasClientes) {
+            estadosSet.add(cliente.isActivo() ? "Activo" : "Inactivo");
+            if (cliente.getDepartamento() != null) {
+                deptosSet.add(cliente.getDepartamento());
+            }
+            if (cliente.getMunicipio() != null) {
+                municipiosSet.add(cliente.getMunicipio());
+            }
+            if (cliente.getIdentificacion() != null) {
+                tiposDocSet.add(cliente.getIdentificacion());
+            }
+        }
+
+        estados.addAll(estadosSet);
+        departamentos.addAll(deptosSet);
+        municipios.addAll(municipiosSet);
+        tiposDocumento.addAll(tiposDocSet);
+
+        Collections.sort(estados);
+        Collections.sort(departamentos);
+        Collections.sort(municipios);
+        Collections.sort(tiposDocumento);
+    }
+
+    private void limpiarFiltros() {
+    // Desmarcar todos los checkboxes
+    for (JCheckBox chk : chkEstados) {
+        chk.setSelected(false);
+    }
+    for (JCheckBox chk : chkDepartamentos) {
+        chk.setSelected(false);
+    }
+    for (JCheckBox chk : chkMunicipios) {
+        chk.setSelected(false);
+    }
+    for (JCheckBox chk : chkProductos) {
+        chk.setSelected(false);
+    }
+
+    // Restablecer filtros solo si el sorter existe
+    if (sorter != null) {
+        sorter.setRowFilter(null);
+    }
+    }
+
+
 }
