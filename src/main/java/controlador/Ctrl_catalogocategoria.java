@@ -14,38 +14,27 @@ import modelo.catalogoproducto;
 
 public class Ctrl_catalogocategoria {
 
-    public boolean guardar(Catalogocategoria objeto) {
-        boolean respuesta = false;
-        Connection con = Conexion.getConnection();
+    // En Ctrl_catalogocategoria
+    public boolean guardar(Catalogocategoria categoria) {
+        String sql = "INSERT INTO categoriacatalogo (nombre, imagen) VALUES (?, ?)";
 
-        try {
-            String sql = "INSERT INTO categoriacatalogo (nombre, imagen) VALUES (?, ?)";
-            PreparedStatement consulta = con.prepareStatement(sql);
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            consulta.setString(1, objeto.getNombre());
-            consulta.setBytes(2, objeto.getImagen());
+            ps.setString(1, categoria.getNombre());
+            ps.setBytes(2, categoria.getImagen());
 
-            if (consulta.executeUpdate() > 0) {
-                respuesta = true;
-            }
-
-            consulta.close();
-            con.close();
-
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al guardar categoría: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        return respuesta;
+        return false;
     }
 
     public List<Catalogocategoria> obtenerCategorias() {
         List<Catalogocategoria> lista = new ArrayList<>();
         String sql = "SELECT * FROM categoriacatalogo";
 
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Catalogocategoria categoria = new Catalogocategoria();
@@ -141,10 +130,9 @@ public class Ctrl_catalogocategoria {
         List<catalogoproducto> lista = new ArrayList<>();
         String sql = "SELECT * FROM catalogo_producto WHERE Categoria_idCategoria = ?";
 
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, idCategoria);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     catalogoproducto producto = new catalogoproducto();
@@ -173,6 +161,7 @@ public class Ctrl_catalogocategoria {
 
     /**
      * Verifica si una categoría tiene productos asociados.
+     *
      * @param idCategoria ID de la categoría a verificar
      * @return true si la categoría tiene productos, false en caso contrario
      */
@@ -180,4 +169,24 @@ public class Ctrl_catalogocategoria {
         List<catalogoproducto> productos = obtenerProductosPorCategoria(idCategoria);
         return !productos.isEmpty();
     }
+    // En tu clase Ctrl_catalogocategoria (o similar)
+
+    public boolean existeCategoria(String nombreCategoria) {
+        String sql = "SELECT COUNT(*) FROM categoriacatalogo WHERE nombre = ?";
+
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nombreCategoria);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

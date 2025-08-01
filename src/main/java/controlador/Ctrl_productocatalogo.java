@@ -43,9 +43,7 @@ public class Ctrl_productocatalogo {
     public List<catalogoproducto> listarProductos() {
         List<catalogoproducto> lista = new ArrayList<>();
         String sql = "SELECT * FROM catalogo_producto";
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 catalogoproducto p = new catalogoproducto();
@@ -115,8 +113,7 @@ public class Ctrl_productocatalogo {
     public List<catalogoproducto> obtenerProductosPorCategoria(int idCategoria) {
         List<catalogoproducto> lista = new ArrayList<>();
         String sql = "SELECT * FROM catalogo_producto WHERE Categoria_idCategoria = ?";
-        try (Connection con = Conexion.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, idCategoria);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -143,5 +140,24 @@ public class Ctrl_productocatalogo {
             JOptionPane.showMessageDialog(null, "Error al listar productos por categoría: " + e.getMessage());
         }
         return lista;
+    }
+
+    public boolean existeProducto(String nombreProducto, int idCategoria) {
+        String sql = "SELECT COUNT(*) FROM catalogo_producto WHERE nombre = ? AND Categoria_idCategoria = ?";
+
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nombreProducto);
+            ps.setInt(2, idCategoria);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

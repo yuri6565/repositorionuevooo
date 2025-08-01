@@ -16,7 +16,7 @@ public class DatosActualizados extends javax.swing.JDialog {
     /**
      * Creates new form DatosActualizados
      */
-    public DatosActualizados(Frame parent, boolean modal, String éxito, String datos_guardados_correctamente) {
+    public DatosActualizados(Frame parent, boolean modal, String éxito, String datos_guardados_correctamente, String successiconpng) {
         super(parent, modal);
         initComponents();
     }
@@ -128,11 +128,19 @@ public class DatosActualizados extends javax.swing.JDialog {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DatosActualizados dialog = new DatosActualizados(new javax.swing.JFrame(), true, "\u00c9xito", "Datos guardados correctamente");
+                DatosActualizados dialog = new DatosActualizados(new javax.swing.JFrame(), true, "\u00c9xito", "Datos guardados correctamente", "/success-icon.png");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

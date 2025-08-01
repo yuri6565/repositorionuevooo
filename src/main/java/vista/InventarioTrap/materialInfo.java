@@ -4,6 +4,7 @@
  */
 package vista.InventarioTrap;
 
+import vista.Inventario0.*;
 import controlador.Ctrl_CategoriaMaterial;
 import controlador.Ctrl_MarcaMaterial;
 import controlador.Ctrl_UnidadMaterial;
@@ -47,7 +48,7 @@ public class materialInfo extends javax.swing.JDialog {
         lblDescripcion.setText(material.getDescripcion());
         lblCantidad.setText(String.valueOf(material.getCantidad()));
         lblPrecio.setText(formatter.format(material.getPrecioUnitario())); // Formateado con puntos
-        //lblStockMinimo.setText(String.valueOf(material.getStockMinimo()));
+        lblStockMinimo.setText(String.valueOf(material.getStockMinimo()));
 
         Ctrl_CategoriaMaterial ctrlCategoria = new Ctrl_CategoriaMaterial();
         List<Categoria> categorias = ctrlCategoria.obtenerCategoriasMaterial();
@@ -334,8 +335,6 @@ public class materialInfo extends javax.swing.JDialog {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(materialInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
