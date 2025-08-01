@@ -1,37 +1,32 @@
-
-/*
-
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package modelo;
+
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- *
- * @author Yuri 5
- */
 public class Conexion {
 
-   public static Connection getConnection() {
-      Connection con = null; 
+    public static Connection getConnection() {
+        Connection con = null;
         try {
-        String myBD = "jdbc:mysql://localhost:3306/carpinteriasistema?serverTimezone=UTC";
-         con = DriverManager.getConnection(myBD, "root", ""); 
-         
+            String servidor = "192.168.1.6";
+            String puerto = "3306";
+            String bd = "carpinteriasistema";
+            String usuario = "usercarpinteria";
+            String clave = "joseabel123";
+
+            String url = "jdbc:mysql://" + servidor + ":" + puerto + "/" + bd
+                    + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+
+            con = DriverManager.getConnection(url, usuario, clave);
+
         } catch (SQLException e) {
             System.out.println("Error al conectar: " + e.getMessage());
         }
-        return con; 
-        
+        return con;
     }
 
-   
-   
-   // Encriptar contraseña con SHA-256
     public static String hashSHA256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -46,5 +41,4 @@ public class Conexion {
             return null;
         }
     }
-  
 }
