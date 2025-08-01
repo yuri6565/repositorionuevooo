@@ -557,52 +557,52 @@ public final class ingresos extends javax.swing.JPanel {
         }
 
         // 3. Panel para botones (Limpiar y Aplicar)
-    JPanel botonesPanel = new JPanel();
-    botonesPanel.setLayout(new BoxLayout(botonesPanel, BoxLayout.X_AXIS));
-    botonesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel botonesPanel = new JPanel();
+        botonesPanel.setLayout(new BoxLayout(botonesPanel, BoxLayout.X_AXIS));
+        botonesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    // Botón de limpiar (a la izquierda)
-    RSButtonRiple btnLimpiar = new RSButtonRiple();
-    btnLimpiar.setText("Limpiar");
-    btnLimpiar.setBackground(new Color(180, 180, 180));
-    btnLimpiar.setColorHover(new Color(150, 150, 150));
-    btnLimpiar.setPreferredSize(new Dimension(100, 25));
-    btnLimpiar.setFont(fuenteBoton);
-    btnLimpiar.addActionListener(e -> {
-        // Limpiar selección de estados de pago
-        estadoGroup.clearSelection();
+        // Botón de limpiar (a la izquierda)
+        RSButtonRiple btnLimpiar = new RSButtonRiple();
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBackground(new Color(180, 180, 180));
+        btnLimpiar.setColorHover(new Color(150, 150, 150));
+        btnLimpiar.setPreferredSize(new Dimension(100, 25));
+        btnLimpiar.setFont(fuenteBoton);
+        btnLimpiar.addActionListener(e -> {
+            // Limpiar selección de estados de pago
+            estadoGroup.clearSelection();
 
-        // Desmarcar todos los checkboxes de clientes
-        for (JCheckBox chk : chkClientesItems) {
-            chk.setSelected(false);
-        }
+            // Desmarcar todos los checkboxes de clientes
+            for (JCheckBox chk : chkClientesItems) {
+                chk.setSelected(false);
+            }
 
-        // Aplicar filtro para excluir filas pagadas
-        filtrarFilasPagadas();
-        filtrosMenu.setVisible(false);
-    });
+            // Aplicar filtro para excluir filas pagadas
+            filtrarFilasPagadas();
+            filtrosMenu.setVisible(false);
+        });
 
-    // Agregar botón Limpiar y espacio horizontal
-    botonesPanel.add(btnLimpiar);
-    botonesPanel.add(Box.createHorizontalStrut(10)); // Espacio de 10px entre botones
-    botonesPanel.add(Box.createHorizontalGlue());
+        // Agregar botón Limpiar y espacio horizontal
+        botonesPanel.add(btnLimpiar);
+        botonesPanel.add(Box.createHorizontalStrut(10)); // Espacio de 10px entre botones
+        botonesPanel.add(Box.createHorizontalGlue());
 
-    // Botón de aplicar (a la derecha)
-    RSButtonRiple btnAplicar = new RSButtonRiple();
-    btnAplicar.setText("Aplicar");
-    btnAplicar.setBackground(new Color(46, 49, 82));
-    btnAplicar.setColorHover(new Color(0, 153, 51));
-    btnAplicar.setPreferredSize(new Dimension(100, 25));
-    btnAplicar.setFont(fuenteBoton);
-    btnAplicar.addActionListener(e -> {
-        aplicarFiltrosAvanzados();
-        filtrosMenu.setVisible(false);
-    });
+        // Botón de aplicar (a la derecha)
+        RSButtonRiple btnAplicar = new RSButtonRiple();
+        btnAplicar.setText("Aplicar");
+        btnAplicar.setBackground(new Color(46, 49, 82));
+        btnAplicar.setColorHover(new Color(0, 153, 51));
+        btnAplicar.setPreferredSize(new Dimension(100, 25));
+        btnAplicar.setFont(fuenteBoton);
+        btnAplicar.addActionListener(e -> {
+            aplicarFiltrosAvanzados();
+            filtrosMenu.setVisible(false);
+        });
 
-    botonesPanel.add(btnAplicar);
-    panelFiltros.add(botonesPanel);
+        botonesPanel.add(btnAplicar);
+        panelFiltros.add(botonesPanel);
 
-    filtrosMenu.add(panelFiltros);
+        filtrosMenu.add(panelFiltros);
 
         filtar.addMouseListener(new MouseAdapter() {
             @Override
@@ -911,63 +911,63 @@ public final class ingresos extends javax.swing.JPanel {
         }
     }
 
-   private void manejarImpresion(Ctrl_CajaIngresos.IngresoConDetalles ingreso, int idPedido) {
-    try {
-        Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
-        if (material == null) {
-            JOptionPane.showMessageDialog(this, "No se encontró el pedido para el ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    private void manejarImpresion(Ctrl_CajaIngresos.IngresoConDetalles ingreso, int idPedido) {
+        try {
+            Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
+            if (material == null) {
+                JOptionPane.showMessageDialog(this, "No se encontró el pedido para el ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
+            if (detalles == null || detalles.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No se encontraron detalles para el pedido", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
+                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
+
+            System.out.println("Parámetros para generarPDF:");
+            System.out.println("nombreCliente: " + ingreso.getNombreCliente());
+            System.out.println("codigoCliente: " + ingreso.getCodigoCliente());
+            System.out.println("telefonoCliente: " + ingreso.getTelefonoCliente());
+            System.out.println("direccionCliente: " + ingreso.getDireccionCliente());
+            System.out.println("departamentoCliente: " + ingreso.getDepartamentoCliente());
+            System.out.println("municipioCliente: " + ingreso.getMunicipioCliente());
+            System.out.println("montoTotal: " + df.format(ingreso.getMontoTotal()));
+            System.out.println("archivoSalida: " + archivoSalida);
+            System.out.println("fechaPedido: " + (material.getPedido().getFecha_inicio() != null
+                    ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha"));
+            System.out.println("numPedido: " + material.getPedido().getNum_pedido());
+            System.out.println("pagado: " + df.format(ingreso.getPagado()));
+            System.out.println("debido: " + df.format(ingreso.getDebido()));
+            System.out.println("tablaModel filas: " + crearModeloParaPDF(detalles, ingreso, df, sdf).getRowCount());
+
+            generadorPDF.generarPDF(
+                    ingreso.getNombreCliente(),
+                    ingreso.getCodigoCliente(),
+                    ingreso.getTelefonoCliente(),
+                    ingreso.getDireccionCliente(),
+                    ingreso.getDepartamentoCliente(),
+                    ingreso.getMunicipioCliente(),
+                    crearModeloParaPDF(detalles, ingreso, df, sdf),
+                    df.format(ingreso.getMontoTotal()),
+                    archivoSalida,
+                    material.getPedido().getFecha_inicio() != null
+                    ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha",
+                    material.getPedido().getNum_pedido(),
+                    df.format(ingreso.getPagado()),
+                    df.format(ingreso.getDebido())
+            );
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-
-        List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
-        if (detalles == null || detalles.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No se encontraron detalles para el pedido", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
-        String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
-                + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
-
-        System.out.println("Parámetros para generarPDF:");
-        System.out.println("nombreCliente: " + ingreso.getNombreCliente());
-        System.out.println("codigoCliente: " + ingreso.getCodigoCliente());
-        System.out.println("telefonoCliente: " + ingreso.getTelefonoCliente());
-        System.out.println("direccionCliente: " + ingreso.getDireccionCliente());
-        System.out.println("departamentoCliente: " + ingreso.getDepartamentoCliente());
-        System.out.println("municipioCliente: " + ingreso.getMunicipioCliente());
-        System.out.println("montoTotal: " + df.format(ingreso.getMontoTotal()));
-        System.out.println("archivoSalida: " + archivoSalida);
-        System.out.println("fechaPedido: " + (material.getPedido().getFecha_inicio() != null
-                ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha"));
-        System.out.println("numPedido: " + material.getPedido().getNum_pedido());
-        System.out.println("pagado: " + df.format(ingreso.getPagado()));
-        System.out.println("debido: " + df.format(ingreso.getDebido()));
-        System.out.println("tablaModel filas: " + crearModeloParaPDF(detalles, ingreso, df, sdf).getRowCount());
-
-        generadorPDF.generarPDF(
-                ingreso.getNombreCliente(),
-                ingreso.getCodigoCliente(),
-                ingreso.getTelefonoCliente(),
-                ingreso.getDireccionCliente(),
-                ingreso.getDepartamentoCliente(),
-                ingreso.getMunicipioCliente(),
-                crearModeloParaPDF(detalles, ingreso, df, sdf),
-                df.format(ingreso.getMontoTotal()),
-                archivoSalida,
-                material.getPedido().getFecha_inicio() != null
-                ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha",
-                material.getPedido().getNum_pedido(),
-                df.format(ingreso.getPagado()),
-                df.format(ingreso.getDebido())
-        );
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
     }
-}
 
     private DefaultTableModel crearModeloParaPDF(List<PedidoDetalle> detalles,
             Ctrl_CajaIngresos.IngresoConDetalles ingreso,
@@ -1020,11 +1020,7 @@ public final class ingresos extends javax.swing.JPanel {
 
     }//GEN-LAST:event_filtarMouseClicked
 
-    
-    
-    
-    
-    
+
     private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
 
 // Crear diálogo para seleccionar fechas
@@ -1314,9 +1310,6 @@ public final class ingresos extends javax.swing.JPanel {
         return fechaSeleccionada[0];
     }
 
-    
-
->
     private void filtrarFilasPagadas() {
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
 
