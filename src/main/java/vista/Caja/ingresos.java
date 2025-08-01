@@ -4,6 +4,7 @@
  */
 package vista.Caja;
 
+import com.toedter.calendar.JCalendar;
 import controlador.Ctrl_CajaIngresos;
 import controlador.Ctrl_Pedido;
 import controlador.GeneradorIngresosPDF;
@@ -14,14 +15,17 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -37,8 +42,11 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -74,6 +82,8 @@ import rojeru_san.RSButtonRiple;
  * @author ADSO
  */
 public final class ingresos extends javax.swing.JPanel {
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private JPanel contenedor; // Referencia al contenedor de Principal
     private Ctrl_CajaIngresos controlador;
@@ -901,58 +911,63 @@ public final class ingresos extends javax.swing.JPanel {
         }
     }
 
-    private void manejarImpresion(Ctrl_CajaIngresos.IngresoConDetalles ingreso, int idPedido) {
-        try {
-            Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
-            if (material == null) {
-                JOptionPane.showMessageDialog(this,
-                        "No se encontró el pedido para el ID: " + idPedido,
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
-            if (detalles == null || detalles.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "No se encontraron detalles para el pedido",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Configuración de formato
-            DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
-            // Generar PDF
-            String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
-                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
-
-            generadorPDF.generarPDF(
-                    ingreso.getNombreCliente(),
-                    ingreso.getCodigoCliente(),
-                    ingreso.getTelefonoCliente(),
-                    ingreso.getDireccionCliente(),
-                    ingreso.getDepartamentoCliente(),
-                    ingreso.getMunicipioCliente(),
-                    crearModeloParaPDF(detalles, ingreso, df, sdf),
-                    df.format(ingreso.getMontoTotal()),
-                    archivoSalida,
-                    material.getPedido().getFecha_inicio() != null
-                    ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha",
-                    material.getPedido().getNum_pedido(),
-                    df.format(ingreso.getPagado()),
-                    df.format(ingreso.getDebido())
-            );
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al generar PDF: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+   private void manejarImpresion(Ctrl_CajaIngresos.IngresoConDetalles ingreso, int idPedido) {
+    try {
+        Ctrl_Pedido.MaterialConDetalles material = ctrlPedido.obtenerPedidoPorId(idPedido);
+        if (material == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró el pedido para el ID: " + idPedido, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        List<PedidoDetalle> detalles = ctrlPedido.obtenerDetallesPorPedido(idPedido);
+        if (detalles == null || detalles.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontraron detalles para el pedido", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        String archivoSalida = "ingreso_" + material.getPedido().getNum_pedido() + "_"
+                + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
+
+        System.out.println("Parámetros para generarPDF:");
+        System.out.println("nombreCliente: " + ingreso.getNombreCliente());
+        System.out.println("codigoCliente: " + ingreso.getCodigoCliente());
+        System.out.println("telefonoCliente: " + ingreso.getTelefonoCliente());
+        System.out.println("direccionCliente: " + ingreso.getDireccionCliente());
+        System.out.println("departamentoCliente: " + ingreso.getDepartamentoCliente());
+        System.out.println("municipioCliente: " + ingreso.getMunicipioCliente());
+        System.out.println("montoTotal: " + df.format(ingreso.getMontoTotal()));
+        System.out.println("archivoSalida: " + archivoSalida);
+        System.out.println("fechaPedido: " + (material.getPedido().getFecha_inicio() != null
+                ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha"));
+        System.out.println("numPedido: " + material.getPedido().getNum_pedido());
+        System.out.println("pagado: " + df.format(ingreso.getPagado()));
+        System.out.println("debido: " + df.format(ingreso.getDebido()));
+        System.out.println("tablaModel filas: " + crearModeloParaPDF(detalles, ingreso, df, sdf).getRowCount());
+
+        generadorPDF.generarPDF(
+                ingreso.getNombreCliente(),
+                ingreso.getCodigoCliente(),
+                ingreso.getTelefonoCliente(),
+                ingreso.getDireccionCliente(),
+                ingreso.getDepartamentoCliente(),
+                ingreso.getMunicipioCliente(),
+                crearModeloParaPDF(detalles, ingreso, df, sdf),
+                df.format(ingreso.getMontoTotal()),
+                archivoSalida,
+                material.getPedido().getFecha_inicio() != null
+                ? sdf.format(material.getPedido().getFecha_inicio()) : "Sin fecha",
+                material.getPedido().getNum_pedido(),
+                df.format(ingreso.getPagado()),
+                df.format(ingreso.getDebido())
+        );
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
+}
 
     private DefaultTableModel crearModeloParaPDF(List<PedidoDetalle> detalles,
             Ctrl_CajaIngresos.IngresoConDetalles ingreso,
@@ -1005,10 +1020,303 @@ public final class ingresos extends javax.swing.JPanel {
 
     }//GEN-LAST:event_filtarMouseClicked
 
+    
+    
+    
+    
+    
     private void btnImprimirRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirRegActionPerformed
 
+// Crear diálogo para seleccionar fechas
+        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
+        String[] periodos = {"Última Semana", "Último Mes", "Últimos 6 Meses", "Último Año", "Personalizado"};
+        JComboBox<String> comboPeriodo = new JComboBox<>(periodos);
+        List<Integer> años = obtenerAñosAbonos();
+        JComboBox<Integer> comboAños = new JComboBox<>(años.toArray(new Integer[0]));
+        JButton btnFechaInicio = new JButton("Inicio");
+        JButton btnFechaFin = new JButton("Fin");
+
+        panel.add(comboPeriodo);
+        panel.add(new JPanel());
+        panel.add(comboAños);
+        panel.add(new JPanel());
+        panel.add(btnFechaInicio);
+        panel.add(btnFechaFin);
+
+        comboAños.setVisible(false);
+        btnFechaInicio.setVisible(false);
+        btnFechaFin.setVisible(false);
+
+        final Date[] fechaInicioSeleccionada = {null};
+        final Date[] fechaFinSeleccionada = {null};
+
+        btnFechaInicio.addActionListener(e -> {
+            int añoSeleccionado = (Integer) comboAños.getSelectedItem();
+            fechaInicioSeleccionada[0] = mostrarSelectorFechaPersonalizado(true, añoSeleccionado);
+            if (fechaInicioSeleccionada[0] != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                btnFechaInicio.setText(sdf.format(fechaInicioSeleccionada[0]));
+            }
+        });
+
+        btnFechaFin.addActionListener(e -> {
+            int añoSeleccionado = (Integer) comboAños.getSelectedItem();
+            fechaFinSeleccionada[0] = mostrarSelectorFechaPersonalizado(false, añoSeleccionado);
+            if (fechaFinSeleccionada[0] != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                btnFechaFin.setText(sdf.format(fechaFinSeleccionada[0]));
+            }
+        });
+
+        comboPeriodo.addActionListener(e -> {
+            String periodo = (String) comboPeriodo.getSelectedItem();
+            boolean esPersonalizado = periodo.equals("Personalizado");
+            boolean esAño = periodo.equals("Último Año");
+
+            comboAños.setVisible(esAño || esPersonalizado);
+            btnFechaInicio.setVisible(esPersonalizado);
+            btnFechaFin.setVisible(esPersonalizado);
+
+            if (!esPersonalizado) {
+                btnFechaInicio.setText("Inicio");
+                btnFechaFin.setText("Fin");
+                fechaInicioSeleccionada[0] = null;
+                fechaFinSeleccionada[0] = null;
+            }
+
+            panel.revalidate();
+            panel.repaint();
+        });
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Reporte de Abonos", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            Date startDate = null;
+            Date endDate = new Date();
+            endDate = truncateTime(endDate);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(endDate);
+
+            String periodoSeleccionado = (String) comboPeriodo.getSelectedItem();
+            switch (periodoSeleccionado) {
+                case "Última Semana":
+                    cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                    startDate = truncateTime(cal.getTime());
+                    break;
+                case "Último Mes":
+                    cal.set(Calendar.DAY_OF_MONTH, 1);
+                    startDate = truncateTime(cal.getTime());
+                    break;
+                case "Últimos 6 Meses":
+                    cal.add(Calendar.MONTH, -6);
+                    cal.set(Calendar.DAY_OF_MONTH, 1);
+                    startDate = truncateTime(cal.getTime());
+                    break;
+                case "Último Año":
+                    if (años.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "No hay años disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    int añoSeleccionado = (Integer) comboAños.getSelectedItem();
+                    cal.set(Calendar.YEAR, añoSeleccionado);
+                    cal.set(Calendar.MONTH, Calendar.JANUARY);
+                    cal.set(Calendar.DAY_OF_MONTH, 1);
+                    startDate = truncateTime(cal.getTime());
+                    cal.set(Calendar.MONTH, Calendar.DECEMBER);
+                    cal.set(Calendar.DAY_OF_MONTH, 31);
+                    endDate = truncateTime(cal.getTime());
+                    break;
+                case "Personalizado":
+                    if (años.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "No hay años disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    startDate = fechaInicioSeleccionada[0];
+                    endDate = fechaFinSeleccionada[0];
+                    if (startDate == null || endDate == null) {
+                        JOptionPane.showMessageDialog(this, "Seleccione ambas fechas.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    startDate = truncateTime(startDate);
+                    endDate = truncateTime(endDate);
+                    if (startDate.after(endDate)) {
+                        JOptionPane.showMessageDialog(this, "Fecha inicio debe ser anterior a fecha fin.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    int añoPersonalizado = (Integer) comboAños.getSelectedItem();
+                    cal.setTime(startDate);
+                    if (cal.get(Calendar.YEAR) != añoPersonalizado) {
+                        JOptionPane.showMessageDialog(this, "Fecha inicio fuera del año seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    cal.setTime(endDate);
+                    if (cal.get(Calendar.YEAR) != añoPersonalizado) {
+                        JOptionPane.showMessageDialog(this, "Fecha fin fuera del año seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Período no válido.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+            }
+
+            try {
+                List<Ctrl_CajaIngresos.IngresoConDetalles> ingresos = controlador.obtenerIngresos();
+                if (ingresos == null || ingresos.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No se encontraron ingresos.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                // Crear modelo para el reporte
+                DefaultTableModel model = new DefaultTableModel(
+                        new Object[][]{},
+                        new String[]{"# Pedido", "Cliente", "Fecha Abono", "Monto Abono", "Método Pago"}
+                );
+                double totalMonto = 0.0;
+                SimpleDateFormat sdfTabla = new SimpleDateFormat("dd/MM/yyyy");
+                DecimalFormat df = new DecimalFormat("$#,##0.00", new DecimalFormatSymbols(Locale.US));
+
+                // Filtrar y poblar el modelo en un solo bucle
+                List<Ctrl_CajaIngresos.IngresoConDetalles> ingresosFiltrados = new ArrayList<>();
+                for (Ctrl_CajaIngresos.IngresoConDetalles ingreso : ingresos) {
+                    boolean tieneAbonosEnRango = false;
+                    for (Ingresos abono : ingreso.getAbonos()) {
+                        if (abono.getFechaPago() == null) {
+                            System.err.println("Fecha de abono nula para ingreso: " + ingreso.getNumPedido());
+                            continue;
+                        }
+                        try {
+                            Date fechaAbono = truncateTime(abono.getFechaPago());
+                            if (fechaAbono != null && fechaAbono.compareTo(startDate) >= 0 && fechaAbono.compareTo(endDate) <= 0) {
+                                model.addRow(new Object[]{
+                                    ingreso.getNumPedido(),
+                                    ingreso.getNombreCliente(),
+                                    sdfTabla.format(fechaAbono),
+                                    df.format(abono.getMonto()),
+                                    abono.getMetodoPago()
+                                });
+                                totalMonto += abono.getMonto();
+                                tieneAbonosEnRango = true;
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error al procesar abono para ingreso: " + ingreso.getNumPedido() + ", Fecha: " + abono.getFechaPago() + ", Mensaje: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    if (tieneAbonosEnRango) {
+                        ingresosFiltrados.add(ingreso);
+                    }
+                }
+
+                if (model.getRowCount() == 0) {
+                    JOptionPane.showMessageDialog(this, "No se encontraron abonos válidos para el período seleccionado.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                // Generar PDF consolidado
+                String archivoSalida = "reporte_abonos_" + System.currentTimeMillis() + ".pdf";
+                try {
+                    SimpleDateFormat sdfPDF = new SimpleDateFormat("yyyy-MM-dd");
+                    if (startDate == null || endDate == null) {
+                        JOptionPane.showMessageDialog(this, "Error: Fechas de inicio o fin no válidas.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    String fechaInicioStr = sdfPDF.format(startDate);
+                    String fechaFinStr = sdfPDF.format(endDate);
+                    generadorPDF.generarReporteConsolidado(model, fechaInicioStr, fechaFinStr, df.format(totalMonto), archivoSalida);
+                    JOptionPane.showMessageDialog(this, "Reporte generado exitosamente: " + archivoSalida, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al procesar ingresos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_btnImprimirRegActionPerformed
 
+    private Date truncateTime(Date date) {
+        if (date == null) {
+            System.err.println("Fecha nula recibida en truncateTime");
+            return null;
+        }
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = sdf.format(date);
+            return sdf.parse(formattedDate);
+        } catch (Exception e) {
+            System.err.println("Error al truncar fecha: " + date + ", Formato intentado: yyyy-MM-dd, Mensaje: " + e.getMessage());
+            e.printStackTrace();
+            return date;
+        }
+    }
+
+    private List<Integer> obtenerAñosAbonos() {
+        List<Ctrl_CajaIngresos.IngresoConDetalles> ingresos = controlador.obtenerIngresos();
+        Set<Integer> años = new TreeSet<>();
+
+        if (ingresos != null && !ingresos.isEmpty()) {
+            for (Ctrl_CajaIngresos.IngresoConDetalles ingreso : ingresos) {
+                for (Ingresos abono : ingreso.getAbonos()) {
+                    if (abono.getFechaPago() != null) {
+                        try {
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(abono.getFechaPago());
+                            años.add(cal.get(Calendar.YEAR));
+                        } catch (Exception e) {
+                            System.err.println("Error al parsear fecha de abono: " + abono.getFechaPago() + " - " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (años.isEmpty()) {
+            años.add(Calendar.getInstance().get(Calendar.YEAR));
+        }
+        return new ArrayList<>(años);
+    }
+
+    private Date mostrarSelectorFechaPersonalizado(boolean esDesde, int añoSeleccionado) {
+        JDialog fechaDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Seleccionar Fecha " + (esDesde ? "Inicio" : "Fin"), true);
+        fechaDialog.setSize(250, 250);
+        fechaDialog.setLayout(new BorderLayout());
+        fechaDialog.setLocationRelativeTo(this);
+
+        JCalendar calendar = new JCalendar();
+        calendar.setWeekOfYearVisible(false);
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, añoSeleccionado);
+        cal.set(Calendar.MONTH, Calendar.JANUARY);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        Date minDate = truncateTime(cal.getTime());
+        cal.set(Calendar.MONTH, Calendar.DECEMBER);
+        cal.set(Calendar.DAY_OF_MONTH, 31);
+        Date maxDate = truncateTime(cal.getTime());
+        calendar.setMinSelectableDate(minDate);
+        calendar.setMaxSelectableDate(maxDate);
+
+        final Date[] fechaSeleccionada = {null};
+
+        JButton btnAceptar = new JButton("Aceptar");
+        btnAceptar.addActionListener(e -> {
+            fechaSeleccionada[0] = calendar.getDate();
+            fechaDialog.dispose();
+        });
+
+        fechaDialog.add(calendar, BorderLayout.CENTER);
+        fechaDialog.add(btnAceptar, BorderLayout.SOUTH);
+        fechaDialog.setVisible(true);
+
+        return fechaSeleccionada[0];
+    }
+
+    
+
+>
     private void filtrarFilasPagadas() {
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) Tabla1.getRowSorter();
 

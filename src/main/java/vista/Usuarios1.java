@@ -230,6 +230,7 @@ public class Usuarios1 extends javax.swing.JPanel {
 // In ButtonPanelRenderer
     class ButtonPanelRenderer extends JPanel implements TableCellRenderer {
 
+
         private RSLabelIcon editIcon;
         private RSLabelIcon deleteIcon;
 
@@ -257,6 +258,7 @@ public class Usuarios1 extends javax.swing.JPanel {
         private void updateTheme() {
             boolean oscuro = TemaManager.getInstance().isOscuro();
             Color fondo = oscuro ? new Color(21, 21, 33) : Color.WHITE;
+
 
             setBackground(fondo);
             editIcon.setBackground(oscuro ? new Color(67, 71, 120) : new Color(46, 49, 82));
@@ -347,6 +349,7 @@ public class Usuarios1 extends javax.swing.JPanel {
                             } else {
                                 JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario.");
                             }
+
                         }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(Usuarios1.this, "Error al eliminar el usuario: " + ex.getMessage());
@@ -367,6 +370,7 @@ public class Usuarios1 extends javax.swing.JPanel {
             editIcon.setForeground(Color.GREEN); // Green for edit icon
             deleteIcon.setForeground(Color.RED); // Red for delete icon
         }
+
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
@@ -438,6 +442,7 @@ public class Usuarios1 extends javax.swing.JPanel {
             rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(67, 71, 120));
             rSButtonMaterialRippleIcon1.setForegroundText(new Color(67, 71, 120));
             rSButtonMaterialRippleIcon1.setBackground(new Color(67, 71, 120));
+
             btnNuevo1.setBackground(new Color(67, 71, 120));
             btnNuevo1.setBackgroundHover(new Color(118, 142, 240));
             filtar.setIcon(new ImageIcon(getClass().getResource("/filtrar (2).png")));
@@ -450,6 +455,7 @@ public class Usuarios1 extends javax.swing.JPanel {
             rSButtonMaterialRippleIcon1.setBackground(new Color(247, 247, 255));
             rSButtonMaterialRippleIcon1.setForegroundHover(new Color(21, 21, 33));
             rSButtonMaterialRippleIcon1.setForegroundIconHover(new Color(21, 21, 33));
+
             jPanel1.setBackground(fondo);
             txtBuscar.setBackground(fondo);
             txtBuscar.setForeground(texto);
@@ -719,20 +725,19 @@ public class Usuarios1 extends javax.swing.JPanel {
         rSCheckBox1.setColorUnCheck(new java.awt.Color(204, 153, 0));
         jPanel1.add(rSCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 670, 190, 20));
 
-        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(102, 102, 102));
-        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(253, 126, 20));
-        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(242, 247, 255));
-        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundIcon(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(255, 51, 51));
-        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(255, 51, 51));
+        rSButtonMaterialRippleIcon1.setBackground(new java.awt.Color(204, 255, 51));
+        rSButtonMaterialRippleIcon1.setForeground(new java.awt.Color(204, 255, 0));
+        rSButtonMaterialRippleIcon1.setBackgroundHover(new java.awt.Color(102, 255, 102));
+        rSButtonMaterialRippleIcon1.setForegroundHover(new java.awt.Color(204, 255, 204));
+        rSButtonMaterialRippleIcon1.setForegroundIconHover(new java.awt.Color(255, 51, 153));
+        rSButtonMaterialRippleIcon1.setForegroundText(new java.awt.Color(51, 0, 255));
         rSButtonMaterialRippleIcon1.setIcons(rojeru_san.efectos.ValoresEnum.ICONS.DELETE);
         rSButtonMaterialRippleIcon1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rSButtonMaterialRippleIcon1ActionPerformed(evt);
             }
         });
-        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 680, 40, 40));
+        jPanel1.add(rSButtonMaterialRippleIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 680, 40, 40));
 
         Añadir5.setBackground(new java.awt.Color(46, 49, 82));
         Añadir5.setText("Anterior");
@@ -754,7 +759,7 @@ public class Usuarios1 extends javax.swing.JPanel {
                 Añadir4ActionPerformed(evt);
             }
         });
-        jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 98, 40));
+        jPanel1.add(Añadir4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 680, 100, 40));
 
         filtar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filtrar (1).png"))); // NOI18N
         filtar.addMouseListener(new java.awt.event.MouseAdapter() {
